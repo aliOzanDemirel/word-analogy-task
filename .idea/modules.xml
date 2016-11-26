@@ -2,7 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-
+      <module fileurl="file://$PROJECT_DIR$/dl4j-examples/dl4j-examples.iml" filepath="$PROJECT_DIR$/dl4j-examples/dl4j-examples.iml" />
+      <module fileurl="file://$PROJECT_DIR$/wat-workspace/wat-workspace.iml" filepath="$PROJECT_DIR$/wat-workspace/wat-workspace.iml" />
+      <module fileurl="file://$PROJECT_DIR$/word-analogy.iml" filepath="$PROJECT_DIR$/word-analogy.iml" />
       <module fileurl="file://$PROJECT_DIR$/word-analogy-task.iml" filepath="$PROJECT_DIR$/word-analogy-task.iml" />
     </modules>
   </component>
