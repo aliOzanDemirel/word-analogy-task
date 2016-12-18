@@ -9,8 +9,10 @@
 
     <parent>
         <groupId>ceng.thesis.wat</groupId>
-        <artifactId>word-analogy</artifactId>
+        <artifactId>wordAnalogyTask</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
+
+    <name>wordAnalogyTask</name>
 
 </project>
