@@ -98,3 +98,1043 @@ Writing word vectors to text file....
                 
 Wrote 12879 with size of 100
 
+2016-12-24 19:25:03,045 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Load & Vectorize Sentences....
+
+2016-12-24 19:25:03,062 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Building model....
+
+2016-12-24 19:25:03,247 - [INFO] - from org.nd4j.nativeblas.NativeOps in main
+                
+Number of threads used for NativeOps: 4
+
+2016-12-24 19:25:03,356 - [INFO] - from org.nd4j.nativeblas.Nd4jBlas in main
+                
+Number of threads used for BLAS: 4
+
+2016-12-24 19:25:03,917 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Fitting Word2Vec model....
+
+2016-12-24 19:25:03,952 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Starting vocabulary building...
+
+2016-12-24 19:25:05,146 - [INFO] - from org.deeplearning4j.models.word2vec.wordstore.VocabConstructor in main
+                
+Sequences checked: [100000]; Current vocabulary size: [34966]; Sequences/sec: 90909.09; Words/sec: 807852.73;
+
+2016-12-24 19:25:05,723 - [INFO] - from org.deeplearning4j.models.word2vec.wordstore.VocabConstructor in main
+                
+Sequences checked: [200000]; Current vocabulary size: [39218]; Sequences/sec: 149031.30; Words/sec: 1005919.52;
+
+2016-12-24 19:25:05,982 - [INFO] - from org.deeplearning4j.models.word2vec.wordstore.VocabConstructor in main
+                
+Sequences checked: [230525], Current vocabulary size: [12879]; Sequences/sec: [113559.11];
+
+2016-12-24 19:25:06,032 - [INFO] - from org.deeplearning4j.models.embeddings.inmemory.InMemoryLookupTable in main
+                
+Initializing syn1...
+
+2016-12-24 19:25:06,034 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Building learning algorithms:
+
+2016-12-24 19:25:06,034 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+          building ElementsLearningAlgorithm: [SkipGram]
+
+2016-12-24 19:25:06,038 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Starting learning process...
+
+2016-12-24 19:25:15,400 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in VectorCalculationsThread 3
+                
+Epoch: [1]; Words vectorized so far: [1056380];  Lines vectorized so far: [100002]; learningRate: [0.009650836365327166]
+
+2016-12-24 19:25:18,897 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in VectorCalculationsThread 6
+                
+Epoch: [1]; Words vectorized so far: [1702605];  Lines vectorized so far: [200002]; learningRate: [2.6118253571553177E-4]
+
+2016-12-24 19:25:18,999 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Epoch: [1]; Words vectorized so far: [1720540];  Lines vectorized so far: [202732]; learningRate: [1.0E-4]
+
+2016-12-24 19:25:19,000 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Time spent on training: 12962 ms
+
+2016-12-24 19:25:19,000 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Writing word vectors to text file....
+
+2016-12-24 19:25:20,778 - [INFO] - from org.deeplearning4j.models.embeddings.loader.WordVectorSerializer in main
+                
+Wrote 12879 with size of 100
+
+2016-12-25 21:17:23,626 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecUptrainingExample in main
+                
+Load & Vectorize Sentences....
+
+2016-12-25 21:17:23,860 - [INFO] - from org.nd4j.nativeblas.NativeOps in main
+                
+Number of threads used for NativeOps: 4
+
+2016-12-25 21:17:23,949 - [INFO] - from org.nd4j.nativeblas.Nd4jBlas in main
+                
+Number of threads used for BLAS: 4
+
+2016-12-25 21:17:24,496 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecUptrainingExample in main
+                
+Building model....
+
+2016-12-25 21:17:24,527 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecUptrainingExample in main
+                
+Fitting Word2Vec model....
+
+2016-12-25 21:17:24,559 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Starting vocabulary building...
+
+2016-12-25 21:17:25,396 - [INFO] - from org.deeplearning4j.models.word2vec.wordstore.VocabConstructor in main
+                
+Sequences checked: [97162], Current vocabulary size: [242]; Sequences/sec: [116501.20];
+
+2016-12-25 21:17:25,440 - [INFO] - from org.deeplearning4j.models.embeddings.inmemory.InMemoryLookupTable in main
+                
+Initializing syn1...
+
+2016-12-25 21:17:25,441 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Building learning algorithms:
+
+2016-12-25 21:17:25,441 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+          building ElementsLearningAlgorithm: [SkipGram]
+
+2016-12-25 21:17:25,444 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Starting learning process...
+
+2016-12-25 21:17:31,368 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Epoch: [1]; Words vectorized so far: [634303];  Lines vectorized so far: [97162]; learningRate: [1.0E-4]
+
+2016-12-25 21:17:31,368 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Time spent on training: 5924 ms
+
+2016-12-25 21:17:31,571 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecUptrainingExample in main
+                
+Closest words to 'day' on 1st run: [night, week, year, game, season, time, office, group, director, set]
+
+2016-12-25 21:17:32,075 - [INFO] - from org.deeplearning4j.models.embeddings.loader.WordVectorSerializer in main
+                
+Word2Vec conf. JSON: {"allowParallelTokenization":true,"batchSize":512,"elementsLearningAlgorithm":null,"epochs":1,"hugeModelExpected":false,"iterations":1,"layersSize":100,"learningRate":0.025,"learningRateDecayWords":0,"minLearningRate":1.0E-4,"minWordFrequency":5,"modelUtils":"org.deeplearning4j.models.embeddings.reader.impl.BasicModelUtils","negative":0.0,"preciseWeightInit":false,"sampling":0.0,"scavengerActivationThreshold":2000000,"scavengerRetentionDelay":3,"seed":42,"sequenceLearningAlgorithm":null,"stop":"STOP","stopList":[],"trainElementsVectors":true,"unk":"UNK","useAdaGrad":false,"useHierarchicSoftmax":true,"variableWindows":null,"vocabSize":242,"window":5}
+
+2016-12-25 21:17:32,287 - [INFO] - from org.deeplearning4j.models.embeddings.inmemory.InMemoryLookupTable in main
+                
+Initializing syn1...
+
+2016-12-25 21:17:32,387 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecUptrainingExample in main
+                
+Word2vec uptraining...
+
+2016-12-25 21:17:32,441 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Building learning algorithms:
+
+2016-12-25 21:17:32,442 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+          building ElementsLearningAlgorithm: [SkipGram]
+
+2016-12-25 21:17:32,442 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Starting learning process...
+
+2016-12-25 21:17:35,916 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Epoch: [1]; Words vectorized so far: [634303];  Lines vectorized so far: [97162]; learningRate: [1.0E-4]
+
+2016-12-25 21:17:35,917 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Time spent on training: 3475 ms
+
+2016-12-25 21:17:35,921 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecUptrainingExample in main
+                
+Closest words to 'day' on 2nd run: [week, night, game, year, season, office, group, time, director, while]
+
+2016-12-25 21:17:48,096 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Load & Vectorize Sentences....
+
+2016-12-25 21:17:48,107 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Building model....
+
+2016-12-25 21:17:48,277 - [INFO] - from org.nd4j.nativeblas.NativeOps in main
+                
+Number of threads used for NativeOps: 4
+
+2016-12-25 21:17:48,385 - [INFO] - from org.nd4j.nativeblas.Nd4jBlas in main
+                
+Number of threads used for BLAS: 4
+
+2016-12-25 21:17:48,947 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Fitting Word2Vec model....
+
+2016-12-25 21:17:48,983 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Starting vocabulary building...
+
+2016-12-25 21:17:50,136 - [INFO] - from org.deeplearning4j.models.word2vec.wordstore.VocabConstructor in main
+                
+Sequences checked: [100000]; Current vocabulary size: [34966]; Sequences/sec: 86956.52; Words/sec: 772728.70;
+
+2016-12-25 21:17:50,629 - [INFO] - from org.deeplearning4j.models.word2vec.wordstore.VocabConstructor in main
+                
+Sequences checked: [200000]; Current vocabulary size: [39218]; Sequences/sec: 202020.20; Words/sec: 1363579.80;
+
+2016-12-25 21:17:50,951 - [INFO] - from org.deeplearning4j.models.word2vec.wordstore.VocabConstructor in main
+                
+Sequences checked: [230525], Current vocabulary size: [12879]; Sequences/sec: [117196.24];
+
+2016-12-25 21:17:50,996 - [INFO] - from org.deeplearning4j.models.embeddings.inmemory.InMemoryLookupTable in main
+                
+Initializing syn1...
+
+2016-12-25 21:17:50,998 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Building learning algorithms:
+
+2016-12-25 21:17:50,998 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+          building ElementsLearningAlgorithm: [SkipGram]
+
+2016-12-25 21:17:51,002 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Starting learning process...
+
+2016-12-25 21:18:00,670 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in VectorCalculationsThread 6
+                
+Epoch: [1]; Words vectorized so far: [1060186];  Lines vectorized so far: [100002]; learningRate: [0.009595417717693283]
+
+2016-12-25 21:18:04,227 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in VectorCalculationsThread 7
+                
+Epoch: [1]; Words vectorized so far: [1702641];  Lines vectorized so far: [200008]; learningRate: [2.6106629314052445E-4]
+
+2016-12-25 21:18:04,330 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Epoch: [1]; Words vectorized so far: [1720540];  Lines vectorized so far: [202732]; learningRate: [1.0E-4]
+
+2016-12-25 21:18:04,331 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Time spent on training: 13329 ms
+
+2016-12-25 21:18:04,331 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Writing word vectors to text file....
+
+2016-12-25 21:18:06,093 - [INFO] - from org.deeplearning4j.models.embeddings.loader.WordVectorSerializer in main
+                
+Wrote 12879 with size of 100
+
+2016-12-25 21:21:41,319 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Load & Vectorize Sentences....
+
+2016-12-25 21:21:41,333 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Building model....
+
+2016-12-25 21:21:41,519 - [INFO] - from org.nd4j.nativeblas.NativeOps in main
+                
+Number of threads used for NativeOps: 4
+
+2016-12-25 21:21:41,610 - [INFO] - from org.nd4j.nativeblas.Nd4jBlas in main
+                
+Number of threads used for BLAS: 4
+
+2016-12-25 21:21:42,270 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Fitting Word2Vec model....
+
+2016-12-25 21:21:42,300 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Starting vocabulary building...
+
+2016-12-25 21:21:43,476 - [INFO] - from org.deeplearning4j.models.word2vec.wordstore.VocabConstructor in main
+                
+Sequences checked: [100000]; Current vocabulary size: [34965]; Sequences/sec: 85251.49; Words/sec: 757577.15;
+
+2016-12-25 21:21:44,008 - [INFO] - from org.deeplearning4j.models.word2vec.wordstore.VocabConstructor in main
+                
+Sequences checked: [200000]; Current vocabulary size: [39218]; Sequences/sec: 187265.92; Words/sec: 1263992.51;
+
+2016-12-25 21:21:44,260 - [INFO] - from org.deeplearning4j.models.word2vec.wordstore.VocabConstructor in main
+                
+Sequences checked: [230525], Current vocabulary size: [12879]; Sequences/sec: [117614.80];
+
+2016-12-25 21:21:44,310 - [INFO] - from org.deeplearning4j.models.embeddings.inmemory.InMemoryLookupTable in main
+                
+Initializing syn1...
+
+2016-12-25 21:21:44,311 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Building learning algorithms:
+
+2016-12-25 21:21:44,312 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+          building ElementsLearningAlgorithm: [SkipGram]
+
+2016-12-25 21:21:44,315 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Starting learning process...
+
+2016-12-25 21:21:55,325 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in VectorCalculationsThread 7
+                
+Epoch: [1]; Words vectorized so far: [1058583];  Lines vectorized so far: [100000]; learningRate: [0.009618462808188129]
+
+2016-12-25 21:21:59,234 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in VectorCalculationsThread 4
+                
+Epoch: [1]; Words vectorized so far: [1702684];  Lines vectorized so far: [200000]; learningRate: [2.637979936531559E-4]
+
+2016-12-25 21:21:59,346 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Epoch: [1]; Words vectorized so far: [1720540];  Lines vectorized so far: [202732]; learningRate: [1.0E-4]
+
+2016-12-25 21:21:59,346 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Time spent on training: 15030 ms
+
+2016-12-25 21:21:59,346 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Writing word vectors to text file....
+
+2016-12-25 21:22:01,092 - [INFO] - from org.deeplearning4j.models.embeddings.loader.WordVectorSerializer in main
+                
+Wrote 12879 with size of 100
+
+2016-12-25 21:22:38,075 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Load & Vectorize Sentences....
+
+2016-12-25 21:22:38,091 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Building model....
+
+2016-12-25 21:22:38,282 - [INFO] - from org.nd4j.nativeblas.NativeOps in main
+                
+Number of threads used for NativeOps: 4
+
+2016-12-25 21:22:38,383 - [INFO] - from org.nd4j.nativeblas.Nd4jBlas in main
+                
+Number of threads used for BLAS: 4
+
+2016-12-25 21:22:38,940 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Fitting Word2Vec model....
+
+2016-12-25 21:22:38,970 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Starting vocabulary building...
+
+2016-12-25 21:22:40,090 - [INFO] - from org.deeplearning4j.models.word2vec.wordstore.VocabConstructor in main
+                
+Sequences checked: [100000]; Current vocabulary size: [34966]; Sequences/sec: 89686.10; Words/sec: 796984.75;
+
+2016-12-25 21:22:40,624 - [INFO] - from org.deeplearning4j.models.word2vec.wordstore.VocabConstructor in main
+                
+Sequences checked: [200000]; Current vocabulary size: [39218]; Sequences/sec: 185873.61; Words/sec: 1254594.80;
+
+2016-12-25 21:22:40,948 - [INFO] - from org.deeplearning4j.models.word2vec.wordstore.VocabConstructor in main
+                
+Sequences checked: [230525], Current vocabulary size: [12879]; Sequences/sec: [116603.44];
+
+2016-12-25 21:22:41,010 - [INFO] - from org.deeplearning4j.models.embeddings.inmemory.InMemoryLookupTable in main
+                
+Initializing syn1...
+
+2016-12-25 21:22:41,012 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Building learning algorithms:
+
+2016-12-25 21:22:41,013 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+          building ElementsLearningAlgorithm: [SkipGram]
+
+2016-12-25 21:22:41,017 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Starting learning process...
+
+2016-12-25 21:22:51,249 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in VectorCalculationsThread 4
+                
+Epoch: [1]; Words vectorized so far: [1060396];  Lines vectorized so far: [100268]; learningRate: [0.009595897218315181]
+
+2016-12-25 21:22:55,178 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in VectorCalculationsThread 1
+                
+Epoch: [1]; Words vectorized so far: [1702703];  Lines vectorized so far: [200005]; learningRate: [2.597440338498375E-4]
+
+2016-12-25 21:22:55,328 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Epoch: [1]; Words vectorized so far: [1720540];  Lines vectorized so far: [202732]; learningRate: [1.0E-4]
+
+2016-12-25 21:22:55,328 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Time spent on training: 14311 ms
+
+2016-12-25 21:22:55,328 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Writing word vectors to text file....
+
+2016-12-25 21:22:57,082 - [INFO] - from org.deeplearning4j.models.embeddings.loader.WordVectorSerializer in main
+                
+Wrote 12879 with size of 100
+
+2016-12-25 21:23:19,225 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Load & Vectorize Sentences....
+
+2016-12-25 21:23:19,238 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Building model....
+
+2016-12-25 21:23:19,434 - [INFO] - from org.nd4j.nativeblas.NativeOps in main
+                
+Number of threads used for NativeOps: 4
+
+2016-12-25 21:23:19,541 - [INFO] - from org.nd4j.nativeblas.Nd4jBlas in main
+                
+Number of threads used for BLAS: 4
+
+2016-12-25 21:23:20,243 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Fitting Word2Vec model....
+
+2016-12-25 21:23:20,286 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Starting vocabulary building...
+
+2016-12-25 21:23:21,791 - [INFO] - from org.deeplearning4j.models.word2vec.wordstore.VocabConstructor in main
+                
+Sequences checked: [100000]; Current vocabulary size: [34966]; Sequences/sec: 66577.90; Words/sec: 591636.48;
+
+2016-12-25 21:23:22,513 - [INFO] - from org.deeplearning4j.models.word2vec.wordstore.VocabConstructor in main
+                
+Sequences checked: [200000]; Current vocabulary size: [39218]; Sequences/sec: 138121.55; Words/sec: 932281.77;
+
+2016-12-25 21:23:22,821 - [INFO] - from org.deeplearning4j.models.word2vec.wordstore.VocabConstructor in main
+                
+Sequences checked: [230525], Current vocabulary size: [12879]; Sequences/sec: [90936.88];
+
+2016-12-25 21:23:22,907 - [INFO] - from org.deeplearning4j.models.embeddings.inmemory.InMemoryLookupTable in main
+                
+Initializing syn1...
+
+2016-12-25 21:23:22,910 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Building learning algorithms:
+
+2016-12-25 21:23:22,910 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+          building ElementsLearningAlgorithm: [SkipGram]
+
+2016-12-25 21:23:22,916 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Starting learning process...
+
+2016-12-25 21:23:34,441 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in VectorCalculationsThread 5
+                
+Epoch: [1]; Words vectorized so far: [1058939];  Lines vectorized so far: [100004]; learningRate: [0.009613449847141015]
+
+2016-12-25 21:23:37,999 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in VectorCalculationsThread 2
+                
+Epoch: [1]; Words vectorized so far: [1702666];  Lines vectorized so far: [200004]; learningRate: [2.600782312529776E-4]
+
+2016-12-25 21:23:38,109 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Epoch: [1]; Words vectorized so far: [1720540];  Lines vectorized so far: [202732]; learningRate: [1.0E-4]
+
+2016-12-25 21:23:38,109 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Time spent on training: 15193 ms
+
+2016-12-25 21:23:38,109 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Writing word vectors to text file....
+
+2016-12-25 21:23:39,942 - [INFO] - from org.deeplearning4j.models.embeddings.loader.WordVectorSerializer in main
+                
+Wrote 12879 with size of 100
+
+2016-12-25 21:26:04,654 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Load & Vectorize Sentences....
+
+2016-12-25 21:26:04,665 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Building model....
+
+2016-12-25 21:26:04,825 - [INFO] - from org.nd4j.nativeblas.NativeOps in main
+                
+Number of threads used for NativeOps: 4
+
+2016-12-25 21:26:04,933 - [INFO] - from org.nd4j.nativeblas.Nd4jBlas in main
+                
+Number of threads used for BLAS: 4
+
+2016-12-25 21:26:05,511 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Fitting Word2Vec model....
+
+2016-12-25 21:26:05,542 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Starting vocabulary building...
+
+2016-12-25 21:26:06,752 - [INFO] - from org.deeplearning4j.models.word2vec.wordstore.VocabConstructor in main
+                
+Sequences checked: [100000]; Current vocabulary size: [34966]; Sequences/sec: 82850.04; Words/sec: 736236.95;
+
+2016-12-25 21:26:07,236 - [INFO] - from org.deeplearning4j.models.word2vec.wordstore.VocabConstructor in main
+                
+Sequences checked: [200000]; Current vocabulary size: [39218]; Sequences/sec: 205338.81; Words/sec: 1385979.47;
+
+2016-12-25 21:26:07,536 - [INFO] - from org.deeplearning4j.models.word2vec.wordstore.VocabConstructor in main
+                
+Sequences checked: [230525], Current vocabulary size: [12879]; Sequences/sec: [115667.34];
+
+2016-12-25 21:26:07,584 - [INFO] - from org.deeplearning4j.models.embeddings.inmemory.InMemoryLookupTable in main
+                
+Initializing syn1...
+
+2016-12-25 21:26:07,585 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Building learning algorithms:
+
+2016-12-25 21:26:07,586 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+          building ElementsLearningAlgorithm: [SkipGram]
+
+2016-12-25 21:26:07,589 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Starting learning process...
+
+2016-12-25 21:26:17,093 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in VectorCalculationsThread 3
+                
+Epoch: [1]; Words vectorized so far: [1050027];  Lines vectorized so far: [100001]; learningRate: [0.009742973136340916]
+
+2016-12-25 21:26:20,606 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in VectorCalculationsThread 4
+                
+Epoch: [1]; Words vectorized so far: [1702647];  Lines vectorized so far: [200002]; learningRate: [2.601799435061086E-4]
+
+2016-12-25 21:26:20,702 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Epoch: [1]; Words vectorized so far: [1720540];  Lines vectorized so far: [202732]; learningRate: [1.0E-4]
+
+2016-12-25 21:26:20,702 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Time spent on training: 13113 ms
+
+2016-12-25 21:26:20,703 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Writing word vectors to text file....
+
+2016-12-25 21:26:22,490 - [INFO] - from org.deeplearning4j.models.embeddings.loader.WordVectorSerializer in main
+                
+Wrote 12879 with size of 100
+
+2016-12-25 21:27:22,331 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Load & Vectorize Sentences....
+
+2016-12-25 21:27:22,342 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Building model....
+
+2016-12-25 21:27:22,501 - [INFO] - from org.nd4j.nativeblas.NativeOps in main
+                
+Number of threads used for NativeOps: 4
+
+2016-12-25 21:27:22,545 - [INFO] - from org.nd4j.nativeblas.Nd4jBlas in main
+                
+Number of threads used for BLAS: 4
+
+2016-12-25 21:27:23,175 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Fitting Word2Vec model....
+
+2016-12-25 21:27:23,210 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Starting vocabulary building...
+
+2016-12-25 21:27:24,381 - [INFO] - from org.deeplearning4j.models.word2vec.wordstore.VocabConstructor in main
+                
+Sequences checked: [100000]; Current vocabulary size: [34966]; Sequences/sec: 85616.44; Words/sec: 760820.21;
+
+2016-12-25 21:27:24,887 - [INFO] - from org.deeplearning4j.models.word2vec.wordstore.VocabConstructor in main
+                
+Sequences checked: [200000]; Current vocabulary size: [39218]; Sequences/sec: 196850.39; Words/sec: 1328685.04;
+
+2016-12-25 21:27:25,131 - [INFO] - from org.deeplearning4j.models.word2vec.wordstore.VocabConstructor in main
+                
+Sequences checked: [230525], Current vocabulary size: [12879]; Sequences/sec: [120065.10];
+
+2016-12-25 21:27:25,179 - [INFO] - from org.deeplearning4j.models.embeddings.inmemory.InMemoryLookupTable in main
+                
+Initializing syn1...
+
+2016-12-25 21:27:25,181 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Building learning algorithms:
+
+2016-12-25 21:27:25,181 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+          building ElementsLearningAlgorithm: [SkipGram]
+
+2016-12-25 21:27:25,185 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Starting learning process...
+
+2016-12-25 21:27:35,755 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in VectorCalculationsThread 1
+                
+Epoch: [1]; Words vectorized so far: [1056006];  Lines vectorized so far: [100002]; learningRate: [0.00965595103862741]
+
+2016-12-25 21:27:40,210 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in VectorCalculationsThread 7
+                
+Epoch: [1]; Words vectorized so far: [1702741];  Lines vectorized so far: [200000]; learningRate: [2.5877050228416686E-4]
+
+2016-12-25 21:27:40,340 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Epoch: [1]; Words vectorized so far: [1720540];  Lines vectorized so far: [202732]; learningRate: [1.0E-4]
+
+2016-12-25 21:27:40,340 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Time spent on training: 15155 ms
+
+2016-12-25 21:27:40,340 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Writing word vectors to text file....
+
+2016-12-25 21:27:42,572 - [INFO] - from org.deeplearning4j.models.embeddings.loader.WordVectorSerializer in main
+                
+Wrote 12879 with size of 100
+
+2016-12-25 21:28:11,656 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Load & Vectorize Sentences....
+
+2016-12-25 21:28:11,667 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Building model....
+
+2016-12-25 21:28:11,829 - [INFO] - from org.nd4j.nativeblas.NativeOps in main
+                
+Number of threads used for NativeOps: 4
+
+2016-12-25 21:28:11,912 - [INFO] - from org.nd4j.nativeblas.Nd4jBlas in main
+                
+Number of threads used for BLAS: 4
+
+2016-12-25 21:28:12,460 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Fitting Word2Vec model....
+
+2016-12-25 21:28:12,493 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Starting vocabulary building...
+
+2016-12-25 21:28:13,586 - [INFO] - from org.deeplearning4j.models.word2vec.wordstore.VocabConstructor in main
+                
+Sequences checked: [100000]; Current vocabulary size: [34966]; Sequences/sec: 91827.36; Words/sec: 816012.86;
+
+2016-12-25 21:28:14,085 - [INFO] - from org.deeplearning4j.models.word2vec.wordstore.VocabConstructor in main
+                
+Sequences checked: [200000]; Current vocabulary size: [39218]; Sequences/sec: 199203.19; Words/sec: 1344565.74;
+
+2016-12-25 21:28:14,375 - [INFO] - from org.deeplearning4j.models.word2vec.wordstore.VocabConstructor in main
+                
+Sequences checked: [230525], Current vocabulary size: [12879]; Sequences/sec: [122554.49];
+
+2016-12-25 21:28:14,423 - [INFO] - from org.deeplearning4j.models.embeddings.inmemory.InMemoryLookupTable in main
+                
+Initializing syn1...
+
+2016-12-25 21:28:14,424 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Building learning algorithms:
+
+2016-12-25 21:28:14,425 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+          building ElementsLearningAlgorithm: [SkipGram]
+
+2016-12-25 21:28:14,428 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Starting learning process...
+
+2016-12-25 21:28:24,182 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in VectorCalculationsThread 5
+                
+Epoch: [1]; Words vectorized so far: [1056304];  Lines vectorized so far: [100000]; learningRate: [0.009651577411742827]
+
+2016-12-25 21:28:27,729 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in VectorCalculationsThread 2
+                
+Epoch: [1]; Words vectorized so far: [1702675];  Lines vectorized so far: [200000]; learningRate: [2.7054006300347434E-4]
+
+2016-12-25 21:28:27,825 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Epoch: [1]; Words vectorized so far: [1720540];  Lines vectorized so far: [202732]; learningRate: [1.0E-4]
+
+2016-12-25 21:28:27,825 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Time spent on training: 13396 ms
+
+2016-12-25 21:28:27,825 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Writing word vectors to text file....
+
+2016-12-25 21:28:29,573 - [INFO] - from org.deeplearning4j.models.embeddings.loader.WordVectorSerializer in main
+                
+Wrote 12879 with size of 100
+
+2016-12-25 21:28:52,278 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Load & Vectorize Sentences....
+
+2016-12-25 21:28:52,292 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Building model....
+
+2016-12-25 21:28:52,461 - [INFO] - from org.nd4j.nativeblas.NativeOps in main
+                
+Number of threads used for NativeOps: 4
+
+2016-12-25 21:28:52,554 - [INFO] - from org.nd4j.nativeblas.Nd4jBlas in main
+                
+Number of threads used for BLAS: 4
+
+2016-12-25 21:28:53,137 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Fitting Word2Vec model....
+
+2016-12-25 21:28:53,174 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Starting vocabulary building...
+
+2016-12-25 21:28:54,378 - [INFO] - from org.deeplearning4j.models.word2vec.wordstore.VocabConstructor in main
+                
+Sequences checked: [100000]; Current vocabulary size: [34966]; Sequences/sec: 83263.95; Words/sec: 739916.74;
+
+2016-12-25 21:28:54,915 - [INFO] - from org.deeplearning4j.models.word2vec.wordstore.VocabConstructor in main
+                
+Sequences checked: [200000]; Current vocabulary size: [39218]; Sequences/sec: 185185.19; Words/sec: 1249937.04;
+
+2016-12-25 21:28:55,235 - [INFO] - from org.deeplearning4j.models.word2vec.wordstore.VocabConstructor in main
+                
+Sequences checked: [230525], Current vocabulary size: [12879]; Sequences/sec: [111905.34];
+
+2016-12-25 21:28:55,281 - [INFO] - from org.deeplearning4j.models.embeddings.inmemory.InMemoryLookupTable in main
+                
+Initializing syn1...
+
+2016-12-25 21:28:55,283 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Building learning algorithms:
+
+2016-12-25 21:28:55,283 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+          building ElementsLearningAlgorithm: [SkipGram]
+
+2016-12-25 21:28:55,287 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Starting learning process...
+
+2016-12-25 21:29:05,564 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in VectorCalculationsThread 3
+                
+Epoch: [1]; Words vectorized so far: [1064124];  Lines vectorized so far: [100000]; learningRate: [0.009537950294674927]
+
+2016-12-25 21:29:09,081 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in VectorCalculationsThread 2
+                
+Epoch: [1]; Words vectorized so far: [1702664];  Lines vectorized so far: [200000]; learningRate: [2.59816685459216E-4]
+
+2016-12-25 21:29:09,191 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Epoch: [1]; Words vectorized so far: [1720540];  Lines vectorized so far: [202732]; learningRate: [1.0E-4]
+
+2016-12-25 21:29:09,191 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Time spent on training: 13904 ms
+
+2016-12-25 21:29:09,191 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Writing word vectors to text file....
+
+2016-12-25 21:29:10,946 - [INFO] - from org.deeplearning4j.models.embeddings.loader.WordVectorSerializer in main
+                
+Wrote 12879 with size of 100
+
+2016-12-25 21:46:59,934 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Load & Vectorize Sentences....
+
+2016-12-25 21:46:59,945 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Building model....
+
+2016-12-25 21:47:00,120 - [INFO] - from org.nd4j.nativeblas.NativeOps in main
+                
+Number of threads used for NativeOps: 4
+
+2016-12-25 21:47:00,165 - [INFO] - from org.nd4j.nativeblas.Nd4jBlas in main
+                
+Number of threads used for BLAS: 4
+
+2016-12-25 21:47:00,698 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Fitting Word2Vec model....
+
+2016-12-25 21:47:00,730 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Starting vocabulary building...
+
+2016-12-25 21:47:01,188 - [INFO] - from org.deeplearning4j.models.word2vec.wordstore.VocabConstructor in main
+                
+Sequences checked: [19558], Current vocabulary size: [905]; Sequences/sec: [43079.30];
+
+2016-12-25 21:47:01,235 - [INFO] - from org.deeplearning4j.models.embeddings.inmemory.InMemoryLookupTable in main
+                
+Initializing syn1...
+
+2016-12-25 21:47:01,236 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Building learning algorithms:
+
+2016-12-25 21:47:01,236 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+          building ElementsLearningAlgorithm: [SkipGram]
+
+2016-12-25 21:47:01,241 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Starting learning process...
+
+2016-12-25 21:47:02,112 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Epoch: [1]; Words vectorized so far: [78176];  Lines vectorized so far: [19544]; learningRate: [1.0E-4]
+
+2016-12-25 21:47:02,112 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Time spent on training: 871 ms
+
+2016-12-25 21:47:02,113 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Writing word vectors to text file....
+
+2016-12-25 21:47:02,600 - [INFO] - from org.deeplearning4j.models.embeddings.loader.WordVectorSerializer in main
+                
+Wrote 905 with size of 100
+
+2016-12-25 21:48:33,191 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Load & Vectorize Sentences....
+
+2016-12-25 21:48:33,204 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Building model....
+
+2016-12-25 21:48:33,395 - [INFO] - from org.nd4j.nativeblas.NativeOps in main
+                
+Number of threads used for NativeOps: 4
+
+2016-12-25 21:48:33,485 - [INFO] - from org.nd4j.nativeblas.Nd4jBlas in main
+                
+Number of threads used for BLAS: 4
+
+2016-12-25 21:48:34,052 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Fitting Word2Vec model....
+
+2016-12-25 21:48:34,083 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Starting vocabulary building...
+
+2016-12-25 21:48:34,433 - [INFO] - from org.deeplearning4j.models.word2vec.wordstore.VocabConstructor in main
+                
+Sequences checked: [19558], Current vocabulary size: [905]; Sequences/sec: [56526.01];
+
+2016-12-25 21:48:34,489 - [INFO] - from org.deeplearning4j.models.embeddings.inmemory.InMemoryLookupTable in main
+                
+Initializing syn1...
+
+2016-12-25 21:48:34,489 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Building learning algorithms:
+
+2016-12-25 21:48:34,489 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+          building ElementsLearningAlgorithm: [SkipGram]
+
+2016-12-25 21:48:34,493 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Starting learning process...
+
+2016-12-25 21:48:35,551 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Epoch: [1]; Words vectorized so far: [78176];  Lines vectorized so far: [19544]; learningRate: [1.0E-4]
+
+2016-12-25 21:48:35,551 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Time spent on training: 1058 ms
+
+2016-12-25 21:48:35,551 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Writing word vectors to text file....
+
+2016-12-25 21:48:36,204 - [INFO] - from org.deeplearning4j.models.embeddings.loader.WordVectorSerializer in main
+                
+Wrote 905 with size of 100
+
+2016-12-25 21:49:38,063 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Load & Vectorize Sentences....
+
+2016-12-25 21:49:38,075 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Building model....
+
+2016-12-25 21:49:38,233 - [INFO] - from org.nd4j.nativeblas.NativeOps in main
+                
+Number of threads used for NativeOps: 4
+
+2016-12-25 21:49:38,323 - [INFO] - from org.nd4j.nativeblas.Nd4jBlas in main
+                
+Number of threads used for BLAS: 4
+
+2016-12-25 21:49:38,909 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Fitting Word2Vec model....
+
+2016-12-25 21:49:38,938 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Starting vocabulary building...
+
+2016-12-25 21:49:39,265 - [INFO] - from org.deeplearning4j.models.word2vec.wordstore.VocabConstructor in main
+                
+Sequences checked: [19557], Current vocabulary size: [905]; Sequences/sec: [60736.02];
+
+2016-12-25 21:49:39,327 - [INFO] - from org.deeplearning4j.models.embeddings.inmemory.InMemoryLookupTable in main
+                
+Initializing syn1...
+
+2016-12-25 21:49:39,327 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Building learning algorithms:
+
+2016-12-25 21:49:39,328 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+          building ElementsLearningAlgorithm: [SkipGram]
+
+2016-12-25 21:49:39,332 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Starting learning process...
+
+2016-12-25 21:49:40,395 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Epoch: [1]; Words vectorized so far: [78176];  Lines vectorized so far: [19544]; learningRate: [1.0E-4]
+
+2016-12-25 21:49:40,395 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Time spent on training: 1063 ms
+
+2016-12-25 21:49:40,395 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Writing word vectors to text file....
+
+2016-12-25 21:49:40,934 - [INFO] - from org.deeplearning4j.models.embeddings.loader.WordVectorSerializer in main
+                
+Wrote 905 with size of 100
+
+2016-12-25 21:49:56,142 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Load & Vectorize Sentences....
+
+2016-12-25 21:49:56,157 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Building model....
+
+2016-12-25 21:49:56,319 - [INFO] - from org.nd4j.nativeblas.NativeOps in main
+                
+Number of threads used for NativeOps: 4
+
+2016-12-25 21:49:56,447 - [INFO] - from org.nd4j.nativeblas.Nd4jBlas in main
+                
+Number of threads used for BLAS: 4
+
+2016-12-25 21:49:56,995 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Fitting Word2Vec model....
+
+2016-12-25 21:49:57,026 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Starting vocabulary building...
+
+2016-12-25 21:49:57,354 - [INFO] - from org.deeplearning4j.models.word2vec.wordstore.VocabConstructor in main
+                
+Sequences checked: [19558], Current vocabulary size: [905]; Sequences/sec: [60178.46];
+
+2016-12-25 21:49:57,407 - [INFO] - from org.deeplearning4j.models.embeddings.inmemory.InMemoryLookupTable in main
+                
+Initializing syn1...
+
+2016-12-25 21:49:57,407 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Building learning algorithms:
+
+2016-12-25 21:49:57,408 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+          building ElementsLearningAlgorithm: [SkipGram]
+
+2016-12-25 21:49:57,412 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Starting learning process...
+
+2016-12-25 21:49:58,474 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Epoch: [1]; Words vectorized so far: [78176];  Lines vectorized so far: [19544]; learningRate: [1.0E-4]
+
+2016-12-25 21:49:58,475 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Time spent on training: 1063 ms
+
+2016-12-25 21:49:58,475 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Writing word vectors to text file....
+
+2016-12-25 21:49:58,980 - [INFO] - from org.deeplearning4j.models.embeddings.loader.WordVectorSerializer in main
+                
+Wrote 905 with size of 100
+
+2016-12-25 22:05:40,895 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Load & Vectorize Sentences....
+
+2016-12-25 22:05:40,919 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Building model....
+
+2016-12-25 22:05:41,065 - [INFO] - from org.nd4j.nativeblas.NativeOps in main
+                
+Number of threads used for NativeOps: 4
+
+2016-12-25 22:05:41,103 - [INFO] - from org.nd4j.nativeblas.Nd4jBlas in main
+                
+Number of threads used for BLAS: 4
+
+2016-12-25 22:05:42,247 - [INFO] - from org.deeplearning4j.examples.nlp.word2vec.Word2VecRawTextExample in main
+                
+Fitting Word2Vec model....
+
+2016-12-25 22:05:42,282 - [INFO] - from org.deeplearning4j.models.sequencevectors.SequenceVectors in main
+                
+Starting vocabulary building...
+

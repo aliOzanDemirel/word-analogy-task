@@ -28,7 +28,7 @@ public class Word2VecRawTextExample {
     public static void main(String[] args) throws Exception {
 
         // Gets Path to Text file
-        String filePath = new ClassPathResource("wolf.txt").getFile().getAbsolutePath();
+        String filePath = new ClassPathResource("canavar.txt").getFile().getAbsolutePath();
 
         log.info("Load & Vectorize Sentences....");
         // Strip white space before and after for each line
@@ -45,7 +45,7 @@ public class Word2VecRawTextExample {
 
         log.info("Building model....");
         Word2Vec vec = new Word2Vec.Builder()
-                .minWordFrequency(5)
+                .minWordFrequency(10)
                 .iterations(1)
                 .layerSize(100)
                 .seed(42)
@@ -64,8 +64,8 @@ public class Word2VecRawTextExample {
         Collection<String> lst = vec.wordsNearest("day", 5);
         System.out.println("10 Words closest to 'day': " + lst);
 */
-        Collection<String> lst = vec.wordsNearest(Arrays.asList("book", "books"), Arrays.asList("house"), 1);
-        System.out.println("RESULT WORD: " + lst);
+        Collection<String> lst = vec.wordsNearest(Arrays.asList("father", "son"), Arrays.asList("grandfather"), 1);
+        System.out.println("RESULT WORD: " + lst.toString());
 
 //        UiServer server = UiServer.getInstance();
 //        System.out.println("Started on port " + server.getPort());

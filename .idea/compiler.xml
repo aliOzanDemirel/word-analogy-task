@@ -12,7 +12,7 @@
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="dl4j-examples" target="1.8" />
-      <module name="wat-workspace" target="1.5" />
+      <module name="wat-workspace" target="1.8" />
       <module name="word-analogy" target="1.5" />
       <module name="word-analogy-task" target="1.8" />
       <module name="wordAnalogyTask" target="1.5" />
