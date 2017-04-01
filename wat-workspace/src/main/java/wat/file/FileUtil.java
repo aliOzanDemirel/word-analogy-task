@@ -1,41 +1,50 @@
 package wat.file;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import scala.reflect.io.Directory;
+import wat.dictionary.DictionaryUtil;
+
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class FileUtil {
 
-    protected final static Logger logger = Logger.getLogger("FileUtil");
+    private static final Logger log = LoggerFactory.getLogger(DictionaryUtil.class);
+    private static boolean debugEnabled = log.isDebugEnabled();
 
-    public FileUtil() {
-
+    public static boolean isPathValid(String filePath) {
+//        File f = new File(filePath);
+//        if (f.exists()) {
+//            return f.getAbsolutePath();
+//        }
+        return Files.exists(Paths.get(filePath));
     }
 
-    public boolean fileExists() {
-        return true;
-    }
-
-    public void readFile(String filePath) throws Exception {
+    private Path getPathIfValid(String filePath) {
         Path path = null;
-        BufferedReader bufferedReader = null;
         try {
             path = Paths.get(filePath);
         } catch (InvalidPathException e) {
-            logger.info("Path of the file is invalid!");
-            throw new Exception("Path of the file is invalid!", e);
+            log.error("File path is invalid: " + filePath);
         }
+        return path;
+    }
+
+    public void readFile(String filePath) throws Exception {
+        BufferedReader bufferedReader = null;
+        Path path = this.getPathIfValid(filePath);
         try {
             bufferedReader = Files.newBufferedReader(path);
         } catch (IOException e) {
-            logger.log(Level.INFO, "Error while creating buffered reader!", e);
             throw new Exception("Error while creating buffered reader!", e);
         }
 

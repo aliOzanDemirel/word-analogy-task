@@ -22,6 +22,11 @@
             <url>https://oss.sonatype.org/content/repositories/releases/</url>
         </repository>
         <repository>
+            <id>central.maven</id>
+            <name>Cental</name>
+            <url>http://central.maven.org/maven2/</url>
+        </repository>
+        <repository>
             <id>opencsv.sf.net</id>
             <name>OpenCSV</name>
             <url>scp://shell.sourceforge.net/home/project-web/opencsv/htdocs/</url>
@@ -35,10 +40,15 @@
             <version>${opencsv.version}</version>
             <scope>provided</scope>
         </dependency>
+
+        <!--
+        logback için gerekli logback-core ve slf4j-api
+        jarları da aşağıdaki dependency ile gelecek
+        -->
         <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>1.2.17</version>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
         </dependency>
     </dependencies>
 

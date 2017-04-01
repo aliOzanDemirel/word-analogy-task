@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <!-- ALL < DEBUG < INFO < WARN < ERROR < FATAL < OFF -->
+
+    <property name="logHome" value="/home/ali/ORTAM/wordAnalogyTask/logs"/>
+
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>
+                %d{yyyy-MM-dd HH:mm:ss} %highlight(%-5level %logger{30} - %msg%n)
+            </pattern>
+        </layout>
+    </appender>
+
+    <appender name="mainFile"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${logHome}/main.log</file>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>
+                %d{yyyy-MM-dd HH:mm:ss} - %msg%n
+            </pattern>
+        </encoder>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- rollover daily -->
+            <fileNamePattern>${logHome}/archived/main.%d{yyyy-MM-dd}.%i.log
+            </fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy
+                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>50MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+    </appender>
+
+    <appender name="errorFile"
+              class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${logHome}/error.log</file>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>
+                %d{yyyy-MM-dd HH:mm:ss} - %msg%n
+            </pattern>
+        </encoder>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- rollover daily -->
+            <fileNamePattern>${logHome}/archived/error.%d{yyyy-MM-dd}.%i.log
+            </fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy
+                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>50MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+    </appender>
+
+    <appender name="asynchronous" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="errorFile"/>
+    </appender>
+
+    <!-- asenkronize loglama diye de bir şey varmış
+    <appender name="async" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="mainFile"/>
+    </appender>
+    -->
+    <!-- özel bir paket veya class için ayrı log seviyesi tanımlamak için
+    <logger name="wat.deep.learning" level="INFO"
+            additivity="false">
+        <appender-ref ref="FILE-AUDIT"/>
+        <appender-ref ref="STDOUT"/>
+    </logger>
+    -->
+
+    <root level="DEBUG">
+        <appender-ref ref="mainFile"/>
+        <appender-ref ref="asynchronous"/>
+        <appender-ref ref="console"/>
+    </root>
+
+</configuration>

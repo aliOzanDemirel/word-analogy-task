@@ -1,14 +1,14 @@
 package org.deeplearning4j.examples.nlp.word2vec;
 
 import org.datavec.api.util.ClassPathResource;
-import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
+import org.deeplearning4j.models.word2vec.VocabWord;
 import org.deeplearning4j.models.word2vec.Word2Vec;
+import org.deeplearning4j.models.word2vec.wordstore.VocabCache;
 import org.deeplearning4j.text.sentenceiterator.BasicLineIterator;
 import org.deeplearning4j.text.sentenceiterator.SentenceIterator;
 import org.deeplearning4j.text.tokenization.tokenizer.preprocessor.CommonPreprocessor;
 import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFactory;
 import org.deeplearning4j.text.tokenization.tokenizerfactory.TokenizerFactory;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,46 +28,53 @@ public class Word2VecRawTextExample {
     public static void main(String[] args) throws Exception {
 
         // Gets Path to Text file
-        String filePath = new ClassPathResource("canavar.txt").getFile().getAbsolutePath();
+        String filePath = new ClassPathResource("wolf.txt").getFile().getAbsolutePath();
 
         log.info("Load & Vectorize Sentences....");
         // Strip white space before and after for each line
         SentenceIterator iter = new BasicLineIterator(filePath);
         // Split on white spaces in the line to get words
         TokenizerFactory t = new DefaultTokenizerFactory();
-
+// tokenların cümle olarak neyi aldığını belirlemek gerekibilir default olarak line
         /*
             CommonPreprocessor will apply the following regex to each token: [\d\.:,"'\(\)\[\]|/?!;]+
             So, effectively all numbers, punctuation symbols and some special symbols are stripped off.
             Additionally it forces lower case for all tokens.
          */
         t.setTokenPreProcessor(new CommonPreprocessor());
-
+//hugeModelExpected: true
         log.info("Building model....");
         Word2Vec vec = new Word2Vec.Builder()
-                .minWordFrequency(10)
+                .minWordFrequency(6)
                 .iterations(1)
-                .layerSize(100)
+                .layerSize(300)
                 .seed(42)
-                .windowSize(5)
+                .windowSize(6)
                 .iterate(iter)
                 .tokenizerFactory(t)
                 .build();
-
-        log.info("Fitting Word2Vec model....");
+        log.info("Fitting Word2Vec model...");
         vec.fit();
 
-        log.info("Writing word vectors to text file....");
-        WordVectorSerializer.writeWordVectors(vec, "./dl4j-examples/src/main/resources/word_vectors.txt");
-/*
-        log.info("Closest Words:");
-        Collection<String> lst = vec.wordsNearest("day", 5);
-        System.out.println("10 Words closest to 'day': " + lst);
-*/
-        Collection<String> lst = vec.wordsNearest(Arrays.asList("father", "son"), Arrays.asList("grandfather"), 1);
-        System.out.println("RESULT WORD: " + lst.toString());
+        // log.info("Writing word vectors to text file....");
+        // WordVectorSerializer.writeWordVectors(vec, "./dl4j-examples/src/main/resources/word_vectors.txt");
 
-//        UiServer server = UiServer.getInstance();
-//        System.out.println("Started on port " + server.getPort());
+        log.info("Cosine similarity of words: " + vec.similarity("father", "mother"));
+        log.info("Cosine similarity of words: " + vec.similarity("father", "son"));
+
+        Collection<String> lst = vec.wordsNearest("youth", 10);
+        System.out.println("10 words closest to: " + lst);
+/*
+        lst = vec.wordsNearest(Arrays.asList("father", "son"), Arrays.asList("mother"), 1);
+        System.out.println("Analogic counterpart: " + lst);
+
+        log.info("Building vocabulary...");
+        vec.buildVocab();
+        VocabCache<VocabWord> vocab = vec.getVocab();
+        for (VocabWord vocabWord : vocab.vocabWords()) {
+            log.info("\n" + vocabWord.getLabel() + " -- " + vocabWord.getWord());
+        }
+        log.info("Vocabulary is created, total number of words: " + vocab.numWords());
+        */
     }
 }
