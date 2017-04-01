@@ -2,7 +2,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
+
     <groupId>wat-workspace</groupId>
     <artifactId>wat-workspace</artifactId>
     <version>0.1-SNAPSHOT</version>
@@ -21,35 +23,23 @@
             <name>Sonatype</name>
             <url>https://oss.sonatype.org/content/repositories/releases/</url>
         </repository>
-        <repository>
+        <!-- <repository>
             <id>central.maven</id>
-            <name>Cental</name>
+            <name>Central</name>
             <url>http://central.maven.org/maven2/</url>
-        </repository>
-        <repository>
-            <id>opencsv.sf.net</id>
-            <name>OpenCSV</name>
-            <url>scp://shell.sourceforge.net/home/project-web/opencsv/htdocs/</url>
-        </repository>
+        </repository> -->
     </distributionManagement>
 
     <dependencies>
-        <dependency>
-            <groupId>com.opencsv</groupId>
-            <artifactId>opencsv</artifactId>
-            <version>${opencsv.version}</version>
-            <scope>provided</scope>
-        </dependency>
-
         <!--
         logback için gerekli logback-core ve slf4j-api
         jarları da aşağıdaki dependency ile gelecek
-        -->
+
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>${logback.version}</version>
-        </dependency>
+        </dependency>-->
     </dependencies>
 
     <build>
