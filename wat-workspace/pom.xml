@@ -34,12 +34,12 @@
         <!--
         logback için gerekli logback-core ve slf4j-api
         jarları da aşağıdaki dependency ile gelecek
-
+        -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>${logback.version}</version>
-        </dependency>-->
+        </dependency>
     </dependencies>
 
     <build>

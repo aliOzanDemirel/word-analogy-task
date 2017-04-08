@@ -1,4 +1,4 @@
-package wat.model.wor2vec;
+package wat.model.word2vec;
 
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.word2vec.VocabWord;
@@ -25,6 +25,7 @@ public class Word2vecUtil implements Word2vecUtilInt {
     private Word2Vec word2vec = null;
 
     public Word2vecUtil() {
+
     }
 
     /**
@@ -36,7 +37,7 @@ public class Word2vecUtil implements Word2vecUtilInt {
     @Override
     public void createWord2vec(String corpusPath, int corpusType, Word2vecTrainingParams params) throws
             Word2vecBuildException, VocabularyBuildException {
-//        corpus type memoryde tutulup corpus path değişince sorulacak şekilde düzenlenebilir
+
         if (corpusType == ModelType.CORPUS_IS_PRETRAINED) {
             this.loadPretrainedModel(corpusPath);
         } else if (corpusType == ModelType.TRAIN_CORPUS) {
@@ -59,8 +60,8 @@ public class Word2vecUtil implements Word2vecUtilInt {
         try {
             sentenceIterator = new BasicLineIterator(corpusPath);
         } catch (Exception e) {
-            throw new Word2vecBuildException("SentenceIterator cannot be created. Corpus path may be wrong: " +
-                    corpusPath);
+            throw new Word2vecBuildException("SentenceIterator cannot be created. Corpus path may " +
+                    "be wrong: " + corpusPath);
         }
 
         // tokenların cümle olarak neyi aldığını belirlemek gerekebilir default olarak line
@@ -71,10 +72,10 @@ public class Word2vecUtil implements Word2vecUtilInt {
     }
 
     private void buildWord2vec(String corpusPath, Word2vecTrainingParams params, SentenceIterator
-            sentenceIterator, TokenizerFactory tokenizer) throws Word2vecBuildException, VocabularyBuildException {
+            sentenceIterator, TokenizerFactory tokenizer) throws Word2vecBuildException,
+            VocabularyBuildException {
 
         log.info("Building word2Vec model may take a while. Parameters: " + params.toString());
-        log.warn("" + Runtime.getRuntime().freeMemory());
         word2vec = new Word2Vec.Builder()
                 .useHierarchicSoftmax(params.isUseHierarchicSoftmax())
                 .minWordFrequency(params.getMinWordFrequency())
@@ -89,8 +90,8 @@ public class Word2vecUtil implements Word2vecUtilInt {
                 .tokenizerFactory(tokenizer)
                 .allowParallelTokenization(params.isAllowParallelTokenization())
                 .workers(params.getWorkers())
-//                .negativeSample(params.getNegative())
-//                .sampling(params.getSampling())
+                .negativeSample(params.getNegative())
+                .sampling(params.getSampling())
                 .build();
 
         word2vec.fit();
@@ -100,6 +101,7 @@ public class Word2vecUtil implements Word2vecUtilInt {
     // csv, binary ve dl4j compressed yüklüyor
     // loadStaticModel word vectorlere erişmek için sadece
     private void loadPretrainedModel(String corpusPath) {
+
         log.info("Starting to load word2vec from file: " + corpusPath + " This may take a while.");
         try {
             log.warn("" + Runtime.getRuntime().freeMemory());
@@ -107,11 +109,12 @@ public class Word2vecUtil implements Word2vecUtilInt {
         } catch (Throwable e) {
             log.error("Error occured while loading pretrained model!", e);
         }
-
         log.info("Done loading word2Vec model");
     }
 
+    // model build edilirken ilk yapılan şey vocabulary yaratmak yani zaten hazırlanıyor
     private void buildVocabulary() throws VocabularyBuildException {
+
         word2vec.buildVocab();
         VocabCache<VocabWord> vocab = word2vec.getVocab();
         if (vocab == null) {
@@ -123,6 +126,7 @@ public class Word2vecUtil implements Word2vecUtilInt {
 
     @Override
     public double getSimilarity(String firstWord, String secondWord) {
+
         double result = word2vec.similarity(firstWord, secondWord);
         if (debugEnabled) {
             log.debug("Similarity between " + firstWord + " - " + secondWord + ": " + result);
@@ -137,16 +141,19 @@ public class Word2vecUtil implements Word2vecUtilInt {
      */
     @Override
     public void getAccuracy(List<String> questions) {
+
         word2vec.accuracy(questions);
     }
 
     @Override
     public Collection<String> getNearestWords(String word, int number) {
+
         return word2vec.wordsNearest(word, number);
     }
 
     @Override
     public boolean hasWord(String word) {
+
         boolean result = word2vec.hasWord(word);
         if (!result) {
 //            log.warn(word + " does not exist in word2vec model.");
@@ -156,6 +163,7 @@ public class Word2vecUtil implements Word2vecUtilInt {
 
     @Override
     public boolean isWord2vecReady() {
+
         if (word2vec == null) {
             return false;
         } else {

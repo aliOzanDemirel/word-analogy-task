@@ -2,13 +2,10 @@ package wat.file;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import scala.reflect.io.Directory;
-import wat.dictionary.DictionaryUtil;
+import wat.wordnet.WordnetUtil;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
@@ -18,7 +15,7 @@ import java.util.stream.Collectors;
 
 public class FileUtil {
 
-    private static final Logger log = LoggerFactory.getLogger(DictionaryUtil.class);
+    private static final Logger log = LoggerFactory.getLogger(WordnetUtil.class);
     private static boolean debugEnabled = log.isDebugEnabled();
 
     public static boolean isPathValid(String filePath) {

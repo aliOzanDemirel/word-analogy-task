@@ -1,4 +1,4 @@
-package wat.model.wor2vec;
+package wat.model.word2vec;
 
 import wat.exceptions.VocabularyBuildException;
 import wat.exceptions.Word2vecBuildException;

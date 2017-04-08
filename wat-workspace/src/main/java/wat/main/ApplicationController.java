@@ -9,8 +9,8 @@ import wat.calculator.GloveCalculator;
 import wat.calculator.GloveCalculatorInt;
 import wat.calculator.Word2vecCalculator;
 import wat.calculator.Word2vecCalculatorInt;
-import wat.dictionary.DictionaryUtil;
-import wat.dictionary.DictionaryUtilInt;
+import wat.wordnet.WordnetUtil;
+import wat.wordnet.WordnetUtilInt;
 import wat.exceptions.VocabularyBuildException;
 import wat.exceptions.Word2vecBuildException;
 import wat.helper.Constants;
@@ -21,19 +21,20 @@ import java.io.IOException;
 
 public class ApplicationController {
 
-    private static final Logger log = LoggerFactory.getLogger(DictionaryUtil.class);
+    private static final Logger log = LoggerFactory.getLogger(WordnetUtil.class);
     private static boolean debugEnabled = log.isDebugEnabled();
+    private WordnetUtilInt wordnetUtil;
+
     private Word2vecCalculatorInt w2vecCalc = new Word2vecCalculator();
     private GloveCalculatorInt gloveCalc = new GloveCalculator();
-    private DictionaryUtilInt dictionaryUtil;
-
     // default olarak word2vec kullanımda
     private int modelBeingUsed = ModelType.WORD2VEC;
     private AccuracyCalculatorInt calculator = w2vecCalc;
 
     public ApplicationController(String wordNetPath) throws IOException, Word2vecBuildException,
             VocabularyBuildException {
-        dictionaryUtil = new DictionaryUtil(wordNetPath, ILoadPolicy.NO_LOAD);
+
+        wordnetUtil = new WordnetUtil(wordNetPath, ILoadPolicy.NO_LOAD);
     }
 
     /**
@@ -42,20 +43,22 @@ public class ApplicationController {
      * @param choice 1 for glove, 2 for word2vec.
      */
     public void changeModelToUse(int choice) {
+
         this.modelBeingUsed = choice;
         if (choice == ModelType.GLOVE) {
-            calculator = (AccuracyCalculatorInt) gloveCalc;
+            calculator = gloveCalc;
         } else if (choice == ModelType.WORD2VEC) {
-            calculator = (AccuracyCalculatorInt) w2vecCalc;
+            calculator = w2vecCalc;
         }
     }
 
     /**
-     * closes the dictionary and exits from the program.
+     * closes the wordnet and exits from the program.
      */
     public void exit() {
+
         log.info("Exiting.");
-        dictionaryUtil.closeDictionary();
+        wordnetUtil.closeDictionary();
         System.exit(0);
     }
 
@@ -66,16 +69,18 @@ public class ApplicationController {
      * @throws IOException
      */
     public void calculateAccuracy(int choice) throws IOException {
+
         if (calculator.isModelReady()) {
             switch (choice) {
                 case Constants.ALL_WORDS:
-                    dictionaryUtil.calculateAccuracyForAllWords(calculator);
+                    wordnetUtil.calculateSimilarityAccuracyForAllWords(calculator);
                     break;
                 case Constants.NOUNS_ONLY:
                 case Constants.VERBS_ONLY:
                 case Constants.ADJECTIVES_ONLY:
                 case Constants.ADVERBS_ONLY:
-                    dictionaryUtil.calculateAccuracyForGivenPOS(calculator, POS.getPartOfSpeech(choice));
+                    wordnetUtil.calculateSimilarityAccuracyForGivenPOS(calculator, POS.getPartOfSpeech
+                            (choice));
                     break;
                 default:
                     log.error("Invalid POS choice: " + choice);
@@ -86,15 +91,18 @@ public class ApplicationController {
     }
 
     public void loadDictionaryIntoMemory() {
-        // a dictionary will definetely be created when program starts.
-        dictionaryUtil.loadDictionaryIntoMemory();
+        // a wordnet will definetely be created when program starts.
+        wordnetUtil.loadDictionaryIntoMemory();
     }
 
     public void changeCorpusPath(String newPath) {
+
         calculator.setCorpusPath(newPath);
     }
 
-    public void prepareWord2vec(int corpusIsPretrained) throws Word2vecBuildException, VocabularyBuildException {
+    public void prepareWord2vec(int corpusIsPretrained) throws Word2vecBuildException,
+            VocabularyBuildException {
+
         if (this.usesGivenModel(ModelType.WORD2VEC)) {
             w2vecCalc.prepareWord2vec(corpusIsPretrained);
         } else {
@@ -103,6 +111,7 @@ public class ApplicationController {
     }
 
     public void updateWord2vecParams(int paramType) {
+
         if (this.usesGivenModel(ModelType.WORD2VEC)) {
             switch (paramType) {
                 case Word2vecParamType.WORKERS:
@@ -126,15 +135,24 @@ public class ApplicationController {
     }
 
     public void listBySelection(int selection) throws IOException {
+
         switch (selection) {
             case 1:
-                dictionaryUtil.listSenseKeyAndSynsetsOfAdjectives();
+                wordnetUtil.listPointerMap();
                 break;
             case 2:
-                dictionaryUtil.listNounsWithPointers();
+                wordnetUtil.listWordsLexicalPointers();
                 break;
             case 3:
-                dictionaryUtil.listVerbs();
+                wordnetUtil.listWordsSemanticPointers();
+                break;
+            case 4:
+                wordnetUtil.listNouns();
+                break;
+            case 5:
+                wordnetUtil.listVerbs();
+                break;
+            case 6:
                 break;
             default:
                 log.warn("Invalid selection for listing words: " + selection);
@@ -142,6 +160,7 @@ public class ApplicationController {
     }
 
     private boolean usesGivenModel(int modelType) {
+
         return this.modelBeingUsed == modelType;
     }
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
-    <option name="BUILD_PROCESS_HEAP_SIZE" value="3072" />
+    <option name="BUILD_PROCESS_HEAP_SIZE" value="1024" />
     <annotationProcessing>
       <profile name="Maven default annotation processors profile" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
@@ -14,8 +14,6 @@
     <bytecodeTargetLevel>
       <module name="dl4j-examples" target="1.8" />
       <module name="wat-workspace" target="1.8" />
-      <module name="word-analogy" target="1.5" />
-      <module name="word-analogy-task" target="1.8" />
       <module name="wordAnalogyTask" target="1.5" />
     </bytecodeTargetLevel>
   </component>

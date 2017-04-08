@@ -3,7 +3,7 @@
 
     <!-- ALL < DEBUG < INFO < WARN < ERROR < FATAL < OFF -->
 
-    <property name="logHome" value="/home/ali/ORTAM/wordAnalogyTask/logs"/>
+    <property name="logHome" value="logs"/>
 
     <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
         <layout class="ch.qos.logback.classic.PatternLayout">
@@ -56,7 +56,7 @@
     </appender>
 
     <appender name="asynchronous" class="ch.qos.logback.classic.AsyncAppender">
-        <appender-ref ref="errorFile"/>
+        <appender-ref ref="mainFile"/>
     </appender>
 
     <!-- asenkronize loglama diye de bir şey varmış
@@ -73,7 +73,6 @@
     -->
 
     <root level="DEBUG">
-        <appender-ref ref="mainFile"/>
         <appender-ref ref="asynchronous"/>
         <appender-ref ref="console"/>
     </root>

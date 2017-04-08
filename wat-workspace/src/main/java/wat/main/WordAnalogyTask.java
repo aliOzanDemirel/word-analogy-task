@@ -11,13 +11,15 @@ public class WordAnalogyTask {
 
     private static final Logger log = LoggerFactory.getLogger(WordAnalogyTask.class);
 
-    public static void main(String[] args) throws IOException, Word2vecBuildException, VocabularyBuildException {
+    public static void main(String[] args) throws IOException, Word2vecBuildException,
+            VocabularyBuildException {
 
         // logback status'u yazması için
         // StatusPrinter.print((LoggerContext) LoggerFactory.getILoggerFactory());
 
-        String wordNetDictHome = System.getenv("WordNet_PATH");
-        log.info("Application started. WordNet home: " + wordNetDictHome + " Java home: " + System.getenv("JAVA_HOME"));
+        String wordNetDictHome = System.getenv("WORDNET_PATH");
+        log.info("Application started. Available memory: " + Runtime.getRuntime().freeMemory() / 1024 +
+                " WordNet home: " + wordNetDictHome + " Java home: " + System.getenv("JAVA_HOME"));
         ApplicationController controller = new ApplicationController(wordNetDictHome);
         for (; ; ) {
             try {
@@ -59,21 +61,23 @@ public class WordAnalogyTask {
                         }
                         break;
                     case 7:
-
                         break;
                     case 8:
                         break;
                     case 9:
-
+                        break;
                     case 10:
                         break;
                     case 11:
                         break;
                     case 12:
+                        log.info("FREE MB: " + Runtime.getRuntime().freeMemory() / 1024 / 1024);
+                        log.info("TOTAL MB: " + Runtime.getRuntime().totalMemory() / 1024 / 1024);
+                        log.info("MAX MB: " + Runtime.getRuntime().maxMemory() / 1024 / 1024);
                         break;
                     case 13:
                         int listing = UserInput.getListingOptions();
-                        if (listing != 4) {
+                        if (listing != 7) {
                             controller.listBySelection(listing);
                         }
                         break;
@@ -83,8 +87,8 @@ public class WordAnalogyTask {
                     default:
                         log.warn("Wrong input!");
                 }
-            } catch (Exception e) {
-                log.error(e.toString());
+            } catch (Throwable e) {
+                log.error("Error!", e);
             }
         }
     }

@@ -2,7 +2,7 @@ package wat.calculator;
 
 import wat.exceptions.VocabularyBuildException;
 import wat.exceptions.Word2vecBuildException;
-import wat.model.wor2vec.Word2vecTrainingParams;
+import wat.model.word2vec.Word2vecTrainingParams;
 
 public interface Word2vecCalculatorInt extends AccuracyCalculatorInt {
 

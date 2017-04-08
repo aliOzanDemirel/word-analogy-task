@@ -1,9 +1,12 @@
 package wat.calculator;
 
+import edu.mit.jwi.item.IWord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import wat.model.glove.GloveUtil;
 import wat.model.glove.GloveUtilInt;
+
+import java.util.HashSet;
 
 public class GloveCalculator extends AccuracyCalculator implements GloveCalculatorInt {
 
@@ -11,10 +14,12 @@ public class GloveCalculator extends AccuracyCalculator implements GloveCalculat
     private GloveUtilInt gloveUtil = new GloveUtil();
 
     public GloveCalculator() {
+
     }
 
     @Override
     public void createGlove(int corpusType) throws Exception {
+
         gloveUtil.buildGloveFromCorpus(this.corpusPath);
     }
 
@@ -25,7 +30,8 @@ public class GloveCalculator extends AccuracyCalculator implements GloveCalculat
      * @param secondWord
      */
     @Override
-    public void updateAccuracy(String firstWord, String secondWord) {
+    public void updateSimilarityAccuracy(String firstWord, String secondWord) {
+
         if (this.bothWordsExist(firstWord, secondWord)) {
             this.totalAccuracySum += gloveUtil.getSimilarity(firstWord, secondWord);
             this.totalCalculations++;
@@ -33,16 +39,24 @@ public class GloveCalculator extends AccuracyCalculator implements GloveCalculat
     }
 
     private boolean bothWordsExist(String firstWord, String secondWord) {
+
         return gloveUtil.hasWord(firstWord) && gloveUtil.hasWord(secondWord);
     }
 
     @Override
     public boolean isModelReady() {
+
         return gloveUtil.isGloveReady();
     }
 
     @Override
     public void resetParams() {
+
+    }
+
+    @Override
+    public void updateAnalogicalAccuracy(String firstReference, String secondReference, HashSet<IWord>
+            iWords) {
 
     }
 

@@ -1,5 +1,9 @@
 package wat.calculator;
 
+import edu.mit.jwi.item.IWord;
+
+import java.util.HashSet;
+
 public interface AccuracyCalculatorInt {
 
     void resetAccuracy();
@@ -8,10 +12,13 @@ public interface AccuracyCalculatorInt {
 
     void setCorpusPath(String corpusPath);
 
-    void updateAccuracy(String firstWord, String secondWord);
+    void updateSimilarityAccuracy(String firstWord, String secondWord);
 
     boolean isModelReady();
 
     void resetParams();
+
+    void updateAnalogicalAccuracy(String firstReference, String secondReference, HashSet<IWord>
+            wordsOfPointer);
 
 }
