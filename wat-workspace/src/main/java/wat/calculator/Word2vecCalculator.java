@@ -1,6 +1,7 @@
 package wat.calculator;
 
 import edu.mit.jwi.item.IWord;
+import edu.mit.jwi.item.IWordID;
 import wat.exceptions.VocabularyBuildException;
 import wat.exceptions.Word2vecBuildException;
 import wat.model.word2vec.Word2vecTrainingParams;
@@ -8,6 +9,7 @@ import wat.model.word2vec.Word2vecUtil;
 import wat.model.word2vec.Word2vecUtilInt;
 
 import java.util.HashSet;
+import java.util.List;
 
 public class Word2vecCalculator extends AccuracyCalculator implements Word2vecCalculatorInt {
 
@@ -26,24 +28,16 @@ public class Word2vecCalculator extends AccuracyCalculator implements Word2vecCa
     }
 
     @Override
-    public void updateAnalogicalAccuracy(String firstReference, String secondReference, HashSet<IWord>
-            wordsOfPointer) {
+    public void updateAnalogicalAccuracy(String firstReference, String secondReference,
+            IWord wordToCheck) {
 
-        // buranın bir kısmı wordnetUtil'e taşınmalı
-        // analoji tipindeki kelimeyi üçüncü parametre olarak yolladıktan sonra word2vec'den bir
-        // parametreye göre sonuç döndürüp beklenen kelimelerin sırasına göre bir ağırlık hesabıyla analoji
-        // skoru döndürmesi lazım
+        final List<IWordID> relatedWords = wordToCheck.getRelatedWords();
+
 
         // mesela king queen man gönderince woman gelirse ve man'in her related kelimesi için
         // dönen sonuçta bu kelime var mı diye kontrol edilecek ve eğer bu kelime dönen listede
         // ilk elemansa accuracy ağırlığı daha fazla olmalı
 
-        for (IWord wordWithSamePointer : wordsOfPointer) {
-
-            wordWithSamePointer.getRelatedWords();
-
-
-        }
 
     }
 

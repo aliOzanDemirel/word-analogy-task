@@ -18,7 +18,6 @@ public interface AccuracyCalculatorInt {
 
     void resetParams();
 
-    void updateAnalogicalAccuracy(String firstReference, String secondReference, HashSet<IWord>
-            wordsOfPointer);
+    void updateAnalogicalAccuracy(String firstReference, String secondReference, IWord wordToCheck);
 
 }

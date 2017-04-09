@@ -6,7 +6,6 @@ import edu.mit.jwi.item.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import wat.calculator.AccuracyCalculatorInt;
-import wat.helper.Constants;
 import wat.helper.WordNetPointers;
 
 import java.io.IOException;
@@ -19,6 +18,8 @@ public class WordnetUtil implements WordnetUtilInt {
     // Word veya Word'ün içineki Synset'in içindeki word listesi de ArrayList, yine arka tarafta array var
 
     private static final Logger log = LoggerFactory.getLogger(WordnetUtil.class);
+
+    // TODO: bu liste semantic ve lexical için iki ayrı listeye bölünmeli
     private HashSet<WordNetPointers> analogyTypes = new HashSet<WordNetPointers>(25) {{
         add(WordNetPointers.ANTONYM);
         add(WordNetPointers.ATTRIBUTE);
@@ -136,7 +137,7 @@ public class WordnetUtil implements WordnetUtilInt {
         int totalWordsForWordID;
         while (indexWordIterator.hasNext()) {
             iIndexWord = indexWordIterator.next();
-            if (this.isNotPhrase(iIndexWord.getLemma())) {
+            if (!this.isPhrase(iIndexWord.getLemma())) {
                 wordIDs = iIndexWord.getWordIDs();
                 totalWordsForWordID = wordIDs.size();
                 for (int i = 0; i < totalWordsForWordID; i++) {
@@ -170,7 +171,7 @@ public class WordnetUtil implements WordnetUtilInt {
 
         while (indexWordIterator.hasNext()) {
             IIndexWord iIndexWord = indexWordIterator.next();
-            if (this.isNotPhrase(iIndexWord.getLemma())) {
+            if (!this.isPhrase(iIndexWord.getLemma())) {
                 // bir kelimeyi bir kerede loglamak için
                 List<IWordID> wordIDs = iIndexWord.getWordIDs();
                 int totalWordsForWordID = wordIDs.size();
@@ -204,23 +205,35 @@ public class WordnetUtil implements WordnetUtilInt {
         for (IPointer iPointer : relatedWordMap.keySet()) {
             // o anki pointer analojik kıyas için manalıysa
             if (analogyTypes.contains(WordNetPointers.valueOf(iPointer.getSymbol()))) {
-                final List<IWordID> relatedWordIDs = relatedWordMap.get(iPointer);
+                final List<IWordID> lexicallyRelatedWordIDs = relatedWordMap.get(iPointer);
                 final HashSet<IWord> wordsOfPointer = pointerToWordMap.get(iPointer);
-                int relatedWordSizeForPointer = relatedWordIDs.size();
+                int relatedWordSizeForPointer = lexicallyRelatedWordIDs.size();
                 // rootWord + relatedWord - pointerToWordMap'den o anki pointer'ın kelimeleri çekilerek
                 // hepsi için analoji hesabı
                 for (int k = 0; k < relatedWordSizeForPointer; k++) {
-                    IWord relatedWord = dict.getWord(relatedWordIDs.get(k));
+                    IWord relatedWord = dict.getWord(lexicallyRelatedWordIDs.get(k));
                     rootWordLemma = rootWord.getLemma();
                     relatedWordLemma = relatedWord.getLemma();
                     // related kelime ile root aynı olmamalı
                     if (!rootWordLemma.equals(relatedWordLemma)) {
-                        calculator.updateAnalogicalAccuracy(rootWordLemma, relatedWordLemma,
-                                wordsOfPointer);
+                        for (IWord wordToCheck : wordsOfPointer) {
+//                            this.koke(rootWordLemma, relatedWordLemma, wordToCheck);
+//
+
+                        }
                     }
                 }
             }
         }
+    }
+
+    private void koke(final AccuracyCalculatorInt calculator, final String rootWordLemma, final String
+            relatedWordLemma, final IWord wordToCheck) {
+
+        calculator.updateAnalogicalAccuracy(rootWordLemma, relatedWordLemma,
+                wordToCheck);
+
+
     }
 
     private void calculateAnalogyByComparingAllWordsForAPointer(final AccuracyCalculatorInt calculator,
@@ -240,7 +253,7 @@ public class WordnetUtil implements WordnetUtilInt {
      * @param wordLemma
      * @return false if the word is actually a phrase.
      */
-    private boolean isNotPhrase(final String wordLemma) {
+    private boolean isPhrase(final String wordLemma) {
 
         return wordLemma.contains("_");
     }
@@ -250,7 +263,6 @@ public class WordnetUtil implements WordnetUtilInt {
         if (pointerToWordMap == null) {
             pointerToWordMap = new HashMap<IPointer, HashSet<IWord>>(15);
             for (POS partOfSpeech : POS.values()) {
-                StringBuilder strBuilder = new StringBuilder();
                 final Iterator<IIndexWord> indexWordIterator = dict.getIndexWordIterator(partOfSpeech);
                 while (indexWordIterator.hasNext()) {
                     final IIndexWord iIndexWord = indexWordIterator.next();

@@ -49,6 +49,6 @@ public abstract class AccuracyCalculator implements AccuracyCalculatorInt {
 
     @Override
     public abstract void updateAnalogicalAccuracy(String firstReference, String secondReference,
-            HashSet<IWord> wordsOfPointer);
+            IWord wordToCheck);
 
 }

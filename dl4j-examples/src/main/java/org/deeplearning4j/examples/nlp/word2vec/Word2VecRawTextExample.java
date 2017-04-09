@@ -64,17 +64,9 @@ public class Word2VecRawTextExample {
 
         Collection<String> lst = vec.wordsNearest("youth", 10);
         System.out.println("10 words closest to: " + lst);
-/*
+
         lst = vec.wordsNearest(Arrays.asList("father", "son"), Arrays.asList("mother"), 1);
         System.out.println("Analogic counterpart: " + lst);
 
-        log.info("Building vocabulary...");
-        vec.buildVocab();
-        VocabCache<VocabWord> vocab = vec.getVocab();
-        for (VocabWord vocabWord : vocab.vocabWords()) {
-            log.info("\n" + vocabWord.getLabel() + " -- " + vocabWord.getWord());
-        }
-        log.info("Vocabulary is created, total number of words: " + vocab.numWords());
-        */
     }
 }

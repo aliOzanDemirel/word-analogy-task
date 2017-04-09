@@ -151,6 +151,11 @@ public class Word2vecUtil implements Word2vecUtilInt {
         return word2vec.wordsNearest(word, number);
     }
 
+    public Collection<String> koray(List<String> positives, List<String> negatives, int size) {
+
+        return word2vec.wordsNearest(positives, negatives, size);
+    }
+
     @Override
     public boolean hasWord(String word) {
 

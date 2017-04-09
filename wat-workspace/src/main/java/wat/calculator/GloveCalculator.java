@@ -55,8 +55,7 @@ public class GloveCalculator extends AccuracyCalculator implements GloveCalculat
     }
 
     @Override
-    public void updateAnalogicalAccuracy(String firstReference, String secondReference, HashSet<IWord>
-            iWords) {
+    public void updateAnalogicalAccuracy(String firstReference, String secondReference, IWord wordToCheck) {
 
     }
 
