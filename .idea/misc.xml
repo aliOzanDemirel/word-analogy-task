@@ -3,13 +3,13 @@
   <component name="MavenProjectsManager">
     <option name="originalFiles">
       <list>
-        <option value="$PROJECT_DIR$/dl4j-examples/pom.xml" />
-        <option value="$PROJECT_DIR$/pom.xml" />
+        <option value="$PROJECT_DIR$/wat-workspace/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">
       <set>
-        <option value="$PROJECT_DIR$/wat-workspace/pom.xml" />
+        <option value="$PROJECT_DIR$/dl4j-examples/pom.xml" />
+        <option value="$PROJECT_DIR$/pom.xml" />
       </set>
     </option>
   </component>
