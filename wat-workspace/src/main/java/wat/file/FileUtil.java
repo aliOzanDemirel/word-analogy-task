@@ -2,7 +2,7 @@ package wat.file;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import wat.wordnet.WordnetUtil;
+import wat.wordnet.WordNetUtil;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 public class FileUtil {
 
-    private static final Logger log = LoggerFactory.getLogger(WordnetUtil.class);
+    private static final Logger log = LoggerFactory.getLogger(WordNetUtil.class);
     private static boolean debugEnabled = log.isDebugEnabled();
 
     public static boolean isPathValid(String filePath) {

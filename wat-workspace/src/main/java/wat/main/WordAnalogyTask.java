@@ -2,8 +2,7 @@ package wat.main;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import wat.exceptions.VocabularyBuildException;
-import wat.exceptions.Word2vecBuildException;
+import wat.exceptions.ModelBuildException;
 
 import java.io.IOException;
 
@@ -11,14 +10,13 @@ public class WordAnalogyTask {
 
     private static final Logger log = LoggerFactory.getLogger(WordAnalogyTask.class);
 
-    public static void main(String[] args) throws IOException, Word2vecBuildException,
-            VocabularyBuildException {
+    public static void main(String[] args) throws IOException, ModelBuildException {
 
         // logback status'u yazması için
         // StatusPrinter.print((LoggerContext) LoggerFactory.getILoggerFactory());
 
         String wordNetDictHome = System.getenv("WORDNET_PATH");
-        log.info("Application started. Available memory: " + Runtime.getRuntime().freeMemory() / 1024 +
+        log.info("Application started. Total memory: " + Runtime.getRuntime().totalMemory() / 1024 +
                 " WordNet home: " + wordNetDictHome + " Java home: " + System.getenv("JAVA_HOME"));
         ApplicationController controller = new ApplicationController(wordNetDictHome);
         for (; ; ) {
@@ -30,7 +28,7 @@ public class WordAnalogyTask {
                     case 2:
                         int pos = UserInput.getPOSSelection();
                         if (pos != 5) {
-                            controller.calculateAccuracy(pos);
+                            controller.calculateSimilarityScore(pos);
                         }
                         break;
                     case 3:
@@ -42,7 +40,7 @@ public class WordAnalogyTask {
                     case 4:
                         int corpusType = UserInput.getCorpusType();
                         if (corpusType != 3) {
-                            controller.prepareWord2vec(corpusType);
+                            controller.prepareModel(corpusType);
                         }
                         break;
                     case 5:

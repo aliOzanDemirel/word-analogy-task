@@ -1,34 +1,33 @@
 package wat.model.word2vec;
 
-import wat.helper.Constants;
+import org.deeplearning4j.models.embeddings.learning.ElementsLearningAlgorithm;
+import org.deeplearning4j.models.embeddings.learning.impl.elements.CBOW;
+import org.deeplearning4j.models.embeddings.learning.impl.elements.SkipGram;
+import wat.helper.DefaultTrainingParamValues;
+import wat.model.BaseTrainingParams;
 
-public class Word2vecTrainingParams {
+public class Word2vecTrainingParams extends BaseTrainingParams {
 
-    // paralel şekilde kaç thread çalışabileceğini tutuyor
-    // deneme yaparken bütün cpu çalışıp bilgisayar kapanmasın diye az bir sayı vermek için ekledim
-    private int workers;
-    private boolean allowParallelTokenization;
-    // negative sampling tercihen kullanılıyor
-    private boolean useHierarchicSoftmax;
-    private boolean hugeModelExpected;
-    private int minWordFrequency;
+    /**
+     * word2vec için hard coded:
+     * trainElementsVectors = true;
+     * trainSequenceVectors = false;
+     * tokenizer çalışırken multithread için var,
+     * gerek yok gibi buna, default true zaten
+     */
+
     // her batch için döngü sayısı
     private int iterations;
-    // bütün corpus için döngü sayısı
-    private int epochs;
-    // kelime matrisi = kelime sayısı * layer size (feature)
-    private int layerSize;
-    // çok büyük olunca yavaşlıyor
-    private int windowSize;
-    // random sayı üretmesi için
-    private int seed;
-    private int batchSize;
-    private double learningRate;
-    private double minLearningRate;
+    // negative sampling yavaş ama daha iyi
+    private boolean useHierarchicSoftmax;
+    private boolean hugeModelExpected;
     private double negative;
     private double sampling;
+    ElementsLearningAlgorithm skipGramOrCBOW;
 
     public Word2vecTrainingParams() {
+
+
         this.reset();
     }
 
@@ -36,152 +35,93 @@ public class Word2vecTrainingParams {
      * reset to default values.
      */
     public void reset() {
-        workers = Runtime.getRuntime().availableProcessors();
-        allowParallelTokenization = Constants.ALLOW_PARALLEL_TOKENIZATION;
-        useHierarchicSoftmax = Constants.USE_HIERARCHIC_SOFTMAX;
-        hugeModelExpected = Constants.HUGE_MODEL_EXPECTED;
-        minWordFrequency = Constants.MIN_WORD_FREQUENCY;
-        iterations = Constants.ITERATIONS;
-        epochs = Constants.EPOCHS;
-        layerSize = Constants.LAYER_SIZE;
-        windowSize = Constants.WINDOW_SIZE;
-        seed = Constants.SEED;
-        batchSize = Constants.BATCH_SIZE;
-        learningRate = Constants.LEARNING_RATE;
-        minLearningRate = Constants.MIN_LEARNING_RATE;
-        negative = Constants.NEGATIVE;
-        sampling = Constants.SAMPLING;
+
+        this.resetCommonParams();
+
+        useHierarchicSoftmax = DefaultTrainingParamValues.USE_HIERARCHIC_SOFTMAX;
+        hugeModelExpected = DefaultTrainingParamValues.HUGE_MODEL_EXPECTED;
+        iterations = DefaultTrainingParamValues.ITERATIONS;
+        negative = DefaultTrainingParamValues.NEGATIVE;
+        sampling = DefaultTrainingParamValues.SAMPLING;
+        skipGramOrCBOW = new SkipGram();
     }
 
     // TODO: validate ve toString doldurulacak
-    public void validate() {
-        if (minWordFrequency < 20) {
+    public boolean validate() {
 
-        }
+        return this.validateCommonParams();
     }
 
     @Override
     public String toString() {
-        return "workers: " + workers + ", window size: " + windowSize + ", layerSize: " + layerSize;
+
+        return super.toString();
     }
 
-    public int getMinWordFrequency() {
-        return minWordFrequency;
+    public ElementsLearningAlgorithm getSkipGramOrCBOW() {
+
+        return skipGramOrCBOW;
     }
 
-    public void setMinWordFrequency(int minWordFrequency) {
-        this.minWordFrequency = minWordFrequency;
+    /**
+     * @param useSkipGram true for skip gram, false for cbow.
+     */
+    public void setSkipGramOrCBOW(boolean useSkipGram) {
+
+        if (useSkipGram) {
+            skipGramOrCBOW = new SkipGram();
+        } else {
+            skipGramOrCBOW = new CBOW();
+        }
     }
 
     public int getIterations() {
+
         return iterations;
     }
 
     public void setIterations(int iterations) {
+
         this.iterations = iterations;
     }
 
-    public int getEpochs() {
-        return epochs;
-    }
-
-    public void setEpochs(int epochs) {
-        this.epochs = epochs;
-    }
-
-    public int getLayerSize() {
-        return layerSize;
-    }
-
-    public void setLayerSize(int layerSize) {
-        this.layerSize = layerSize;
-    }
-
-    public int getWindowSize() {
-        return windowSize;
-    }
-
-    public void setWindowSize(int windowSize) {
-        this.windowSize = windowSize;
-    }
-
-    public int getSeed() {
-        return seed;
-    }
-
-    public void setSeed(int seed) {
-        this.seed = seed;
-    }
-
-    public int getBatchSize() {
-        return batchSize;
-    }
-
-    public void setBatchSize(int batchSize) {
-        this.batchSize = batchSize;
-    }
-
-    public double getLearningRate() {
-        return learningRate;
-    }
-
-    public void setLearningRate(double learningRate) {
-        this.learningRate = learningRate;
-    }
-
-    public double getMinLearningRate() {
-        return minLearningRate;
-    }
-
-    public void setMinLearningRate(double minLearningRate) {
-        this.minLearningRate = minLearningRate;
-    }
-
     public double getNegative() {
+
         return negative;
     }
 
     public void setNegative(double negative) {
+
         this.negative = negative;
     }
 
     public double getSampling() {
+
         return sampling;
     }
 
     public void setSampling(double sampling) {
+
         this.sampling = sampling;
     }
 
-    public int getWorkers() {
-        return workers;
-    }
-
-    public void setWorkers(int workers) {
-        this.workers = workers;
-    }
-
-    public boolean isAllowParallelTokenization() {
-        return allowParallelTokenization;
-    }
-
-    public void setAllowParallelTokenization(boolean allowParallelTokenization) {
-        this.allowParallelTokenization = allowParallelTokenization;
-    }
-
     public boolean isUseHierarchicSoftmax() {
+
         return useHierarchicSoftmax;
     }
 
     public void setUseHierarchicSoftmax(boolean useHierarchicSoftmax) {
+
         this.useHierarchicSoftmax = useHierarchicSoftmax;
     }
 
     public boolean isHugeModelExpected() {
+
         return hugeModelExpected;
     }
 
     public void setHugeModelExpected(boolean hugeModelExpected) {
+
         this.hugeModelExpected = hugeModelExpected;
     }
 

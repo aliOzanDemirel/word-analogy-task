@@ -1,12 +1,10 @@
 package wat.calculator;
 
-import edu.mit.jwi.item.IWord;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import wat.exceptions.ModelBuildException;
 import wat.model.glove.GloveUtil;
 import wat.model.glove.GloveUtilInt;
 
-import java.util.HashSet;
+import java.util.List;
 
 public class GloveCalculator extends AccuracyCalculator implements GloveCalculatorInt {
 
@@ -18,9 +16,14 @@ public class GloveCalculator extends AccuracyCalculator implements GloveCalculat
     }
 
     @Override
-    public void createGlove(int corpusType) throws Exception {
+    public boolean hasWord(String word) {
 
-        gloveUtil.buildGloveFromCorpus(this.corpusPath);
+        return false;
+    }
+
+    @Override
+    public void createGlove(int corpusType) throws ModelBuildException {
+
     }
 
     /**
@@ -33,9 +36,29 @@ public class GloveCalculator extends AccuracyCalculator implements GloveCalculat
     public void updateSimilarityAccuracy(String firstWord, String secondWord) {
 
         if (this.bothWordsExist(firstWord, secondWord)) {
-            this.totalAccuracySum += gloveUtil.getSimilarity(firstWord, secondWord);
+            this.similarityScore += gloveUtil.getSimilarity(firstWord, secondWord);
             this.totalCalculations++;
         }
+    }
+
+    @Override
+    public void updateAnalogicalAccuracy(String relatedWordLemmaOfCompared, List<String> closestWords) {
+
+    }
+
+    @Override
+    public void updateTrainingParams(int trainingParamType) {
+
+    }
+
+    @Override
+    public void updateCorpusPath(final String corpusPath) {
+
+    }
+
+    @Override
+    public void createModel(int corpusIsPretrained) throws ModelBuildException {
+
     }
 
     private boolean bothWordsExist(String firstWord, String secondWord) {
@@ -46,17 +69,23 @@ public class GloveCalculator extends AccuracyCalculator implements GloveCalculat
     @Override
     public boolean isModelReady() {
 
-        return gloveUtil.isGloveReady();
+        return gloveUtil.isModelReady();
+    }
+
+    /**
+     * @return the number of the words in vocab cache of word2vec.
+     */
+    @Override
+    public int getTotalWordNumberInModelVocab() {
+
+        return 0;
     }
 
     @Override
-    public void resetParams() {
+    public List<String> getClosestWords(String rootWordLemma, String relatedWordLemma, String
+            comparedWordLemma) {
 
-    }
-
-    @Override
-    public void updateAnalogicalAccuracy(String firstReference, String secondReference, IWord wordToCheck) {
-
+        return null;
     }
 
 }

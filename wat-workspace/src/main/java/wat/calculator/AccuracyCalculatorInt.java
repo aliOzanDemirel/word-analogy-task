@@ -1,23 +1,32 @@
 package wat.calculator;
 
-import edu.mit.jwi.item.IWord;
+import wat.exceptions.ModelBuildException;
 
-import java.util.HashSet;
+import java.util.List;
 
 public interface AccuracyCalculatorInt {
 
-    void resetAccuracy();
+    void resetScores();
 
-    double updateAndGetAccuracyPercentage();
+    double getAccuracyPercentage();
 
-    void setCorpusPath(String corpusPath);
+    List<String> getClosestWords(final String rootWordLemma, final String relatedWordLemma,
+            final String comparedWordLemma);
 
-    void updateSimilarityAccuracy(String firstWord, String secondWord);
+    void updateSimilarityAccuracy(final String firstWord, final String secondWord);
+
+    void updateAnalogicalAccuracy(final String relatedWordLemmaOfCompared,
+            final List<String> closestWords);
 
     boolean isModelReady();
 
-    void resetParams();
+    boolean hasWord(final String word);
 
-    void updateAnalogicalAccuracy(String firstReference, String secondReference, IWord wordToCheck);
+    int getTotalWordNumberInModelVocab();
 
+    void updateTrainingParams(int trainingParamType);
+
+    void updateCorpusPath(final String corpusPath);
+
+    void createModel(int corpusIsPretrained) throws ModelBuildException;
 }

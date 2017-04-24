@@ -1,13 +1,9 @@
 package wat.model.glove;
 
-public interface GloveUtilInt {
+import wat.exceptions.ModelBuildException;
+import wat.model.BaseModelInt;
 
-    public void buildGloveFromCorpus(String corpusPath) throws Exception;
+public interface GloveUtilInt extends BaseModelInt {
 
-    public double getSimilarity(String firstWord, String secondWord);
-
-    public boolean hasWord(String word);
-
-    public boolean isGloveReady();
 
 }

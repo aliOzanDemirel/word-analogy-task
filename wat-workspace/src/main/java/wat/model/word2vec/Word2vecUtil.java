@@ -1,9 +1,11 @@
 package wat.model.word2vec;
 
+import org.deeplearning4j.models.embeddings.learning.ElementsLearningAlgorithm;
+import org.deeplearning4j.models.embeddings.learning.impl.elements.CBOW;
+import org.deeplearning4j.models.embeddings.learning.impl.elements.SkipGram;
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
 import org.deeplearning4j.models.word2vec.VocabWord;
 import org.deeplearning4j.models.word2vec.Word2Vec;
-import org.deeplearning4j.models.word2vec.wordstore.VocabCache;
 import org.deeplearning4j.text.sentenceiterator.BasicLineIterator;
 import org.deeplearning4j.text.sentenceiterator.SentenceIterator;
 import org.deeplearning4j.text.tokenization.tokenizer.preprocessor.CommonPreprocessor;
@@ -11,17 +13,20 @@ import org.deeplearning4j.text.tokenization.tokenizerfactory.DefaultTokenizerFac
 import org.deeplearning4j.text.tokenization.tokenizerfactory.TokenizerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import wat.exceptions.VocabularyBuildException;
-import wat.exceptions.Word2vecBuildException;
-import wat.helper.ModelType;
+import wat.exceptions.ModelBuildException;
+import wat.helper.Constants;
+import wat.helper.DefaultTrainingParamValues;
+import wat.model.BaseModel;
 
 import java.util.Collection;
 import java.util.List;
 
-public class Word2vecUtil implements Word2vecUtilInt {
+public class Word2vecUtil extends BaseModel implements Word2vecUtilInt {
 
     private static Logger log = LoggerFactory.getLogger(Word2vecUtil.class);
     private static boolean debugEnabled = log.isDebugEnabled();
+
+    private Word2vecTrainingParams params = new Word2vecTrainingParams();
     private Word2Vec word2vec = null;
 
     public Word2vecUtil() {
@@ -29,25 +34,27 @@ public class Word2vecUtil implements Word2vecUtilInt {
     }
 
     /**
-     * @param corpusPath
-     * @param corpusType 1 to train text file, 2 to use already trained model.
-     * @throws Word2vecBuildException
-     * @throws VocabularyBuildException
+     * @param corpusIsPretrained 1 to train text file, 2 to use already trained model.
+     * @throws ModelBuildException
      */
     @Override
-    public void createWord2vec(String corpusPath, int corpusType, Word2vecTrainingParams params) throws
-            Word2vecBuildException, VocabularyBuildException {
+    public void createModel(int corpusIsPretrained) throws ModelBuildException {
 
-        if (corpusType == ModelType.CORPUS_IS_PRETRAINED) {
+        this.createWord2vec(this.corpusPath, corpusIsPretrained, params);
+    }
+
+    private void createWord2vec(String corpusPath, int corpusIsPretrained, Word2vecTrainingParams params)
+            throws ModelBuildException {
+
+        if (corpusIsPretrained == Constants.CORPUS_IS_PRETRAINED) {
             this.loadPretrainedModel(corpusPath);
-        } else if (corpusType == ModelType.TRAIN_CORPUS) {
+        } else if (corpusIsPretrained == Constants.TRAIN_CORPUS) {
             this.buildWord2vecAfterCheckingParams(corpusPath, params);
         }
     }
 
-    private void buildWord2vecAfterCheckingParams(String corpusPath, Word2vecTrainingParams params) throws
-            Word2vecBuildException,
-            VocabularyBuildException {
+    private void buildWord2vecAfterCheckingParams(String corpusPath, Word2vecTrainingParams params)
+            throws ModelBuildException {
 
         params.validate();
 
@@ -60,22 +67,22 @@ public class Word2vecUtil implements Word2vecUtilInt {
         try {
             sentenceIterator = new BasicLineIterator(corpusPath);
         } catch (Exception e) {
-            throw new Word2vecBuildException("SentenceIterator cannot be created. Corpus path may " +
-                    "be wrong: " + corpusPath);
+            throw new ModelBuildException("SentenceIterator could not be created." +
+                    " Corpus path may be wrong: " + corpusPath);
         }
 
         // tokenların cümle olarak neyi aldığını belirlemek gerekebilir default olarak line
         TokenizerFactory tokenizer = new DefaultTokenizerFactory();
         tokenizer.setTokenPreProcessor(new CommonPreprocessor());
 
-        this.buildWord2vec(corpusPath, params, sentenceIterator, tokenizer);
+        this.buildWord2vec(params, sentenceIterator, tokenizer);
     }
 
-    private void buildWord2vec(String corpusPath, Word2vecTrainingParams params, SentenceIterator
-            sentenceIterator, TokenizerFactory tokenizer) throws Word2vecBuildException,
-            VocabularyBuildException {
+    private void buildWord2vec(Word2vecTrainingParams params, SentenceIterator sentenceIterator,
+            TokenizerFactory tokenizer) throws ModelBuildException {
 
-        log.info("Building word2Vec model may take a while. Parameters: " + params.toString());
+        log.info("Building word2vec may take a while. Parameters: " + params.toString());
+        word2vec = null;
         word2vec = new Word2Vec.Builder()
                 .useHierarchicSoftmax(params.isUseHierarchicSoftmax())
                 .minWordFrequency(params.getMinWordFrequency())
@@ -88,40 +95,76 @@ public class Word2vecUtil implements Word2vecUtilInt {
                 .minLearningRate(params.getMinLearningRate())
                 .iterate(sentenceIterator)
                 .tokenizerFactory(tokenizer)
-                .allowParallelTokenization(params.isAllowParallelTokenization())
                 .workers(params.getWorkers())
                 .negativeSample(params.getNegative())
                 .sampling(params.getSampling())
+                // skip-gram veya cbow
+                .elementsLearningAlgorithm(params.getSkipGramOrCBOW())
                 .build();
 
+        long start = System.nanoTime();
         word2vec.fit();
-        log.info("Done fitting word2Vec model.");
+        log.info("Done fitting word2vec model in " + (System.nanoTime() - start) / 60000 + " minutes.");
     }
 
     // csv, binary ve dl4j compressed yüklüyor
     // loadStaticModel word vectorlere erişmek için sadece
     private void loadPretrainedModel(String corpusPath) {
 
-        log.info("Starting to load word2vec from file: " + corpusPath + " This may take a while.");
-        try {
-            log.warn("" + Runtime.getRuntime().freeMemory());
-            word2vec = WordVectorSerializer.readWord2VecModel(corpusPath);
-        } catch (Throwable e) {
-            log.error("Error occured while loading pretrained model!", e);
-        }
-        log.info("Done loading word2Vec model");
+        log.info("Starting to load word2vec from file: " + corpusPath +
+                " This may take a while. Total memory: ");
+        word2vec = null;
+
+        long start = System.nanoTime();
+        word2vec = WordVectorSerializer.readWord2VecModel(corpusPath);
+        log.info("Done loading word2vec model in " + (System.nanoTime() - start) / 60000 + " minutes.");
     }
 
-    // model build edilirken ilk yapılan şey vocabulary yaratmak yani zaten hazırlanıyor
-    private void buildVocabulary() throws VocabularyBuildException {
+    /**
+     * @return the number of the words in vocab cache of word2vec.
+     */
+    @Override
+    public int getTotalWordNumberInModelVocab() {
 
-        word2vec.buildVocab();
-        VocabCache<VocabWord> vocab = word2vec.getVocab();
-        if (vocab == null) {
-            throw new VocabularyBuildException("Couldn't build vocabulary for word2vec model!");
-        } else {
-            log.info("Done building vocabulary.");
+        return word2vec.getVocab().numWords();
+    }
+
+    @Override
+    public boolean hasWord(String word) {
+
+        boolean result = word2vec.hasWord(word);
+        if (!result) {
+//            log.debug(word + " does not exist in word2vec model.");
         }
+        return result;
+    }
+
+    @Override
+    public boolean isModelReady() {
+
+        if (word2vec == null) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    @Override
+    public Word2vecTrainingParams getWord2vecParams() {
+
+        return params;
+    }
+
+    @Override
+    public void resetWord2vecParams() {
+
+        params.reset();
+    }
+
+    @Override
+    public List<String> getClosestWords(List<String> positive, List<String> negative) {
+
+        return (List<String>) word2vec.wordsNearest(positive, negative, closestWordSize);
     }
 
     @Override
@@ -139,42 +182,15 @@ public class Word2vecUtil implements Word2vecUtilInt {
      *
      * @param questions
      */
-    @Override
-    public void getAccuracy(List<String> questions) {
+    public void getAccuracyByQuestions(List<String> questions) {
 
         word2vec.accuracy(questions);
     }
 
-    @Override
-    public Collection<String> getNearestWords(String word, int number) {
+    public Collection<String> getNearestWords(String word) {
 
-        return word2vec.wordsNearest(word, number);
+        // en yakın 3 kelime
+        return word2vec.wordsNearest(word, 3);
     }
-
-    public Collection<String> koray(List<String> positives, List<String> negatives, int size) {
-
-        return word2vec.wordsNearest(positives, negatives, size);
-    }
-
-    @Override
-    public boolean hasWord(String word) {
-
-        boolean result = word2vec.hasWord(word);
-        if (!result) {
-//            log.warn(word + " does not exist in word2vec model.");
-        }
-        return result;
-    }
-
-    @Override
-    public boolean isWord2vecReady() {
-
-        if (word2vec == null) {
-            return false;
-        } else {
-            return true;
-        }
-    }
-
 
 }

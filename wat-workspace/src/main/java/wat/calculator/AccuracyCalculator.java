@@ -1,54 +1,61 @@
 package wat.calculator;
 
-import edu.mit.jwi.item.IWord;
+import wat.helper.Constants;
 
-import java.util.HashSet;
+import java.util.List;
 
 public abstract class AccuracyCalculator implements AccuracyCalculatorInt {
 
-    protected double totalAccuracySum = 0.0;
-    protected double accuracyPercentage = 0.0;
+    protected double similarityScore = 0.0;
     protected int totalCalculations = 0;
-    protected String corpusPath = null;
-    // corpus type memoryde tutulup corpus path değişince sorulacak şekilde düzenlenebilir
-    protected int corpusType = 0;
+    protected double analogyScore = 0.0;
+    protected int totalAnalogicCalculations = 0;
+    protected double maxScore = Math.pow(Constants.BASE_SENSITIVITY, Constants.CLOSEST_WORD_SIZE + 1);
 
     public AccuracyCalculator() {
 
     }
 
     @Override
-    public void resetAccuracy() {
+    public void resetScores() {
 
-        totalAccuracySum = 0.0;
-        accuracyPercentage = 0.0;
+        analogyScore = 0.0;
+        totalAnalogicCalculations = 0;
+        similarityScore = 0.0;
         totalCalculations = 0;
     }
 
     @Override
-    public double updateAndGetAccuracyPercentage() {
+    public double getAccuracyPercentage() {
 
-        accuracyPercentage = totalAccuracySum / totalCalculations;
-        return accuracyPercentage;
+        return similarityScore / totalCalculations;
     }
-
-    @Override
-    public void setCorpusPath(String corpusPath) {
-
-        this.corpusPath = corpusPath;
-    }
-
-    @Override
-    public abstract void updateSimilarityAccuracy(String firstWord, String secondWord);
 
     @Override
     public abstract boolean isModelReady();
 
     @Override
-    public abstract void resetParams();
+    public abstract boolean hasWord(final String word);
 
     @Override
-    public abstract void updateAnalogicalAccuracy(String firstReference, String secondReference,
-            IWord wordToCheck);
+    public abstract int getTotalWordNumberInModelVocab();
+
+    @Override
+    public abstract void updateTrainingParams(int trainingType);
+
+    @Override
+    public abstract void updateCorpusPath(final String corpusPath);
+
+    @Override
+    public abstract List<String> getClosestWords(final String rootWordLemma, final String relatedWordLemma,
+            final String comparedWordLemma);
+
+    @Override
+    public abstract void updateSimilarityAccuracy(String firstWord, String secondWord);
+
+    @Override
+    public abstract void updateAnalogicalAccuracy(String relatedWordLemmaOfCompared,
+            List<String> closestWords);
+
 
 }
