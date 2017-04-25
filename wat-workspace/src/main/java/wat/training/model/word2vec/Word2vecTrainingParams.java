@@ -1,10 +1,10 @@
-package wat.model.word2vec;
+package wat.training.model.word2vec;
 
 import org.deeplearning4j.models.embeddings.learning.ElementsLearningAlgorithm;
 import org.deeplearning4j.models.embeddings.learning.impl.elements.CBOW;
 import org.deeplearning4j.models.embeddings.learning.impl.elements.SkipGram;
 import wat.helper.DefaultTrainingParamValues;
-import wat.model.BaseTrainingParams;
+import wat.training.model.BaseTrainingParams;
 
 public class Word2vecTrainingParams extends BaseTrainingParams {
 

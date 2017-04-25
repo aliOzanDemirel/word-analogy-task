@@ -4,28 +4,34 @@ import edu.mit.jwi.data.ILoadPolicy;
 import edu.mit.jwi.item.POS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import wat.calculator.AccuracyCalculatorInt;
-import wat.calculator.GloveCalculator;
-import wat.calculator.GloveCalculatorInt;
-import wat.calculator.Word2vecCalculator;
-import wat.calculator.Word2vecCalculatorInt;
+import wat.calculator.CalculatorInt;
+import wat.exceptions.ModelBuildException;
+import wat.file.FileActions;
+import wat.helper.Constants;
+import wat.training.model.BaseModelInt;
+import wat.training.model.glove.GloveUtil;
+import wat.training.model.glove.GloveUtilInt;
+import wat.training.model.word2vec.Word2vecUtil;
+import wat.training.model.word2vec.Word2vecUtilInt;
 import wat.wordnet.WordNetUtil;
 import wat.wordnet.WordNetUtilInt;
-import wat.exceptions.ModelBuildException;
-import wat.helper.Constants;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
+// isCorpusTrained kullanılmalı
 public class ApplicationController {
 
-    private static final Logger log = LoggerFactory.getLogger(WordNetUtil.class);
-    private WordNetUtilInt wordNetUtil;
+    private static final Logger log = LoggerFactory.getLogger(ApplicationController.class);
 
-    private Word2vecCalculatorInt w2vecCalc = new Word2vecCalculator();
-    private GloveCalculatorInt gloveCalc = new GloveCalculator();
+    private Word2vecUtilInt w2vecCalc = new Word2vecUtil();
+    private GloveUtilInt gloveCalc = new GloveUtil();
     // default olarak word2vec kullanımda
-    private int modelBeingUsed = Constants.WORD2VEC;
-    private AccuracyCalculatorInt calculator = w2vecCalc;
+    private int usedModelID = Constants.WORD2VEC;
+    private BaseModelInt usedModel = w2vecCalc;
+    private WordNetUtilInt wordNetUtil = null;
 
     public ApplicationController(String wordNetPath) throws IOException, ModelBuildException {
 
@@ -49,39 +55,86 @@ public class ApplicationController {
      */
     public void changeModelToUse(int choice) {
 
-        this.modelBeingUsed = choice;
-        if (choice == Constants.GLOVE) {
-            calculator = gloveCalc;
-        } else if (choice == Constants.WORD2VEC) {
-            calculator = w2vecCalc;
+        if (usedModelID != choice) {
+            if (choice == Constants.GLOVE) {
+                usedModel = gloveCalc;
+            } else if (choice == Constants.WORD2VEC) {
+                usedModel = w2vecCalc;
+            }
+            usedModelID = choice;
+        } else {
+            log.info("Already using " + usedModel.getName());
         }
     }
 
     /**
-     * calculate accuracy up to user choice. calculated score will be stored in calculator.
+     * sends the folder path to save compressed zip file in.
+     * folder path is the 'HOME_DIR'/'MODEL_NAME'_saved
+     */
+    public void saveTrainedModel() {
+
+        if (usedModel.isModelReady()) {
+            String name = this.getUsedModelName();
+            File file = FileActions.getFolderToSaveModel(name);
+            if (usedModel.saveTrainedModel(file)) {
+                log.info(this.getUsedModelName() + " embeddings are saved successfully.");
+            }
+        } else {
+            log.warn(this.getUsedModelName() + " is not created.");
+        }
+    }
+
+    /**
+     * calculate accuracy up to user choice of POS.
+     * calculated score will be saved into a text file.
      *
      * @param choice
+     * @param isAnalogyTest
      * @throws IOException
      */
-    public void calculateSimilarityScore(int choice) throws IOException {
+    public void calculateScore(int choice, boolean isAnalogyTest) throws IOException {
 
-        if (calculator.isModelReady()) {
+        if (usedModel.isModelReady()) {
             switch (choice) {
                 case Constants.ALL_WORDS:
-                    wordNetUtil.calculateSimilarityScoreForAllWords(calculator, false);
+                    wordNetUtil.calculateScoreForAllWords(usedModel, isAnalogyTest);
                     break;
                 case Constants.NOUNS_ONLY:
                 case Constants.VERBS_ONLY:
                 case Constants.ADJECTIVES_ONLY:
                 case Constants.ADVERBS_ONLY:
-                    wordNetUtil.calculateSimilarityScoreForPOS(calculator, POS.getPartOfSpeech
-                            (choice), false);
+                    wordNetUtil.calculateScoreForPOS(usedModel, POS.getPartOfSpeech(choice),
+                            isAnalogyTest);
                     break;
                 default:
                     log.error("Invalid POS choice: " + choice);
             }
         } else {
-            log.warn("You should first train or load a word2vec model.");
+            log.warn("You should first train or load a model.");
+        }
+
+        // first save scores
+        this.saveCalculationScore(wordNetUtil.getCalc());
+        // then reset all
+        wordNetUtil.getCalc().resetScores();
+    }
+
+    public void saveCalculationScore(CalculatorInt calc) {
+
+        List<String> lines = new ArrayList<String>(7) {{
+            add("Similarity score: " + calc.getSimilarityScore());
+            add("Total similarity calculations: " + calc.getTotalSimCalculations());
+            add("Similarity percentage: " + calc.getSimilarityPercentage());
+            add("Analogy score: " + calc.getAnalogyScore());
+            add("Total analogy calculations: " + calc.getTotalAnalogicCalculations());
+            add("Analogical percentage: " + calc.getAnalogicalPercentage());
+            add("Maximum score for analogy algorithm: " + calc.getMaxScoreForAnalogy());
+        }};
+
+        try {
+            FileActions.writeToFile(usedModel.getName(), lines);
+        } catch (IOException e) {
+            log.error("Scores could not be saved!", e);
         }
     }
 
@@ -92,25 +145,41 @@ public class ApplicationController {
 
     public void changeCorpusPath(String newPath) {
 
-        calculator.updateCorpusPath(newPath);
+        usedModel.setCorpusPath(newPath);
     }
 
+    /**
+     * @param corpusIsPretrained true if corpus is not raw text but a prebuilt model.
+     * @throws ModelBuildException
+     */
     public void prepareModel(int corpusIsPretrained) throws ModelBuildException {
 
-        if (this.usesGivenModel(Constants.WORD2VEC)) {
-            w2vecCalc.createModel(corpusIsPretrained);
-        } else {
-            log.warn("Word2vec model is not selected.");
+        usedModel.createModel(corpusIsPretrained);
+    }
+
+    public void updateSelectedModelParams(int trainingParamType) {
+
+        switch (trainingParamType) {
+//            case Word2vecParamType.WORKERS:
+//                int workers = UserInput.getSelectionBetween(1, 8);
+//                int availableProcessors = Runtime.getRuntime().availableProcessors();
+//                if (workers > availableProcessors) {
+//                    log.info(workers + " processors are not available so param 'workers' is set to: " +
+//                            availableProcessors);
+//                    workers = availableProcessors;
+//                }
+//                usedModel.getWord2vecParams().setWorkers(workers);
+//                break;
+//            case Word2vecParamType.MIN_WORD_FREQUENCY:
+//                break;
+            default:
+                log.warn("Wrong word2vec param type: " + trainingParamType);
         }
     }
 
-    public void updateWord2vecParams(int trainingParamType) {
+    public void resetModelParams() {
 
-        if (this.usesGivenModel(Constants.WORD2VEC)) {
-            calculator.updateTrainingParams(trainingParamType);
-        } else {
-            log.warn("Word2vec model is not selected.");
-        }
+        usedModel.resetParams();
     }
 
     public void listBySelection(int selection) throws IOException {
@@ -132,15 +201,19 @@ public class ApplicationController {
                 wordNetUtil.listVerbs();
                 break;
             case 6:
+                wordNetUtil.listAdjectives();
+                break;
+            case 7:
+                wordNetUtil.listAdverbs();
                 break;
             default:
                 log.warn("Invalid selection for listing words: " + selection);
         }
     }
 
-    private boolean usesGivenModel(int modelType) {
+    public String getUsedModelName() {
 
-        return this.modelBeingUsed == modelType;
+        return usedModel.getName();
     }
 
 }

@@ -20,4 +20,7 @@ public class Constants {
     public static final int USE_CBOW = 0;
     public static final int USE_SKIP_GRAM = 1;
 
+    public static final boolean IS_ANALOGY_TEST = true;
+    public static final boolean IS_SIMILARITY_TEST = false;
+
 }

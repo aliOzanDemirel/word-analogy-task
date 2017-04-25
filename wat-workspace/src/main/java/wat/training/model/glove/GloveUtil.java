@@ -1,4 +1,4 @@
-package wat.model.glove;
+package wat.training.model.glove;
 
 import org.deeplearning4j.models.glove.Glove;
 import org.deeplearning4j.text.sentenceiterator.BasicLineIterator;
@@ -9,8 +9,9 @@ import org.deeplearning4j.text.tokenization.tokenizerfactory.TokenizerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import wat.exceptions.ModelBuildException;
-import wat.model.BaseModel;
+import wat.training.model.BaseModel;
 
+import java.io.File;
 import java.util.List;
 
 public class GloveUtil extends BaseModel implements GloveUtilInt {
@@ -19,6 +20,12 @@ public class GloveUtil extends BaseModel implements GloveUtilInt {
 
     private GloveTrainingParams params = new GloveTrainingParams();
     private Glove glove = null;
+
+    @Override
+    public String getName() {
+
+        return "glove";
+    }
 
     @Override
     public void createModel(int corpusType) throws ModelBuildException {
@@ -81,6 +88,12 @@ public class GloveUtil extends BaseModel implements GloveUtilInt {
     }
 
     @Override
+    public void resetParams() {
+
+        params.reset();
+    }
+
+    @Override
     public boolean hasWord(String word) {
 
         return glove.hasWord(word);
@@ -100,6 +113,12 @@ public class GloveUtil extends BaseModel implements GloveUtilInt {
     public int getTotalWordNumberInModelVocab() {
 
         return 0;
+    }
+
+    @Override
+    public boolean saveTrainedModel(File file) {
+
+        return false;
     }
 
 

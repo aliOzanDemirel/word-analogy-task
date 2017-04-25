@@ -1,10 +1,6 @@
-package wat.model.word2vec;
+package wat.training.model.word2vec;
 
-import org.deeplearning4j.models.embeddings.learning.ElementsLearningAlgorithm;
-import org.deeplearning4j.models.embeddings.learning.impl.elements.CBOW;
-import org.deeplearning4j.models.embeddings.learning.impl.elements.SkipGram;
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
-import org.deeplearning4j.models.word2vec.VocabWord;
 import org.deeplearning4j.models.word2vec.Word2Vec;
 import org.deeplearning4j.text.sentenceiterator.BasicLineIterator;
 import org.deeplearning4j.text.sentenceiterator.SentenceIterator;
@@ -15,9 +11,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import wat.exceptions.ModelBuildException;
 import wat.helper.Constants;
-import wat.helper.DefaultTrainingParamValues;
-import wat.model.BaseModel;
+import wat.training.model.BaseModel;
 
+import java.io.*;
 import java.util.Collection;
 import java.util.List;
 
@@ -31,6 +27,12 @@ public class Word2vecUtil extends BaseModel implements Word2vecUtilInt {
 
     public Word2vecUtil() {
 
+    }
+
+    @Override
+    public String getName() {
+
+        return "word2vec";
     }
 
     /**
@@ -60,15 +62,18 @@ public class Word2vecUtil extends BaseModel implements Word2vecUtilInt {
 
         if (corpusPath == null || corpusPath.isEmpty()) {
             corpusPath = System.getenv("DEFAULT_CORPUS_PATH");
-            log.warn("Corpus path is empty, setting to default: " + corpusPath);
+            if (corpusPath == null || corpusPath.isEmpty()) {
+                throw new ModelBuildException("DEFAULT_CORPUS_PATH is not set!");
+            }
+            log.warn("Setting corpus path to default: " + corpusPath);
         }
 
         SentenceIterator sentenceIterator;
         try {
             sentenceIterator = new BasicLineIterator(corpusPath);
         } catch (Exception e) {
-            throw new ModelBuildException("SentenceIterator could not be created." +
-                    " Corpus path may be wrong: " + corpusPath);
+            throw new ModelBuildException("SentenceIterator could not be created."
+                    + " Corpus path may be wrong: " + corpusPath);
         }
 
         // tokenların cümle olarak neyi aldığını belirlemek gerekebilir default olarak line
@@ -83,6 +88,7 @@ public class Word2vecUtil extends BaseModel implements Word2vecUtilInt {
 
         log.info("Building word2vec may take a while. Parameters: " + params.toString());
         word2vec = null;
+
         word2vec = new Word2Vec.Builder()
                 .useHierarchicSoftmax(params.isUseHierarchicSoftmax())
                 .minWordFrequency(params.getMinWordFrequency())
@@ -104,20 +110,36 @@ public class Word2vecUtil extends BaseModel implements Word2vecUtilInt {
 
         long start = System.nanoTime();
         word2vec.fit();
-        log.info("Done fitting word2vec model in " + (System.nanoTime() - start) / 60000 + " minutes.");
+        log.info("Done building word2vec model in " + (System.nanoTime() - start) / 60000 + " minutes.");
     }
 
     // csv, binary ve dl4j compressed yüklüyor
     // loadStaticModel word vectorlere erişmek için sadece
     private void loadPretrainedModel(String corpusPath) {
 
-        log.info("Starting to load word2vec from file: " + corpusPath +
-                " This may take a while. Total memory: ");
+        log.info("Starting to load word2vec from file: "
+                + corpusPath + " This may take a while. Total memory: ");
         word2vec = null;
 
         long start = System.nanoTime();
         word2vec = WordVectorSerializer.readWord2VecModel(corpusPath);
         log.info("Done loading word2vec model in " + (System.nanoTime() - start) / 60000 + " minutes.");
+    }
+
+    /**
+     * @param file represents a folder to save compressed model file in.
+     * @return false if model could not be written to file.
+     */
+    @Override
+    public boolean saveTrainedModel(File file) {
+
+        try {
+            WordVectorSerializer.writeWord2VecModel(word2vec, file);
+            return true;
+        } catch (Exception e) {
+            log.error("Cannot find the directory: " + file.getAbsolutePath(), e);
+            return false;
+        }
     }
 
     /**
@@ -133,8 +155,8 @@ public class Word2vecUtil extends BaseModel implements Word2vecUtilInt {
     public boolean hasWord(String word) {
 
         boolean result = word2vec.hasWord(word);
-        if (!result) {
-//            log.debug(word + " does not exist in word2vec model.");
+        if (!result && debugEnabled) {
+            log.debug(word + " does not exist in word2vec model.");
         }
         return result;
     }
@@ -156,7 +178,7 @@ public class Word2vecUtil extends BaseModel implements Word2vecUtilInt {
     }
 
     @Override
-    public void resetWord2vecParams() {
+    public void resetParams() {
 
         params.reset();
     }

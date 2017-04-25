@@ -1,7 +1,7 @@
-package wat.model.glove;
+package wat.training.model.glove;
 
 import wat.helper.DefaultTrainingParamValues;
-import wat.model.BaseTrainingParams;
+import wat.training.model.BaseTrainingParams;
 
 public class GloveTrainingParams extends BaseTrainingParams {
 

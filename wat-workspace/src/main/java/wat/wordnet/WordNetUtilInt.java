@@ -1,34 +1,39 @@
 package wat.wordnet;
 
-import edu.mit.jwi.item.IWord;
-import edu.mit.jwi.item.IWordID;
 import edu.mit.jwi.item.POS;
-import wat.calculator.AccuracyCalculatorInt;
+import wat.calculator.CalculatorInt;
+import wat.training.model.BaseModelInt;
 
 import java.io.IOException;
 
 public interface WordNetUtilInt {
 
-    void calculateSimilarityScoreForAllWords(final AccuracyCalculatorInt calculator, final boolean
-            isAnalogyTest) throws IOException;
-
-    void calculateSimilarityScoreForPOS(final AccuracyCalculatorInt calculator, final POS partOfSpeech,
+    void calculateScoreForAllWords(final BaseModelInt usedModel,
             final boolean isAnalogyTest) throws IOException;
 
-    void calculateAnalogyOfWordInput(final AccuracyCalculatorInt calculator, final String wordInput);
+    void calculateScoreForPOS(final BaseModelInt usedModel, final POS partOfSpeech,
+            final boolean isAnalogyTest) throws IOException;
+
+    void calculateAnalogyOfWordInput(final BaseModelInt usedModel, final String wordInput);
 
     void loadDictionaryIntoMemory();
 
     void closeDictionary();
 
-    void listWordsSemanticPointers() throws IOException;
-
-    void listNouns() throws IOException;
-
-    void listVerbs() throws IOException;
+    void listWordsSemanticPointers();
 
     void listWordsLexicalPointers();
 
+    void listNouns();
+
+    void listVerbs();
+
+    void listAdjectives();
+
+    void listAdverbs();
+
     void listPointerMap();
+
+    CalculatorInt getCalc();
 
 }

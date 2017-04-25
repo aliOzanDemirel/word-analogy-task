@@ -1,4 +1,4 @@
-package wat.model;
+package wat.training.model;
 
 import wat.helper.Constants;
 
@@ -9,11 +9,6 @@ public abstract class BaseModel implements BaseModelInt {
      * dl4j compressed file can be set if model is prebuilt.
      */
     protected String corpusPath = null;
-
-    /**
-     * true if corpus is not raw text but a prebuilt model.
-     */
-    protected boolean corpusIsTrained = false;
 
     /**
      * setting to hold how many words should be retrieved
@@ -35,16 +30,6 @@ public abstract class BaseModel implements BaseModelInt {
     public void setCorpusPath(String corpusPath) {
 
         this.corpusPath = corpusPath;
-    }
-
-    public boolean isCorpusIsTrained() {
-
-        return corpusIsTrained;
-    }
-
-    public void setCorpusIsTrained(boolean corpusIsTrained) {
-
-        this.corpusIsTrained = corpusIsTrained;
     }
 
     public int getClosestWordSize() {

@@ -2,7 +2,7 @@ package wat.main;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import wat.file.FileUtil;
+import wat.file.FileActions;
 
 import java.util.InputMismatchException;
 import java.util.Scanner;
@@ -28,24 +28,23 @@ public class UserInput {
 
     public static int getMenuSelection() {
 
-        log.info("************************************************");
-        log.info("* 1-) load word net dict into memory           *");
-        log.info("* 2-) choose pos to calculate accuracy         *");
-        log.info("* 3-) pick a model to vectorize words          *");
-        log.info("* 4-) build word2vec                           *");
-        log.info("* 5-) change word2vec params                   *");
-        log.info("* 6-) change corpus path                       *");
-//        log.info("* 7-) build glove                              *");
-//        log.info("* 8-) change glove params                      *");
-//        log.info("* 9-) reset model params                       *");
-        log.info("* 10-)                                         *");
-        log.info("* 11-)                                         *");
-        log.info("* 12-) log memory                              *");
-        log.info("* 13-) show listing options                    *");
-        log.info("* 14-) exit                                    *");
-        log.info("* 12-)                                         *");
-        log.info("************************************************");
-        return UserInput.getSelectionBetween(1, 14);
+        log.info("*****************************************");
+        log.info("* 1-) load word net into memory         *");
+        log.info("* 2-) show listing options              *");
+        log.info("* 3-) choose model for training         *");
+        log.info("* 4-) change model's params             *");
+        log.info("* 5-) reset model params                *");
+        log.info("* 6-) change corpus path for model      *");
+        log.info("* 7-) build or load model               *");
+        log.info("* 8-) save trained model                *");
+//        log.info("* 9-) save calculated scores            *");
+//        log.info("* 10-) get analogy score of one word    *");
+        log.info("* 11-) calculate analogy score          *");
+        log.info("* 12-) calculate similarity score       *");
+        log.info("* 13-) log memory                       *");
+        log.info("* 14-) exit                             *");
+        log.info("*****************************************");
+        return UserInput.getSelectionBetween(1, 12);
     }
 
     public static int getPOSSelection() {
@@ -63,41 +62,54 @@ public class UserInput {
 
     public static int getCorpusType() {
 
-        log.info("**************************************************");
-        log.info("* 1 to build word2vec by training corpus         *");
-        log.info("* 2 to load wordvec from already trained model   *");
-        log.info("* 3 to cancel                                    *");
-        log.info("**************************************************");
+        log.info("******************************************");
+        log.info("* 1 to build model by training corpus    *");
+        log.info("* 2 to use an already trained model      *");
+        log.info("* 3 to cancel                            *");
+        log.info("******************************************");
         return UserInput.getSelectionBetween(1, 3);
     }
 
     public static int getListingOptions() {
 
-        log.info("*************************************");
-        log.info("* 1 to listPointerMap               *");
-        log.info("* 2 to listWordsLexicalPointers     *");
-        log.info("* 3 to listWordsSemanticPointers    *");
-        log.info("* 4 to listNouns                    *");
-        log.info("* 5 to listVerbs                    *");
-        log.info("* 6 to                              *");
-        log.info("* 7 to cancel                       *");
-        log.info("*************************************");
-        return UserInput.getSelectionBetween(1, 7);
+        log.info("************************************");
+        log.info("* 1 to listPointerMap              *");
+        log.info("* 2 to listWordsLexicalPointers    *");
+        log.info("* 3 to listWordsSemanticPointers   *");
+        log.info("* 4 to listNouns                   *");
+        log.info("* 5 to listVerbs                   *");
+        log.info("* 6 to listAdjectives              *");
+        log.info("* 7 to listAdverbs                 *");
+        log.info("* 8 to cancel                      *");
+        log.info("************************************");
+        return UserInput.getSelectionBetween(1, 8);
     }
 
     public static String getNewPathForCorpus() {
 
-        String selection = null;
+        // clear line
         input.nextLine();
+
+        String selection = null;
         do {
-            log.warn("Enter path of word2vec corpus file or enter 'c' to cancel.");
+            log.warn("Enter a valid path for corpus file or enter 'c' to cancel.");
             selection = input.nextLine();
             if ("c".equals(selection)) {
                 return null;
             }
-        } while (selection.isEmpty() || !FileUtil.isPathValid(selection));
+        } while (selection.isEmpty() || !FileActions.isPathValid(selection));
 
         return selection;
+    }
+
+    public static int getModelID() {
+
+        log.info("********************");
+        log.info("* 1 for glove      *");
+        log.info("* 2 for word2vec   *");
+        log.info("* 3 to cancel      *");
+        log.info("********************");
+        return UserInput.getSelectionBetween(1, 3);
     }
 
     public static int getWord2vecParam() {
@@ -115,14 +127,18 @@ public class UserInput {
         return UserInput.getSelectionBetween(1, 8);
     }
 
-    public static int getModelType() {
+    public static boolean isUserSure() {
 
-        log.info("**********************");
-        log.info("* 1 for glove        *");
-        log.info("* 2 for word2vec     *");
-        log.info("* 3 to cancel        *");
-        log.info("**********************");
-        return UserInput.getSelectionBetween(1, 3);
+        // clear line
+        input.nextLine();
+
+        log.info("Press 'y' if you are sure, press anything else to cancel.");
+        String selection = input.nextLine();
+        if ("y".equalsIgnoreCase(selection)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
 }

@@ -1,4 +1,4 @@
-package wat.model;
+package wat.training.model;
 
 import wat.helper.DefaultTrainingParamValues;
 

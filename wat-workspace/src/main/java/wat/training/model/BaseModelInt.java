@@ -1,20 +1,19 @@
-package wat.model;
+package wat.training.model;
 
 import wat.exceptions.ModelBuildException;
 
+import java.io.File;
 import java.util.List;
 
 public interface BaseModelInt {
+
+    String getName();
 
     void createModel(int corpusIsPretrained) throws ModelBuildException;
 
     String getCorpusPath();
 
     void setCorpusPath(String corpusPath);
-
-    boolean isCorpusIsTrained();
-
-    void setCorpusIsTrained(boolean corpusIsTrained);
 
     int getClosestWordSize();
 
@@ -30,7 +29,11 @@ public interface BaseModelInt {
 
     int getTotalWordNumberInModelVocab();
 
+    boolean saveTrainedModel(File file);
+
     double getSimilarity(String firstWord, String secondWord);
 
     List<String> getClosestWords(List<String> positive, List<String> negative);
+
+    void resetParams();
 }

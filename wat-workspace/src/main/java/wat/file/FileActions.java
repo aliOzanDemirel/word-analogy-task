@@ -1,32 +1,48 @@
 package wat.file;
 
+import org.joda.time.DateTime;
+import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import wat.wordnet.WordNetUtil;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.DateFormat;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class FileUtil {
+public class FileActions {
 
-    private static final Logger log = LoggerFactory.getLogger(WordNetUtil.class);
-    private static boolean debugEnabled = log.isDebugEnabled();
+    private static final Logger log = LoggerFactory.getLogger(FileActions.class);
+
+    public static void writeToFile(final String folderNameWithModel, final List<String> lines)
+            throws IOException {
+
+        Path file = Paths.get(System.getProperty("user.home") +
+                "/" + folderNameWithModel + "_saved/" + new LocalDate().toString() + "_SCORES.txt");
+        Files.write(file, lines, Charset.forName("UTF-8"));
+    }
+
+    public static File getFolderToSaveModel(final String folderNameWithModel) {
+
+        String path = System.getProperty("user.home") + "/" + folderNameWithModel + "_saved";
+        return new File(path);
+    }
 
     public static boolean isPathValid(String filePath) {
-//        File f = new File(filePath);
-//        if (f.exists()) {
-//            return f.getAbsolutePath();
-//        }
+
         return Files.exists(Paths.get(filePath));
     }
 
     private Path getPathIfValid(String filePath) {
+
         Path path = null;
         try {
             path = Paths.get(filePath);
@@ -37,6 +53,7 @@ public class FileUtil {
     }
 
     public void readFile(String filePath) throws Exception {
+
         BufferedReader bufferedReader = null;
         Path path = this.getPathIfValid(filePath);
         try {
