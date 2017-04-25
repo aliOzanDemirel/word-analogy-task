@@ -1,6 +1,6 @@
 package wat.file;
 
-import org.joda.time.DateTime;
+import org.joda.time.DateTimeFieldType;
 import org.joda.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,8 +13,6 @@ import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.DateFormat;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,17 +20,19 @@ public class FileActions {
 
     private static final Logger log = LoggerFactory.getLogger(FileActions.class);
 
-    public static void writeToFile(final String folderNameWithModel, final List<String> lines)
+    public static void writeToFileWithDifferentNames(final String folderName, final List<String> lines)
             throws IOException {
 
-        Path file = Paths.get(System.getProperty("user.home") +
-                "/" + folderNameWithModel + "_saved/" + new LocalDate().toString() + "_SCORES.txt");
+        final LocalDate date = new LocalDate();
+        Path file = Paths.get(System.getProperty("user.home")
+                + "/" + folderName + "/" + date.toString()
+                + "_" + date.get(DateTimeFieldType.secondOfDay()) + "_scores.txt");
         Files.write(file, lines, Charset.forName("UTF-8"));
     }
 
     public static File getFolderToSaveModel(final String folderNameWithModel) {
 
-        String path = System.getProperty("user.home") + "/" + folderNameWithModel + "_saved";
+        String path = System.getProperty("user.home") + "/" + folderNameWithModel;
         return new File(path);
     }
 

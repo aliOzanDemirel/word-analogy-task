@@ -1,9 +1,9 @@
-/**
- * Created by ozan on 23.04.2017.
- */
+import org.junit.Test;
+
 public class WordNetTest {
 
-    public void test() {
+    @Test
+    public void testCalculateAnalogyOfOneWord() {
 
     }
 

@@ -79,9 +79,14 @@ public class WordAnalogyTask {
                         break;
                     case 9:
                         // save calculated scores
+                        controller.saveCalculationScore();
                         break;
                     case 10:
                         // calculate analogy score of a word of user's choice
+                        String selection = UserInput.getWordInput();
+                        if (selection != null) {
+                            controller.getAnalogyScoreOfTypedWord(selection);
+                        }
                         break;
                     case 11:
                         // calculate analogy score

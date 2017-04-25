@@ -37,8 +37,8 @@ public class UserInput {
         log.info("* 6-) change corpus path for model      *");
         log.info("* 7-) build or load model               *");
         log.info("* 8-) save trained model                *");
-//        log.info("* 9-) save calculated scores            *");
-//        log.info("* 10-) get analogy score of one word    *");
+        log.info("* 9-) save calculated scores            *");
+        log.info("* 10-) get analogy score of one word    *");
         log.info("* 11-) calculate analogy score          *");
         log.info("* 12-) calculate similarity score       *");
         log.info("* 13-) log memory                       *");
@@ -102,6 +102,19 @@ public class UserInput {
         return selection;
     }
 
+    public static String getWordInput() {
+
+        // clear line
+        input.nextLine();
+
+        log.warn("Enter a word or enter 'c' to cancel.");
+        String selection = input.nextLine();
+        if ("c".equals(selection)) {
+            selection = null;
+        }
+        return selection;
+    }
+
     public static int getModelID() {
 
         log.info("********************");
@@ -132,7 +145,7 @@ public class UserInput {
         // clear line
         input.nextLine();
 
-        log.info("Press 'y' if you are sure, press anything else to cancel.");
+        log.warn("Press 'y' if you are sure, press anything else to cancel.");
         String selection = input.nextLine();
         if ("y".equalsIgnoreCase(selection)) {
             return true;

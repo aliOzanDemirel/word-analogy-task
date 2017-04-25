@@ -75,7 +75,7 @@ public class ApplicationController {
 
         if (usedModel.isModelReady()) {
             String name = this.getUsedModelName();
-            File file = FileActions.getFolderToSaveModel(name);
+            File file = FileActions.getFolderToSaveModel(name + "_saved");
             if (usedModel.saveTrainedModel(file)) {
                 log.info(this.getUsedModelName() + " embeddings are saved successfully.");
             }
@@ -103,24 +103,33 @@ public class ApplicationController {
                 case Constants.VERBS_ONLY:
                 case Constants.ADJECTIVES_ONLY:
                 case Constants.ADVERBS_ONLY:
-                    wordNetUtil.calculateScoreForPOS(usedModel, POS.getPartOfSpeech(choice),
-                            isAnalogyTest);
+                    wordNetUtil.calculateScoreForPOS(usedModel,
+                            POS.getPartOfSpeech(choice), isAnalogyTest);
                     break;
                 default:
                     log.error("Invalid POS choice: " + choice);
             }
+            // first save scores
+            this.saveCalculationScore();
+            // then reset all
+            wordNetUtil.getCalc().resetScores();
         } else {
             log.warn("You should first train or load a model.");
         }
-
-        // first save scores
-        this.saveCalculationScore(wordNetUtil.getCalc());
-        // then reset all
-        wordNetUtil.getCalc().resetScores();
     }
 
-    public void saveCalculationScore(CalculatorInt calc) {
+    public void getAnalogyScoreOfTypedWord(final String wordInput) {
 
+        if (usedModel.isModelReady()) {
+            wordNetUtil.calculateAnalogyScoreOfWordInput(usedModel, wordInput);
+        } else {
+            log.warn("You should first train or load a model.");
+        }
+    }
+
+    public void saveCalculationScore() {
+
+        CalculatorInt calc = wordNetUtil.getCalc();
         List<String> lines = new ArrayList<String>(7) {{
             add("Similarity score: " + calc.getSimilarityScore());
             add("Total similarity calculations: " + calc.getTotalSimCalculations());
@@ -132,7 +141,7 @@ public class ApplicationController {
         }};
 
         try {
-            FileActions.writeToFile(usedModel.getName(), lines);
+            FileActions.writeToFileWithDifferentNames(usedModel.getName() + "_saved", lines);
         } catch (IOException e) {
             log.error("Scores could not be saved!", e);
         }

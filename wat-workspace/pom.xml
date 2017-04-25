@@ -54,6 +54,13 @@
     </distributionManagement>
 
     <dependencies>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.4</version>
+        </dependency>
+
         <!--
         logback için gerekli logback-core ve slf4j-api
         jarları da aşağıdaki dependency ile gelecek
