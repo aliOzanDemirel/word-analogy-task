@@ -3,6 +3,7 @@ package wat.main;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import wat.exceptions.ModelBuildException;
+import wat.file.FileActions;
 import wat.helper.Constants;
 
 import java.io.IOException;
@@ -13,10 +14,15 @@ public class WordAnalogyTask {
 
     public static void main(String[] args) throws IOException, ModelBuildException {
 
-        // logback status'u yazması için
+        // prints logback status
         // StatusPrinter.print((LoggerContext) LoggerFactory.getILoggerFactory());
 
         String wordNetDictHome = System.getenv("WORDNET_PATH");
+        if (wordNetDictHome == null || !FileActions.isPathValid(wordNetDictHome)) {
+            log.error("WORDNET_PATH does not have a valid path, thus WordNet could not be found!");
+            System.exit(1);
+        }
+
         log.info("Application started. WordNet home: " + wordNetDictHome
                 + " Java home: " + System.getenv("JAVA_HOME"));
         ApplicationController controller = new ApplicationController(wordNetDictHome);

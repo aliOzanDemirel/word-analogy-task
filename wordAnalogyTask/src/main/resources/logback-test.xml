@@ -4,8 +4,9 @@
     <!-- ALL < DEBUG < INFO < WARN < ERROR < FATAL < OFF -->
 
     <property name="logHome" value="logs"/>
+    <property name="maxFileSize" value="10MB"/>
 
-    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <layout class="ch.qos.logback.classic.PatternLayout">
             <pattern>
                 %d{yyyy-MM-dd HH:mm:ss} %highlight(%-5level %logger{30} - %msg%n)
@@ -13,7 +14,7 @@
         </layout>
     </appender>
 
-    <appender name="mainFile"
+    <appender name="MAIN"
               class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${logHome}/main.log</file>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
@@ -28,12 +29,12 @@
             </fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy
                     class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                <maxFileSize>50MB</maxFileSize>
+                <maxFileSize>${maxFileSize}</maxFileSize>
             </timeBasedFileNamingAndTriggeringPolicy>
         </rollingPolicy>
     </appender>
 
-    <appender name="errorFile"
+    <appender name="ERROR"
               class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${logHome}/error.log</file>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
@@ -50,31 +51,26 @@
             </fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy
                     class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                <maxFileSize>50MB</maxFileSize>
+                <maxFileSize>${maxFileSize}</maxFileSize>
             </timeBasedFileNamingAndTriggeringPolicy>
         </rollingPolicy>
     </appender>
 
-    <appender name="asynchronous" class="ch.qos.logback.classic.AsyncAppender">
-        <appender-ref ref="mainFile"/>
+    <!-- sadece bir tane appender AsyncAppender'a bağlanabiliyor -->
+    <appender name="ASYNC_MAIN" class="ch.qos.logback.classic.AsyncAppender">
+        <appender-ref ref="MAIN"/>
     </appender>
 
-    <!-- asenkronize loglama diye de bir şey varmış
-    <appender name="async" class="ch.qos.logback.classic.AsyncAppender">
-        <appender-ref ref="mainFile"/>
-    </appender>
-    -->
     <!-- özel bir paket veya class için ayrı log seviyesi tanımlamak için
-    <logger name="wat.deep.learning" level="INFO"
-            additivity="false">
-        <appender-ref ref="FILE-AUDIT"/>
-        <appender-ref ref="STDOUT"/>
-    </logger>
-    -->
-
-    <root level="DEBUG">
+    <logger name="ch.qos.logback" level="WARN" additivity="false">
         <appender-ref ref="asynchronous"/>
         <appender-ref ref="console"/>
+    </logger>
+    -->
+    <root level="DEBUG">
+        <appender-ref ref="ASYNC_MAIN"/>
+        <appender-ref ref="ERROR"/>
+        <appender-ref ref="CONSOLE"/>
     </root>
 
 </configuration>

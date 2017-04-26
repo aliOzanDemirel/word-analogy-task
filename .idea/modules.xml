@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/wat-workspace/wat-workspace.iml" filepath="$PROJECT_DIR$/wat-workspace/wat-workspace.iml" />
+      <module fileurl="file://$PROJECT_DIR$/wordAnalogyTask/wordAnalogyTask.iml" filepath="$PROJECT_DIR$/wordAnalogyTask/wordAnalogyTask.iml" />
     </modules>
   </component>
 </project>

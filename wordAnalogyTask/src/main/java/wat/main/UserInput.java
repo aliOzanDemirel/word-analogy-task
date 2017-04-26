@@ -44,7 +44,7 @@ public class UserInput {
         log.info("* 13-) log memory                       *");
         log.info("* 14-) exit                             *");
         log.info("*****************************************");
-        return UserInput.getSelectionBetween(1, 12);
+        return UserInput.getSelectionBetween(1, 14);
     }
 
     public static int getPOSSelection() {

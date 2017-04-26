@@ -26,7 +26,7 @@ public class WordNetUtil implements WordNetUtilInt {
     private IRAMDictionary dict = null;
     private CalculatorInt calc = new Calculator();
 
-    private HashSet<WordNetPointers> semanticAnalogyTypes = new HashSet<WordNetPointers>(21) {{
+    private HashSet<WordNetPointers> semanticAnalogyTypes = new HashSet<WordNetPointers>(15) {{
         add(WordNetPointers.ATTRIBUTE);
         add(WordNetPointers.CAUSE);
         add(WordNetPointers.ENTAILMENT);
@@ -51,7 +51,7 @@ public class WordNetUtil implements WordNetUtilInt {
 //        add(WordNetPointers.REGION);
 //        add(WordNetPointers.REGION_MEMBER);
     }};
-    private HashSet<WordNetPointers> lexicalAnalogyTypes = new HashSet<WordNetPointers>(21) {{
+    private HashSet<WordNetPointers> lexicalAnalogyTypes = new HashSet<WordNetPointers>(5) {{
         add(WordNetPointers.ANTONYM);
         add(WordNetPointers.PERTAINYM);
         add(WordNetPointers.PARTICIPLE);
@@ -94,15 +94,16 @@ public class WordNetUtil implements WordNetUtilInt {
     @Override
     public void loadDictionaryIntoMemory() {
         // wordnet'i kapatmaya gerek olabilir
-        log.info("Loading wordnet into memory.");
+        log.info("Loading wordnet into memory...");
+        long start = System.currentTimeMillis();
         try {
             // setLoadPolicy'ye gerek yok sanırım
             // true ile çağırınca loading'in bitmesini bekliyor method call
             dict.load(true);
-            log.info("Loading is done.");
         } catch (InterruptedException e) {
             log.error("Dictionary load process is interrupted, it may not be loaded properly!", e);
         }
+        log.info("Loading is done in " + (System.currentTimeMillis() - start) / 1000 + " seconds.");
     }
 
     /**
@@ -412,12 +413,12 @@ public class WordNetUtil implements WordNetUtilInt {
 
     /**
      * WordNet has phrases which are connected to each other by '_'. Also it has words as '.22' or '10'
-     * that we don't want to check for analogy.
+     * that we don't want to check for analogy. (method is public for testing)
      *
      * @param wordLemma
      * @return false if the word is not valid to send to model.
      */
-    private boolean validateWord(final String wordLemma) {
+    public boolean validateWord(final String wordLemma) {
 
         // regex checks if any number exists
         if (wordLemma.contains("_") || wordLemma.matches(".*\\d+.*")) {
@@ -430,23 +431,26 @@ public class WordNetUtil implements WordNetUtilInt {
     private void preparePointerToWordMap() {
 
         if (pointerToWordMap == null) {
-            // 29 tane pointer var
+            int wordCounter = 0;
+            // toplamda 29 tane pointer var
             pointerToWordMap = new HashMap<IPointer, HashSet<IWord>>(32);
             for (POS partOfSpeech : POS.values()) {
                 final Iterator<IIndexWord> indexWordIterator = dict.getIndexWordIterator(partOfSpeech);
                 while (indexWordIterator.hasNext()) {
                     final IIndexWord iIndexWord = indexWordIterator.next();
-                    this.addWordIDsToPointerMap(iIndexWord.getWordIDs());
+                    wordCounter = this.addWordIDsToPointerMap(iIndexWord.getWordIDs(), wordCounter);
                 }
             }
+            log.info(wordCounter + " words are mapped to pointers.");
         } else {
-            log.info("Pointer and word mapping is already done.");
+            log.info("Pointer to word mapping is already done.");
         }
     }
 
-    private void addWordIDsToPointerMap(final List<IWordID> wordIDs) {
+    private int addWordIDsToPointerMap(final List<IWordID> wordIDs, int wordCounter) {
 
         final int totalWordsForWordID = wordIDs.size();
+        wordCounter += totalWordsForWordID;
         for (int i = 0; i < totalWordsForWordID; i++) {
             // bir kelimenin farklı anlamları varsa farklı ID ile farklı Word objelerinde
             // birden çok olabiliyor
@@ -458,6 +462,7 @@ public class WordNetUtil implements WordNetUtilInt {
             // semantic pointer'ın setine koy
             this.addToPointerMap(rootWord, rootWord.getSynset().getRelatedMap().keySet());
         }
+        return wordCounter;
     }
 
     private void addToPointerMap(IWord word, Set<IPointer> pointers) {
@@ -478,27 +483,37 @@ public class WordNetUtil implements WordNetUtilInt {
     @Override
     public void listPointerMap() {
 
+        int counter = 1;
+        StringBuilder strBuilder = new StringBuilder(10000);
         long start = System.currentTimeMillis();
         this.preparePointerToWordMap();
+        log.info("Seconds passed to prepare map: " + (System.currentTimeMillis() - start) / 1000);
         for (IPointer iPointer : pointerToWordMap.keySet()) {
-            StringBuilder stringBuilder = new StringBuilder(5000);
             HashSet<IWord> words = pointerToWordMap.get(iPointer);
             for (IWord word : words) {
-                stringBuilder.append(iPointer.getName()).append("\nWord: ").append(word.getLemma())
-                        .append(" Gloss: ").append(word.getSynset().getGloss()).append("\n");
+                strBuilder.append("\n****************\n").append(iPointer.getName()).append("\nWord: ")
+                        .append(word.getLemma()).append("\nGloss: ").append(word.getSynset().getGloss());
+                if ((counter++) % 4000 == 1) {
+                    log.info(strBuilder.toString());
+                    strBuilder = new StringBuilder(10000);
+                }
             }
-            log.info(stringBuilder.toString());
         }
-        log.info("Seconds passed: " + (System.currentTimeMillis() - start) / 1000);
+        log.info(strBuilder.toString());
     }
 
     @Override
     public void listWordsSemanticPointers() {
 
+        int counter = 1;
+        StringBuilder strBuilder = new StringBuilder(10000);
         for (POS partOfSpeech : POS.values()) {
-            StringBuilder strBuilder = new StringBuilder();
             final Iterator<IIndexWord> indexWordIterator = dict.getIndexWordIterator(partOfSpeech);
             while (indexWordIterator.hasNext()) {
+                if ((counter++) % 4000 == 1) {
+                    log.info(strBuilder.toString());
+                    strBuilder = new StringBuilder(10000);
+                }
                 final IIndexWord iIndexWord = indexWordIterator.next();
                 final List<IWordID> wordIDs = iIndexWord.getWordIDs();
                 int totalWordsForWordID = wordIDs.size();
@@ -528,17 +543,22 @@ public class WordNetUtil implements WordNetUtilInt {
                     }
                 }
             }
-            log.info(strBuilder.toString());
         }
+        log.info(strBuilder.toString());
     }
 
     @Override
     public void listWordsLexicalPointers() {
 
+        int counter = 1;
+        StringBuilder strBuilder = new StringBuilder(10000);
         for (POS partOfSpeech : POS.values()) {
-            StringBuilder strBuilder = new StringBuilder();
             final Iterator<IIndexWord> indexWordIterator = dict.getIndexWordIterator(partOfSpeech);
             while (indexWordIterator.hasNext()) {
+                if ((counter++) % 4000 == 1) {
+                    log.info(strBuilder.toString());
+                    strBuilder = new StringBuilder(10000);
+                }
                 final IIndexWord iIndexWord = indexWordIterator.next();
                 final List<IWordID> wordIDs = iIndexWord.getWordIDs();
                 int totalWordsForWordID = wordIDs.size();
@@ -562,8 +582,8 @@ public class WordNetUtil implements WordNetUtilInt {
                     }
                 }
             }
-            log.info(strBuilder.toString());
         }
+        log.info(strBuilder.toString());
     }
 
     @Override

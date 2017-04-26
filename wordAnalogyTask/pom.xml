@@ -18,10 +18,18 @@
         <dl4j.version>0.7.1</dl4j.version>
         <maven.minimum.version>3.3.1</maven.minimum.version>
         <logback.version>1.2.2</logback.version>
+        <junit.version>4.4</junit.version>
     </properties>
 
     <!-- artifact indirmek için -->
     <repositories>
+        <!--
+        <repository>
+            <id>central.repo</id>
+            <name>Central Releases</name>
+            <url>http://central.maven.org/maven2/</url>
+        </repository>
+        -->
         <repository>
             <id>sonatype.repo</id>
             <name>Sonatype Releases</name>
@@ -55,10 +63,17 @@
 
     <dependencies>
 
+        <!-- 2.4.0 yok o yüzden elle ekle
+        <dependency>
+            <groupId>edu.mit</groupId>
+            <artifactId>jwi</artifactId>
+            <version>2.2.3</version>
+        </dependency>
+        -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.4</version>
+            <version>${junit.version}</version>
         </dependency>
 
         <!--

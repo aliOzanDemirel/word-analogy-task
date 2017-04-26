@@ -36,6 +36,10 @@ public class FileActions {
         return new File(path);
     }
 
+    /**
+     * @param filePath path to the file (can also be directory).
+     * @return false if file does not exist for given path.
+     */
     public static boolean isPathValid(String filePath) {
 
         return Files.exists(Paths.get(filePath));
