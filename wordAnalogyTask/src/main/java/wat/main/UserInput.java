@@ -41,8 +41,9 @@ public class UserInput {
         log.info("* 10-) get analogy score of one word    *");
         log.info("* 11-) calculate analogy score          *");
         log.info("* 12-) calculate similarity score       *");
-        log.info("* 13-) log memory                       *");
-        log.info("* 14-) exit                             *");
+        log.info("* 13-) change calculation settings      *");
+        log.info("* 14-) log memory                       *");
+        log.info("* 15-) exit                             *");
         log.info("*****************************************");
         return UserInput.getSelectionBetween(1, 14);
     }
@@ -50,12 +51,12 @@ public class UserInput {
     public static int getPOSSelection() {
 
         log.info("**********************");
-        log.info("* 0 for all          *");
+        log.info("* 0 to cancel        *");
         log.info("* 1 for noun         *");
         log.info("* 2 for verb         *");
         log.info("* 3 for adjective    *");
         log.info("* 4 for adverb       *");
-        log.info("* 5 to cancel        *");
+        log.info("* 5 for all          *");
         log.info("**********************");
         return UserInput.getSelectionBetween(0, 5);
     }
@@ -118,11 +119,11 @@ public class UserInput {
     public static int getModelID() {
 
         log.info("********************");
+        log.info("* 0 to cancel      *");
         log.info("* 1 for glove      *");
         log.info("* 2 for word2vec   *");
-        log.info("* 3 to cancel      *");
         log.info("********************");
-        return UserInput.getSelectionBetween(1, 3);
+        return UserInput.getSelectionBetween(0, 2);
     }
 
     public static int getWord2vecParam() {
@@ -152,6 +153,22 @@ public class UserInput {
         } else {
             return false;
         }
+    }
+
+    public static int getSettingID() {
+
+        log.info("**********************");
+        log.info("* 0 to cancel        *");
+        log.info("* 1 for base value of max score, higher means bigger gap between 1st and 2nd order       " +
+                "     *");
+        log.info("* 2 for total words to retrieve from model when checking proximity of a word with a word " +
+                "pair *");
+        log.info("* 3 for iteration cap of a pointer while doing analogy test.                             " +
+                "     *");
+        log.info("* 4 for resetting iteration cap to default value.                     *");
+        log.info("* 5 for resetting base sensitivity, closest word size and max score.  *");
+        log.info("**********************");
+        return UserInput.getSelectionBetween(0, 5);
     }
 
 }

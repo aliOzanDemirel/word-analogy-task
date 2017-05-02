@@ -36,4 +36,8 @@ public interface WordNetUtilInt {
 
     CalculatorInt getCalc();
 
+    void resetIterationCapForPointer();
+
+    void setIterationCapForPointer(int iterationCap);
+
 }

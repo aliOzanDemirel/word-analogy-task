@@ -58,4 +58,14 @@ public enum WordNetPointers {
         this.value = value;
     }
 
+    public static WordNetPointers getByCode(final String code) {
+
+        for (WordNetPointers pointer : values()) {
+            if (pointer.value.equals(code)) {
+                return pointer;
+            }
+        }
+        throw new IllegalArgumentException(code + " is not a valid WordNetPointers!");
+    }
+
 }

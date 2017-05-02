@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import wat.calculator.Calculator;
 import wat.calculator.CalculatorInt;
+import wat.helper.DefaultSettings;
 import wat.helper.WordNetPointers;
 import wat.training.model.BaseModelInt;
 
@@ -22,11 +23,24 @@ public class WordNetUtil implements WordNetUtilInt {
     private static final Logger log = LoggerFactory.getLogger(WordNetUtil.class);
     private static final boolean debugEnabled = log.isDebugEnabled();
 
+    private HashMap<Set<IPointer>, HashSet<IWord>> multiplePointersToWordMap = null;
+
+    /**
+     * holds mapping of pointers in {@link #analogyTypes} to words.
+     */
     private HashMap<IPointer, HashSet<IWord>> pointerToWordMap = null;
+
+    /**
+     * while doing analogy test, this setting controls how many words of a root word's pointer are going
+     * to be checked for a word pair. if it is set to a high number (like 200.000), every word of a pointer
+     * will be sent to analogy test which is not very efficient computationally.
+     */
+    private int iterationCapForPointer;
+
     private IRAMDictionary dict = null;
     private CalculatorInt calc = new Calculator();
 
-    private HashSet<WordNetPointers> semanticAnalogyTypes = new HashSet<WordNetPointers>(15) {{
+    private HashSet<WordNetPointers> analogyTypes = new HashSet<WordNetPointers>(21) {{
         add(WordNetPointers.ATTRIBUTE);
         add(WordNetPointers.CAUSE);
         add(WordNetPointers.ENTAILMENT);
@@ -42,16 +56,15 @@ public class WordNetUtil implements WordNetUtilInt {
         add(WordNetPointers.MERONYM_SUBSTANCE);
         add(WordNetPointers.MERONYM_PART);
         add(WordNetPointers.SIMILAR_TO);
+        add(WordNetPointers.VERB_GROUP);
 //        add(WordNetPointers.ALSO_SEE);
-//        add(WordNetPointers.VERB_GROUP);
 //        add(WordNetPointers.TOPIC);
 //        add(WordNetPointers.TOPIC_MEMBER);
 //        add(WordNetPointers.USAGE);
 //        add(WordNetPointers.USAGE_MEMBER);
 //        add(WordNetPointers.REGION);
 //        add(WordNetPointers.REGION_MEMBER);
-    }};
-    private HashSet<WordNetPointers> lexicalAnalogyTypes = new HashSet<WordNetPointers>(5) {{
+        // lexical relationships
         add(WordNetPointers.ANTONYM);
         add(WordNetPointers.PERTAINYM);
         add(WordNetPointers.PARTICIPLE);
@@ -65,10 +78,11 @@ public class WordNetUtil implements WordNetUtilInt {
         this.openDictionary();
         log.info("WordNet (version " + dict.getVersion() + ") is loaded with policy: "
                 + loadPolicy + " (NO_LOAD: 2, BACKGROUND_LOAD = 4, IMMEDIATE_LOAD = 8)");
+        this.resetIterationCapForPointer();
     }
 
     /**
-     * opens the wordnet if it is not already open.
+     * opens the {@link #dict WordNet dictionary} if it is not already open.
      */
     private void openDictionary() throws IOException {
         // dict.isOpen() kontrolüne göre yok zira wordnet state'i zaten
@@ -81,7 +95,7 @@ public class WordNetUtil implements WordNetUtilInt {
     }
 
     /**
-     * closes the wordnet if it is open.
+     * closes the {@link #dict WordNet dictionary} if it is open.
      */
     @Override
     public void closeDictionary() {
@@ -91,6 +105,9 @@ public class WordNetUtil implements WordNetUtilInt {
         log.info("Dictionary is closed.");
     }
 
+    /**
+     * loads the {@link #dict WordNet dictionary} into memory for querying words quicker.
+     */
     @Override
     public void loadDictionaryIntoMemory() {
         // wordnet'i kapatmaya gerek olabilir
@@ -107,14 +124,16 @@ public class WordNetUtil implements WordNetUtilInt {
     }
 
     /**
+     * this method calls {@link #preparePointerToWordMap()} before calculating analogy score.
+     *
      * @param usedModel     can be glove or word2vec usedModel.
      * @param isAnalogyTest true to calculate analogical relationship.
-     * @throws IOException when WordNet file can't be opened.
      */
     @Override
     public void calculateScoreForAllWords(final BaseModelInt usedModel,
-            final boolean isAnalogyTest) throws IOException {
+            final boolean isAnalogyTest) {
 
+        this.preparePointerToWordMap();
         long started = System.currentTimeMillis();
         for (POS partOfSpeech : POS.values()) {
             this.calculateScoreForPOS(usedModel, partOfSpeech, isAnalogyTest);
@@ -127,11 +146,10 @@ public class WordNetUtil implements WordNetUtilInt {
      * @param usedModel     can be glove or word2vec usedModel.
      * @param partOfSpeech  can be noun, verb, adjective or adverb.
      * @param isAnalogyTest true to calculate analogical relationship.
-     * @throws IOException
      */
     @Override
     public void calculateScoreForPOS(final BaseModelInt usedModel,
-            final POS partOfSpeech, final boolean isAnalogyTest) throws IOException {
+            final POS partOfSpeech, final boolean isAnalogyTest) {
 
         if (isAnalogyTest) {
             this.calculateAnalogyScoreOfWordIterator(usedModel,
@@ -148,10 +166,9 @@ public class WordNetUtil implements WordNetUtilInt {
      *
      * @param usedModel
      * @param indexWordIterator
-     * @throws IOException
      */
     private void calculateSimilarityScoreOfWordIterator(final BaseModelInt usedModel,
-            final Iterator<IIndexWord> indexWordIterator) throws IOException {
+            final Iterator<IIndexWord> indexWordIterator) {
 
         IIndexWord iIndexWord;
         // asıl işlenen kelime
@@ -190,6 +207,8 @@ public class WordNetUtil implements WordNetUtilInt {
     }
 
     /**
+     * this method calls {@link #preparePointerToWordMap()} before calculating analogy score.
+     *
      * @param usedModel
      * @param wordInput
      */
@@ -197,21 +216,29 @@ public class WordNetUtil implements WordNetUtilInt {
     public void calculateAnalogyScoreOfWordInput(final BaseModelInt usedModel,
             final String wordInput) {
 
+        long start = System.currentTimeMillis();
         if (this.validateWord(wordInput)) {
-            IIndexWord indexWord = null;
+            if (usedModel.hasWord(wordInput)) {
+                IIndexWord indexWord = null;
+                final int totalPOS = POS.values().length;
 
-            // verilen kelimenin karşılığı olan indexWord'ü bul
-            for (int i = 1; i < 4 && indexWord == null; i++) {
-                indexWord = dict.getIndexWord(wordInput, POS.getPartOfSpeech(i));
-            }
+                // verilen kelimenin karşılığı olan indexWord'ü bul
+                for (int i = 1; i < totalPOS && indexWord == null; i++) {
+                    indexWord = dict.getIndexWord(wordInput, POS.getPartOfSpeech(i));
+                }
 
-            if (indexWord == null) {
-                log.warn(wordInput + " could not be found in WordNet.");
-            } else {
-                this.calculateAnalogyScoreOfIndexWord(usedModel, indexWord);
-                log.info("Analogical accuracy score: " + calc.getAnalogicalPercentage());
+                if (indexWord == null) {
+                    log.warn(wordInput + " could not be found in WordNet.");
+                } else {
+                    this.preparePointerToWordMap();
+                    this.calculateAnalogyScoreOfIndexWord(usedModel, indexWord);
+                    log.info("Took " + (System.currentTimeMillis() - start) / 1000
+                            + " seconds for word: " + wordInput);
+                }
+            } else if (!debugEnabled) {
+                log.info(wordInput + " is not in model's vocabulary.");
             }
-        } else {
+        } else if (!debugEnabled) {
             log.info(wordInput + " is not a valid word.");
         }
     }
@@ -222,16 +249,32 @@ public class WordNetUtil implements WordNetUtilInt {
         while (indexWordIterator.hasNext()) {
             IIndexWord indexWord = indexWordIterator.next();
 
-            // kelime word2vec'e yollanmaya uygun mu kontrolü
+            // kelime word2vec'e yollanmaya uygun mu
             if (this.validateWord(indexWord.getLemma())) {
-                this.calculateAnalogyScoreOfIndexWord(usedModel, indexWord);
+                // kelime word2vec sözlüğünde kayıtlı mı
+                if (usedModel.hasWord(indexWord.getLemma())) {
+                    this.calculateAnalogyScoreOfIndexWord(usedModel, indexWord);
+                } else {
+                    if (debugEnabled) {
+                        log.debug(indexWord.getLemma() + " is not in model's vocabulary.");
+                    }
+                }
             } else {
-                log.info(indexWord.getLemma() + " is not a valid word.");
+                if (debugEnabled) {
+                    log.debug(indexWord.getLemma() + " is not a valid word.");
+                }
             }
+
         }
-        log.info("Analogical accuracy score: " + calc.getAnalogicalPercentage());
+        log.info("Analogy score: " + calc.getAnalogicalPercentage());
     }
 
+    /**
+     * indexWord should have been checked before coming to this method.
+     *
+     * @param usedModel
+     * @param indexWord
+     */
     private void calculateAnalogyScoreOfIndexWord(final BaseModelInt usedModel,
             final IIndexWord indexWord) {
 
@@ -250,52 +293,68 @@ public class WordNetUtil implements WordNetUtilInt {
     private void calculateAnalogicalAccuracyOfOneWord(final BaseModelInt usedModel,
             final IWord rootWord, final String rootWordLemma) {
 
-        this.calculateLexicalAnalogy(usedModel, rootWord, rootWordLemma);
-        this.calculateSemanticAnalogy(usedModel, rootWord, rootWordLemma);
+        this.calculateLexicalAnalogy(usedModel, rootWord.getRelatedMap(), rootWordLemma);
+        this.calculateSemanticAnalogy(usedModel, rootWord.getSynset().getRelatedMap(), rootWordLemma);
     }
 
-    private void calculateLexicalAnalogy(final BaseModelInt usedModel, final IWord rootWord,
-            final String rootWordLemma) {
+    /**
+     * analogic pair is root word + related word of root word.
+     *
+     * @param usedModel
+     * @param relatedWordMap
+     * @param rootWordLemma
+     */
+    private void calculateLexicalAnalogy(final BaseModelInt usedModel,
+            final Map<IPointer, List<IWordID>> relatedWordMap, final String rootWordLemma) {
 
         String relatedWordLemma, comparedWordLemma;
-        final Map<IPointer, List<IWordID>> relatedWordMap = rootWord.getRelatedMap();
         for (IPointer iPointer : relatedWordMap.keySet()) {
 
-            // pointer analojik olarak manalıysa
-            if (lexicalAnalogyTypes.contains(WordNetPointers.valueOf(iPointer.getSymbol()))) {
-                final HashSet<IWord> wordsOfPointer = pointerToWordMap.get(iPointer);
+            final HashSet<IWord> wordsOfPointer = pointerToWordMap.get(iPointer);
 
+            // pointer analojik olarak manalıysa
+            if (wordsOfPointer != null) {
                 // root kelimenin lexical yakın kelimeleri
                 final List<IWordID> lexicallyRelatedWordIDs = relatedWordMap.get(iPointer);
                 int relatedWordSizeForPointer = lexicallyRelatedWordIDs.size();
 
                 for (int k = 0; k < relatedWordSizeForPointer; k++) {
-                    IWord relatedWord = dict.getWord(lexicallyRelatedWordIDs.get(k));
+                    final IWord relatedWord = dict.getWord(lexicallyRelatedWordIDs.get(k));
                     relatedWordLemma = relatedWord.getLemma();
 
                     // related kelime ile root aynı olmamalı
                     if (rootWordLemma.equals(relatedWordLemma)) {
                         if (debugEnabled) {
-                            log.debug(rootWordLemma + " is same as related word.");
+                            log.debug(relatedWordLemma + " is same as root word, it cannot be checked.");
                         }
-                    } else {
-                        for (IWord comparedWord : wordsOfPointer) {
+                    } else if (this.validateWord(relatedWordLemma)
+                            && usedModel.hasWord(relatedWordLemma)) {
+
+                        int counter = 0;
+                        final Iterator<IWord> iterator = wordsOfPointer.iterator();
+                        while (iterator.hasNext() && counter < iterationCapForPointer) {
+                            counter++;
+                            final IWord comparedWord = iterator.next();
                             comparedWordLemma = comparedWord.getLemma();
 
-                            // kıyaslanan kelime root veya related'la aynı olamaz
-                            if (comparedWordLemma.equals(rootWordLemma) || comparedWordLemma.equals
-                                    (relatedWordLemma)) {
-                                if (debugEnabled) {
-                                    log.debug(comparedWordLemma + " is same as root or related word, " +
-                                            "it will not be counted.");
-                                }
-                            } else {
-                                final List<IWordID> relatedWordsOfCompared = comparedWord.getRelatedWords
-                                        (iPointer);
+                            if (usedModel.hasWord(comparedWordLemma)) {
 
-                                this.compareWordPairWithGivenThird(usedModel,
-                                        this.returnWordsFromWordIDs(relatedWordsOfCompared),
-                                        rootWordLemma, relatedWordLemma, comparedWordLemma);
+                                // kıyaslanan kelime root veya related'la aynı olamaz
+                                if (comparedWordLemma.equals(rootWordLemma)
+                                        || comparedWordLemma.equals(relatedWordLemma)) {
+                                    if (debugEnabled) {
+                                        log.debug("Word to be compared: " + comparedWordLemma
+                                                + " is same as one of the words in pair: "
+                                                + rootWordLemma + " - " + relatedWordLemma);
+                                    }
+                                } else {
+                                    final List<IWordID> relatedWordsOfCompared =
+                                            comparedWord.getRelatedWords(iPointer);
+
+                                    this.compareWordPairWithGivenThird(usedModel,
+                                            this.getWordsFromWordIDs(relatedWordsOfCompared),
+                                            rootWordLemma, relatedWordLemma, comparedWordLemma);
+                                }
                             }
                         }
                     }
@@ -304,23 +363,26 @@ public class WordNetUtil implements WordNetUtilInt {
         }
     }
 
-    private void calculateSemanticAnalogy(final BaseModelInt usedModel, final IWord rootWord,
-            final String rootWordLemma) {
+    /**
+     * analogic pair is root word + synset's word of root word.
+     *
+     * @param usedModel
+     * @param relatedSynsetMap
+     * @param rootWordLemma
+     */
+    private void calculateSemanticAnalogy(final BaseModelInt usedModel,
+            final Map<IPointer, List<ISynsetID>> relatedSynsetMap, final String rootWordLemma) {
 
         // rootWordLemma + synsetWordLemma analojik pair
-        String synsetWordLemma, comparedWordLemma;
-        final ISynset rootSynset = rootWord.getSynset();
-        final Map<IPointer, List<ISynsetID>> relatedSynsetMap = rootSynset.getRelatedMap();
+        String synsetWordLemma;
 
         // kelimenin synsetindeki her ilişki için yap
         for (IPointer iPointer : relatedSynsetMap.keySet()) {
 
+            // o andaki pointer'a sahip bütün kelimeleri çek
+            final HashSet<IWord> wordsOfPointer = pointerToWordMap.get(iPointer);
             // pointer karşılaştırma için uygunsa
-            if (semanticAnalogyTypes.contains(WordNetPointers.valueOf(iPointer.getSymbol()))) {
-
-                // o andaki pointer'a sahip bütün kelimeleri çek
-                final HashSet<IWord> wordsOfPointer = pointerToWordMap.get(iPointer);
-
+            if (wordsOfPointer != null) {
                 // bu pointer için ilişkili olduğu synset'leri çek
                 final List<ISynsetID> semanticallyRelatedSynsetIDs = relatedSynsetMap.get(iPointer);
                 int relatedSynsetSizeForPointer = semanticallyRelatedSynsetIDs.size();
@@ -337,25 +399,18 @@ public class WordNetUtil implements WordNetUtilInt {
 
                         // başka synset'teki kelime ile root aynı olmamalı
                         if (rootWordLemma.equals(synsetWordLemma)) {
-                            log.warn(rootWordLemma + " is same as related word.");
-                        } else {
-                            for (IWord comparedWord : wordsOfPointer) {
+                            if (debugEnabled) {
+                                log.debug(synsetWordLemma + " is same as root word, it cannot be checked.");
+                            }
+                        } else if (this.validateWord(synsetWordLemma)
+                                && usedModel.hasWord(synsetWordLemma)) {
 
-                                comparedWordLemma = comparedWord.getLemma();
-                                if (comparedWordLemma.equals(rootWordLemma) || comparedWordLemma.equals
-                                        (synsetWordLemma)) {
-                                    if (debugEnabled) {
-                                        log.debug(comparedWordLemma + " is same as root or related word, " +
-                                                "it will not be counted.");
-                                    }
-                                } else {
-                                    // kelimenin synseti yukarıdan gelen pointer'a sahip mi iyi test edilmeli
-                                    final List<IWord> synsetWordsOfCompared = comparedWord.getSynset()
-                                            .getWords();
-
-                                    this.compareWordPairWithGivenThird(usedModel, synsetWordsOfCompared,
-                                            rootWordLemma, synsetWordLemma, comparedWordLemma);
-                                }
+                            int counter = 0;
+                            final Iterator<IWord> iterator = wordsOfPointer.iterator();
+                            while (iterator.hasNext() && counter < iterationCapForPointer) {
+                                counter++;
+                                this.calculateSemanticAnalogyWithThirdWord(usedModel, iterator.next(),
+                                        rootWordLemma, synsetWordLemma);
                             }
                         }
                     }
@@ -364,23 +419,52 @@ public class WordNetUtil implements WordNetUtilInt {
         }
     }
 
-    private List<IWord> returnWordsFromWordIDs(final List<IWordID> relatedWordsOfCompared) {
+    private void calculateSemanticAnalogyWithThirdWord(final BaseModelInt usedModel,
+            final IWord comparedWord, final String rootWordLemma, final String synsetWordLemma) {
 
-        List<IWord> words = new ArrayList<>(relatedWordsOfCompared.size());
-        for (IWordID iWordID : relatedWordsOfCompared) {
-            words.add(dict.getWord(iWordID));
+        final String comparedWordLemma = comparedWord.getLemma();
+
+        if (usedModel.hasWord(comparedWordLemma)) {
+
+            if (comparedWordLemma.equals(rootWordLemma) || comparedWordLemma
+                    .equals(synsetWordLemma)) {
+                if (debugEnabled) {
+                    log.debug("Word to be compared: " + comparedWordLemma
+                            + " is same as one of the words in pair: "
+                            + rootWordLemma + " - " + synsetWordLemma);
+                }
+            } else {
+                // kelimenin synseti yukarıdan gelen pointer'a sahip mi
+                // iyi test edilmeli
+                final List<IWord> synsetWordsOfCompared = comparedWord.getSynset()
+                        .getWords();
+
+                this.compareWordPairWithGivenThird(usedModel,
+                        synsetWordsOfCompared,
+                        rootWordLemma, synsetWordLemma, comparedWordLemma);
+            }
         }
+    }
+
+    /**
+     * @param wordIDs
+     * @return IWord equivelant of given IWordIDs.
+     */
+    private List<IWord> getWordsFromWordIDs(final List<IWordID> wordIDs) {
+
+        List<IWord> words = new ArrayList<>(wordIDs.size());
+        wordIDs.forEach(wordID -> words.add(dict.getWord(wordID)));
         return words;
     }
 
     /**
-     * rootWord + relatedWord - pointerToWordMap'den o anki pointer'ın kelimeleri çekilerek hepsi için
-     * analoji hesabı
+     * all three words are for sure in model's vocabulary at the point
+     * when there is a call to this method.
      *
      * @param usedModel
      * @param relatedWordsOfCompared
-     * @param rootWordLemma
-     * @param pairWordLemma
+     * @param rootWordLemma          root word that has started iteration.
+     * @param pairWordLemma          related word of root either lexically or semantically.
      * @param comparedWordLemma      third word to be compared.
      */
     private void compareWordPairWithGivenThird(final BaseModelInt usedModel,
@@ -389,12 +473,8 @@ public class WordNetUtil implements WordNetUtilInt {
 
         if (relatedWordsOfCompared.isEmpty()) {
 
-            // pointer ismi de loglanabilir
-            log.error(comparedWordLemma + " does not have any related words. " +
-                    "This shouldn't have happened!");
-        } else if (usedModel.hasWord(rootWordLemma) && usedModel.hasWord(pairWordLemma) &&
-                usedModel.hasWord(comparedWordLemma)) {
-
+            log.error(comparedWordLemma + " does not have any related words when it should have!");
+        } else {
             // word2vec sorgusu, sorgulanan kelimenin tüm related kelimeleri için tekrar tekrar
             // yapılmasın diye burada
             final List<String> closestWords = usedModel.getClosestWords(Arrays.asList(rootWordLemma,
@@ -403,11 +483,122 @@ public class WordNetUtil implements WordNetUtilInt {
             for (IWord wrd : relatedWordsOfCompared) {
                 calc.updateAnalogicalAccuracy(wrd.getLemma(), closestWords);
             }
-        } else {
-            if (debugEnabled) {
-                log.debug("Model do not have one of those: " + rootWordLemma + "-" +
-                        rootWordLemma + "-" + comparedWordLemma);
+        }
+    }
+
+    /**
+     * creates and fills {@link #pointerToWordMap} by {@link #mapPointerToWord(IWord, Set)}.
+     */
+    public void preparePointerToWordMap() {
+
+        if (pointerToWordMap == null) {
+            log.info("Creating pointer-word map...");
+            // map'teki toplam kelime sayısı
+            int wordCounter = 0;
+            // toplamda 29 tane pointer var
+            pointerToWordMap = new HashMap<>(32);
+            for (POS partOfSpeech : POS.values()) {
+                final Iterator<IIndexWord> indexWordIterator = dict.getIndexWordIterator(partOfSpeech);
+                while (indexWordIterator.hasNext()) {
+                    final IIndexWord indexWord = indexWordIterator.next();
+                    // word2vec'de kontrol etmek istemediğimiz kelimeleri eklemesin, gerek yok.
+                    if (this.validateWord(indexWord.getLemma())) {
+                        wordCounter += this.addWordIDsToPointerMap(indexWord.getWordIDs());
+                    }
+                }
             }
+            log.info(wordCounter + " words are mapped to pointers.");
+        } else {
+            log.info("Pointer to word mapping is already done.");
+        }
+    }
+
+    private int addWordIDsToPointerMap(final List<IWordID> wordIDs) {
+
+        final int totalWordsForWordID = wordIDs.size();
+        for (int i = 0; i < totalWordsForWordID; i++) {
+            // bir kelimenin farklı anlamları varsa farklı ID ile farklı Word objelerinde
+            // birden çok olabiliyor
+            final IWord rootWord = dict.getWord(wordIDs.get(i));
+            this.addToOnePointerMap(rootWord);
+        }
+        return totalWordsForWordID;
+    }
+
+    private void addToOnePointerMap(IWord rootWord) {
+        // lexical pointer'ın setine koy
+        this.mapPointerToWord(rootWord, rootWord.getRelatedMap().keySet());
+        // semantic pointer'ın setine koy
+        this.mapPointerToWord(rootWord, rootWord.getSynset().getRelatedMap().keySet());
+    }
+
+    private void mapPointerToWord(IWord word, Set<IPointer> pointers) {
+
+        for (IPointer pointer : pointers) {
+            if (analogyTypes.contains(WordNetPointers.getByCode(pointer.getSymbol()))) {
+                HashSet<IWord> iWords = pointerToWordMap.get(pointer);
+                if (iWords == null) {
+                    iWords = new HashSet<IWord>() {{
+                        add(word);
+                    }};
+                    pointerToWordMap.put(pointer, iWords);
+                } else {
+                    iWords.add(word);
+                }
+            }
+        }
+    }
+
+    /**
+     * creates and fills {@link #multiplePointersToWordMap} by {@link #mapWordWithItsPointers(IWord, Set)}.
+     */
+    public void prepareMultiplePointersToWordMap() {
+
+        if (multiplePointersToWordMap == null) {
+            log.info("Creating pointers of word to word map...");
+            // map'teki toplam kelime sayısı
+            int wordCounter = 0;
+
+            // toplamda 27 tane pointer kaydediliyor
+            multiplePointersToWordMap = new HashMap<>(512);
+            for (POS partOfSpeech : POS.values()) {
+                final Iterator<IIndexWord> indexWordIterator = dict.getIndexWordIterator(partOfSpeech);
+                while (indexWordIterator.hasNext()) {
+                    final IIndexWord indexWord = indexWordIterator.next();
+                    // word2vec'de kontrol etmek istemediğimiz kelimeleri eklemesin, gerek yok.
+                    if (this.validateWord(indexWord.getLemma())) {
+
+                        final List<IWordID> wordIDs = indexWord.getWordIDs();
+                        final int totalWordsForWordID = wordIDs.size();
+
+                        for (int i = 0; i < totalWordsForWordID; i++) {
+                            // bir kelimenin farklı anlamları varsa farklı ID
+                            // ile farklı Word objelerinde birden çok olabiliyor
+                            final IWord rootWord = dict.getWord(wordIDs.get(i));
+                            // lexical pointer'ın setine koy
+                            this.mapWordWithItsPointers(rootWord, rootWord.getRelatedMap().keySet());
+                            // semantic pointer'ın setine koy
+                            this.mapWordWithItsPointers(rootWord,
+                                    rootWord.getSynset().getRelatedMap().keySet());
+                        }
+                        wordCounter += totalWordsForWordID;
+                    }
+                }
+            }
+            log.info(wordCounter + " words are mapped.");
+        }
+    }
+
+    private void mapWordWithItsPointers(IWord word, Set<IPointer> pointers) {
+
+        HashSet<IWord> iWords = multiplePointersToWordMap.get(pointers);
+        if (iWords == null) {
+            iWords = new HashSet<IWord>() {{
+                add(word);
+            }};
+            multiplePointersToWordMap.put(pointers, iWords);
+        } else {
+            iWords.add(word);
         }
     }
 
@@ -420,63 +611,14 @@ public class WordNetUtil implements WordNetUtilInt {
      */
     public boolean validateWord(final String wordLemma) {
 
-        // regex checks if any number exists
+        // regex checks if a number exists
         if (wordLemma.contains("_") || wordLemma.matches(".*\\d+.*")) {
+            if (debugEnabled) {
+                log.debug(wordLemma + " is not a valid word.");
+            }
             return false;
         } else {
             return true;
-        }
-    }
-
-    private void preparePointerToWordMap() {
-
-        if (pointerToWordMap == null) {
-            int wordCounter = 0;
-            // toplamda 29 tane pointer var
-            pointerToWordMap = new HashMap<IPointer, HashSet<IWord>>(32);
-            for (POS partOfSpeech : POS.values()) {
-                final Iterator<IIndexWord> indexWordIterator = dict.getIndexWordIterator(partOfSpeech);
-                while (indexWordIterator.hasNext()) {
-                    final IIndexWord iIndexWord = indexWordIterator.next();
-                    wordCounter = this.addWordIDsToPointerMap(iIndexWord.getWordIDs(), wordCounter);
-                }
-            }
-            log.info(wordCounter + " words are mapped to pointers.");
-        } else {
-            log.info("Pointer to word mapping is already done.");
-        }
-    }
-
-    private int addWordIDsToPointerMap(final List<IWordID> wordIDs, int wordCounter) {
-
-        final int totalWordsForWordID = wordIDs.size();
-        wordCounter += totalWordsForWordID;
-        for (int i = 0; i < totalWordsForWordID; i++) {
-            // bir kelimenin farklı anlamları varsa farklı ID ile farklı Word objelerinde
-            // birden çok olabiliyor
-            final IWordID wordID = wordIDs.get(i);
-            // o anda process edilen kelime
-            final IWord rootWord = dict.getWord(wordID);
-            // lexical pointer'ın setine koy
-            this.addToPointerMap(rootWord, rootWord.getRelatedMap().keySet());
-            // semantic pointer'ın setine koy
-            this.addToPointerMap(rootWord, rootWord.getSynset().getRelatedMap().keySet());
-        }
-        return wordCounter;
-    }
-
-    private void addToPointerMap(IWord word, Set<IPointer> pointers) {
-
-        for (IPointer relPtr : pointers) {
-            HashSet<IWord> iWords = pointerToWordMap.get(relPtr);
-            if (iWords == null) {
-                iWords = new HashSet<IWord>() {{
-                    add(word);
-                }};
-                pointerToWordMap.put(relPtr, iWords);
-            } else {
-                iWords.add(word);
-            }
         }
     }
 
@@ -491,8 +633,8 @@ public class WordNetUtil implements WordNetUtilInt {
         for (IPointer iPointer : pointerToWordMap.keySet()) {
             HashSet<IWord> words = pointerToWordMap.get(iPointer);
             for (IWord word : words) {
-                strBuilder.append("\n****************\n").append(iPointer.getName()).append("\nWord: ")
-                        .append(word.getLemma()).append("\nGloss: ").append(word.getSynset().getGloss());
+                strBuilder.append("\n\n").append(iPointer.getName()).append("\nWord: ")
+                        .append(word.getLemma()).append(" - ").append(word.getSynset().getGloss());
                 if ((counter++) % 4000 == 1) {
                     log.info(strBuilder.toString());
                     strBuilder = new StringBuilder(10000);
@@ -553,6 +695,7 @@ public class WordNetUtil implements WordNetUtilInt {
         int counter = 1;
         StringBuilder strBuilder = new StringBuilder(10000);
         for (POS partOfSpeech : POS.values()) {
+            final String pos = partOfSpeech.name();
             final Iterator<IIndexWord> indexWordIterator = dict.getIndexWordIterator(partOfSpeech);
             while (indexWordIterator.hasNext()) {
                 if ((counter++) % 4000 == 1) {
@@ -568,16 +711,16 @@ public class WordNetUtil implements WordNetUtilInt {
                     final IWordID wordID = wordIDs.get(i);
                     // o anda process edilen kelime
                     final IWord rootWord = dict.getWord(wordID);
-                    strBuilder.append("\n\nWord: ").append(rootWord.getLemma()).append(" - ").append(rootWord
-                            .getSynset().getGloss()).append(" Lexical ID ").append(rootWord.getLexicalID());
+                    strBuilder.append("\n\n(").append(pos).append(") Word: ").append(rootWord.getLemma())
+                            .append(" - ").append(rootWord.getSynset().getGloss())
+                            .append(" - Lexical ID: ").append(rootWord.getLexicalID());
                     final Map<IPointer, List<IWordID>> relatedMap = rootWord.getRelatedMap();
                     for (IPointer relPtr : relatedMap.keySet()) {
-                        strBuilder.append("\nPointer: ").append(relPtr.getName())
-                                .append(", Lexically Related Set:\n");
+                        strBuilder.append("\nPointer: ").append(relPtr.getName());
                         for (IWordID iWordID : relatedMap.get(relPtr)) {
                             final IWord related = dict.getWord(iWordID);
-                            strBuilder.append(related.getLemma()).append(" - ").append(related.getSynset()
-                                    .getGloss()).append(" *** ");
+                            strBuilder.append("\nRelated Word: ").append(related.getLemma())
+                                    .append(" - ").append(related.getSynset().getGloss());
                         }
                     }
                 }
@@ -619,11 +762,7 @@ public class WordNetUtil implements WordNetUtilInt {
         Iterator<IIndexWord> indexWordIterator = dict.getIndexWordIterator(POS.VERB);
         while (indexWordIterator.hasNext()) {
             IIndexWord iIndexWord = indexWordIterator.next();
-            List<IWordID> wordIDs = iIndexWord.getWordIDs();
-            for (IWordID wordID : wordIDs) {
-                IWord word = dict.getWord(wordID);
-                logWord(word);
-            }
+            this.logWordIDList(iIndexWord.getWordIDs());
             log.info("**********************************************************");
         }
     }
@@ -631,19 +770,28 @@ public class WordNetUtil implements WordNetUtilInt {
     @Override
     public void listAdjectives() {
 
+        Iterator<IIndexWord> indexWordIterator = dict.getIndexWordIterator(POS.ADJECTIVE);
+        while (indexWordIterator.hasNext()) {
+            IIndexWord iIndexWord = indexWordIterator.next();
+            this.logWordIDList(iIndexWord.getWordIDs());
+            log.info("**********************************************************");
+        }
     }
 
     @Override
     public void listAdverbs() {
 
+        Iterator<IIndexWord> indexWordIterator = dict.getIndexWordIterator(POS.VERB);
+        while (indexWordIterator.hasNext()) {
+            IIndexWord iIndexWord = indexWordIterator.next();
+            this.logWordIDList(iIndexWord.getWordIDs());
+            log.info("**********************************************************");
+        }
     }
 
     private void logWordIDList(List<IWordID> words) {
 
-        for (IWordID wordId : words) {
-            IWord word = dict.getWord(wordId);
-            this.logWord(word);
-        }
+        words.forEach(wordID -> this.logWord(dict.getWord(wordID)));
     }
 
     private void logWords(List<IWord> words) {
@@ -654,13 +802,30 @@ public class WordNetUtil implements WordNetUtilInt {
     private void logWord(IWord word) {
 
         log.info("Lemma: " + word.getLemma() + " Lexical ID: " + word.getLexicalID()
-                + " Adjective Marker: " + word.getAdjectiveMarker() + " Verb Frames: "
-                + word.getVerbFrames().toString());
+                + " Adjective Marker: " + word.getAdjectiveMarker()
+                + " Verb Frames: " + word.getVerbFrames().toString()
+                + " Synset Type: " + word.getSenseKey().getSynsetType());
     }
 
+    @Override
     public CalculatorInt getCalc() {
 
         return calc;
+    }
+
+    @Override
+    public void resetIterationCapForPointer() {
+
+        iterationCapForPointer = DefaultSettings.ITERATION_CAP_FOR_POINTER;
+    }
+
+    @Override
+    public void setIterationCapForPointer(int iterationCap) {
+
+        if (iterationCap > DefaultSettings.ITERATION_CAP_FOR_POINTER) {
+            log.warn("Iteration cap for a pointer is set too high: " + iterationCap);
+        }
+        iterationCapForPointer = iterationCap;
     }
 
 }

@@ -2,8 +2,15 @@ import edu.mit.jwi.data.ILoadPolicy;
 import org.junit.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import wat.exceptions.ModelBuildException;
 import wat.file.FileActions;
+import wat.helper.Constants;
+import wat.training.model.BaseModelInt;
+import wat.training.model.word2vec.Word2vecUtil;
+import wat.training.model.word2vec.Word2vecUtilInt;
 import wat.wordnet.WordNetUtil;
+
+import java.util.Arrays;
 
 public class WordNetTest {
 
@@ -25,6 +32,39 @@ public class WordNetTest {
                     "thus WordNet could not be found!");
         }
         wordNetUtil = new WordNetUtil(wordNetDictHome, ILoadPolicy.NO_LOAD);
+    }
+
+    private BaseModelInt prepareWord2vec() throws ModelBuildException {
+
+        BaseModelInt w2vecModel = new Word2vecUtil();
+        w2vecModel.setCorpusPath("/home/ozan/word2vec_saved/2017-04-28_56035_trained_word2vec");
+        w2vecModel.createModel(Constants.CORPUS_IS_PRETRAINED);
+        return w2vecModel;
+    }
+
+    @Test
+    public void testCalculateAnalogyOfOneWord() throws ModelBuildException {
+
+        final String another = "bluff";
+        final String word = "gangster";
+        // gangster -> Derivationally related form -> gang
+        // tek bir lexical pointer var (ganster - gang) çifti ile
+        // 'Derivationally related form'a sahip 250 kelime kıyaslanacak
+        BaseModelInt w2vecModel = this.prepareWord2vec();
+        wordNetUtil.calculateAnalogyScoreOfWordInput(w2vecModel, word);
+        log.info(wordNetUtil.getCalc().toString());
+    }
+
+    @Test
+    public void testPrepareMultiplePointersToWordMap() {
+
+        wordNetUtil.prepareMultiplePointersToWordMap();
+    }
+
+    @Test
+    public void testPreparePointerToWordMap() {
+
+        wordNetUtil.preparePointerToWordMap();
     }
 
     @Test
@@ -52,13 +92,6 @@ public class WordNetTest {
                 "trained model to check for analogy.", wordNetUtil.validateWord(firstAccepted));
         Assert.assertTrue("Word: " + secondAccepted + " should be valid to send to " +
                 "trained model to check for analogy.", wordNetUtil.validateWord(secondAccepted));
-    }
-
-    @Test
-    public void testCalculateAnalogyOfOneWord() {
-
-
-
     }
 
     @AfterClass

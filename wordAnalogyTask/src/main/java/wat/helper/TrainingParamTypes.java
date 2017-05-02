@@ -19,10 +19,12 @@ public enum TrainingParamTypes {
     USE_NEGATIVE_SAMPLING_W2(14),
     HUGE_MODEL_EXPECTED_W2(15),
     HUGE_MODEL_NOT_EXPECTED_W2(16),
-    SHUFFLE_G(17),
-    SYMMETRIC_G(18),
-    XMAX_G(19),
-    ALPHA_G(20);
+    USE_CBOW_W2(17),
+    USE_SKIP_GRAM_W2(18),
+    SHUFFLE_G(19),
+    SYMMETRIC_G(20),
+    XMAX_G(21),
+    ALPHA_G(22);
 
     int value;
 

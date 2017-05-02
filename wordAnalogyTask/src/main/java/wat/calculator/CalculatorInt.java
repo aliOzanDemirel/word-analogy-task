@@ -6,6 +6,8 @@ public interface CalculatorInt {
 
     void resetScores();
 
+    void resetMaxScoreForAnalogy();
+
     double getSimilarityPercentage();
 
     double getAnalogicalPercentage();
@@ -25,4 +27,7 @@ public interface CalculatorInt {
 
     double getMaxScoreForAnalogy();
 
+    void setClosestWordSize(int closestWordSize);
+
+    void setBaseSensitivity(int baseSensitivity);
 }

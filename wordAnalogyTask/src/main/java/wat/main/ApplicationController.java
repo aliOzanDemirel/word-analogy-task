@@ -16,20 +16,21 @@ import wat.training.model.word2vec.Word2vecUtilInt;
 import wat.wordnet.WordNetUtil;
 import wat.wordnet.WordNetUtilInt;
 
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-// isCorpusTrained kullanılmalı
 public class ApplicationController {
 
     private static final Logger log = LoggerFactory.getLogger(ApplicationController.class);
 
     private Word2vecUtilInt w2vecCalc = new Word2vecUtil();
     private GloveUtilInt gloveCalc = new GloveUtil();
-    // default olarak word2vec kullanımda
+
+    // bu kaldırılabilir
     private int usedModelID = Constants.WORD2VEC;
+    // default olarak word2vec kullanımda
     private BaseModelInt usedModel = w2vecCalc;
     private WordNetUtilInt wordNetUtil = null;
 
@@ -68,19 +69,23 @@ public class ApplicationController {
     }
 
     /**
-     * sends the folder path to save compressed zip file in.
-     * folder path is the 'HOME_DIR'/'MODEL_NAME'_saved
+     * sends the compressed zip file to save model.
+     * creates any non existing directory while creating file.
      */
-    public void saveTrainedModel() {
+    public void saveTrainedModel() throws IOException {
 
+        String name = usedModel.getName();
         if (usedModel.isModelReady()) {
-            String name = this.getUsedModelName();
-            File file = FileActions.getFolderToSaveModel(name + "_saved");
-            if (usedModel.saveTrainedModel(file)) {
-                log.info(this.getUsedModelName() + " embeddings are saved successfully.");
+            long start = System.currentTimeMillis();
+            Path path = FileActions.getUniquePathForGivenFileName(
+                    name + "_saved", "trained_" + name);
+
+            if (usedModel.saveTrainedModel(path.toFile())) {
+                log.info(name + " embeddings are saved successfully in "
+                        + (System.currentTimeMillis() - start) / 1000 + " seconds.");
             }
         } else {
-            log.warn(this.getUsedModelName() + " is not created.");
+            log.warn(name + " is not created.");
         }
     }
 
@@ -141,7 +146,8 @@ public class ApplicationController {
         }};
 
         try {
-            FileActions.writeToFileWithDifferentNames(usedModel.getName() + "_saved", lines);
+            FileActions.writeToFileByCreatingFile(lines,
+                    usedModel.getName() + "_scores", "score.txt");
         } catch (IOException e) {
             log.error("Scores could not be saved!", e);
         }
@@ -166,6 +172,7 @@ public class ApplicationController {
         usedModel.createModel(corpusIsPretrained);
     }
 
+    // TODO: doldurulmalı
     public void updateSelectedModelParams(int trainingParamType) {
 
         switch (trainingParamType) {
@@ -183,6 +190,30 @@ public class ApplicationController {
 //                break;
             default:
                 log.warn("Wrong word2vec param type: " + trainingParamType);
+        }
+    }
+
+    public void changeSettings(int settingID) {
+
+        switch (settingID) {
+            case Constants.BASE_SENSITIVITY_SETTING:
+                wordNetUtil.getCalc().setBaseSensitivity(UserInput.getSelectionBetween(2, 100));
+                break;
+            case Constants.CLOSEST_WORD_SIZE_SETTING:
+                wordNetUtil.getCalc().setClosestWordSize(UserInput.getSelectionBetween(3, 100));
+                break;
+            case Constants.ITERATION_CAP_FOR_POINTER_SETTING:
+                wordNetUtil.setIterationCapForPointer(UserInput.getSelectionBetween(3, 200000));
+                break;
+            case Constants.RESET_ITERATION_CAP_SETTING:
+                wordNetUtil.resetIterationCapForPointer();
+                break;
+            case Constants.RESET_MAX_SCORE_SETTING:
+                // also reset base sensitivity and closest word size
+                wordNetUtil.getCalc().resetMaxScoreForAnalogy();
+                break;
+            default:
+                log.error("Invalid setting ID: " + settingID);
         }
     }
 

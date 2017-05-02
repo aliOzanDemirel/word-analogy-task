@@ -1,6 +1,6 @@
 package wat.training.model;
 
-import wat.helper.Constants;
+import wat.helper.DefaultSettings;
 
 public abstract class BaseModel implements BaseModelInt {
 
@@ -14,13 +14,13 @@ public abstract class BaseModel implements BaseModelInt {
      * setting to hold how many words should be retrieved
      * while querying word2vec by negative&positive words
      */
-    protected int closestWordSize = Constants.CLOSEST_WORD_SIZE;
+    protected int closestWordSize = DefaultSettings.CLOSEST_WORD_SIZE;
 
     /**
      * base number to set maximum score while evaluating word2vec's accuracy. higher number means
      * exponentially bigger gap between orders of returned nearest words from word2vec.
      */
-    protected int baseSensitivity = Constants.BASE_SENSITIVITY;
+    protected int baseSensitivity = DefaultSettings.BASE_SENSITIVITY;
 
     public String getCorpusPath() {
 

@@ -1,5 +1,6 @@
 package wat.file;
 
+import org.joda.time.DateTime;
 import org.joda.time.DateTimeFieldType;
 import org.joda.time.LocalDate;
 import org.slf4j.Logger;
@@ -20,20 +21,62 @@ public class FileActions {
 
     private static final Logger log = LoggerFactory.getLogger(FileActions.class);
 
-    public static void writeToFileWithDifferentNames(final String folderName, final List<String> lines)
-            throws IOException {
+    /**
+     * get different paths till there is no file with given path.
+     *
+     * @param lines
+     * @param folderName
+     * @param fileName
+     */
+    public static void writeToFileByCreatingFile(final List<String> lines,
+            final String folderName, final String fileName) throws IOException {
 
-        final LocalDate date = new LocalDate();
-        Path file = Paths.get(System.getProperty("user.home")
-                + "/" + folderName + "/" + date.toString()
-                + "_" + date.get(DateTimeFieldType.secondOfDay()) + "_scores.txt");
+        Path file;
+        do {
+            file = FileActions.getUniquePathForGivenFileName(folderName, fileName);
+        } while (Files.exists(file));
+
         Files.write(file, lines, Charset.forName("UTF-8"));
     }
 
-    public static File getFolderToSaveModel(final String folderNameWithModel) {
+    /**
+     * @param folderName
+     * @param fileName
+     */
+    public static Path getUniquePathForGivenFileName(final String folderName,
+            final String fileName) throws IOException {
 
-        String path = System.getProperty("user.home") + "/" + folderNameWithModel;
-        return new File(path);
+        Path file = Paths.get(FileActions.createDirectoryWithFolderName(folderName)
+                + File.separator + new LocalDate().toString() + "_"
+                + new DateTime().get(DateTimeFieldType.secondOfDay()) + "_" + fileName);
+        log.info("File path is prepared: " + file.toAbsolutePath());
+        return file;
+    }
+
+    /**
+     * @param folderName
+     * @return a directory path with given name in home folder of user.
+     */
+    public static Path createDirectoryWithFolderName(final String folderName) throws IOException {
+
+        Path directory = Files.createDirectories(Paths.get(System.getProperty("user.home")
+                + File.separator + folderName + File.separator));
+        log.info("Directory should exist: " + directory.toAbsolutePath());
+        return directory;
+    }
+
+    /**
+     * not necessary to use since the folder name is hard coded.
+     *
+     * @param folderName
+     */
+    private void makeSurePathIsValidForOS(String folderName) {
+
+        if (folderName.contains("\\")) {
+            folderName = folderName.replace("\\", File.separator);
+        } else if (folderName.contains("/")) {
+            folderName = folderName.replace("/", File.separator);
+        }
     }
 
     /**

@@ -13,6 +13,7 @@ public class DefaultTrainingParamValues {
     public static final int BATCH_SIZE = 512;
     public static final double LEARNING_RATE = 0.025;
     public static final double MIN_LEARNING_RATE = 0.0001;
+    public static final int MIN_WORD_FREQUENCY = 5;
     /**
      * word2vec için özel
      */
@@ -21,7 +22,6 @@ public class DefaultTrainingParamValues {
     public static final double SAMPLING = 0.0d;
     public static final boolean USE_HIERARCHIC_SOFTMAX = true;
     public static final boolean HUGE_MODEL_EXPECTED = false;
-    public static final int MIN_WORD_FREQUENCY = 50;
     /**
      * glove için özel
      * dl4j örneğinde learningRate 0.1, epochs 25, batchSize da 1000

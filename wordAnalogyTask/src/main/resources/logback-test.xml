@@ -3,7 +3,7 @@
 
     <!-- ALL < DEBUG < INFO < WARN < ERROR < FATAL < OFF -->
 
-    <property name="logHome" value="logs"/>
+    <property name="logHome" value="testLogs"/>
     <property name="maxFileSize" value="10MB"/>
 
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">

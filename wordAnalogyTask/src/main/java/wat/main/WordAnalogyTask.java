@@ -14,8 +14,8 @@ public class WordAnalogyTask {
 
     public static void main(String[] args) throws IOException, ModelBuildException {
 
-        // prints logback status
-        // StatusPrinter.print((LoggerContext) LoggerFactory.getILoggerFactory());
+        // prints logback status for debug
+//        StatusPrinter.print((LoggerContext) LoggerFactory.getILoggerFactory());
 
         String wordNetDictHome = System.getenv("WORDNET_PATH");
         if (wordNetDictHome == null || !FileActions.isPathValid(wordNetDictHome)) {
@@ -44,7 +44,7 @@ public class WordAnalogyTask {
                     case 3:
                         // change training model to use
                         int modelID = UserInput.getModelID();
-                        if (modelID != 3) {
+                        if (modelID != 0) {
                             controller.changeModelToUse(modelID);
                         }
                         break;
@@ -97,23 +97,30 @@ public class WordAnalogyTask {
                     case 11:
                         // calculate analogy score
                         int pos = UserInput.getPOSSelection();
-                        if (pos != 5) {
+                        if (pos != 0) {
                             controller.calculateScore(pos, Constants.IS_ANALOGY_TEST);
                         }
                         break;
                     case 12:
                         // calculate similarity score
                         int posChoice = UserInput.getPOSSelection();
-                        if (posChoice != 5) {
+                        if (posChoice != 0) {
                             controller.calculateScore(posChoice, Constants.IS_SIMILARITY_TEST);
                         }
                         break;
                     case 13:
-                        log.warn("FREE MB: " + Runtime.getRuntime().freeMemory() / 1024 / 1024);
-                        log.warn("TOTAL MB: " + Runtime.getRuntime().totalMemory() / 1024 / 1024);
-                        log.warn("MAX MB: " + Runtime.getRuntime().maxMemory() / 1024 / 1024);
+                        // changes some calculation settings
+                        int setting = UserInput.getSettingID();
+                        if (setting != 0) {
+                            controller.changeSettings(setting);
+                        }
                         break;
                     case 14:
+                        log.info("FREE MB: " + Runtime.getRuntime().freeMemory() / 1024 / 1024);
+                        log.info("TOTAL MB: " + Runtime.getRuntime().totalMemory() / 1024 / 1024);
+                        log.info("MAX MB: " + Runtime.getRuntime().maxMemory() / 1024 / 1024);
+                        break;
+                    case 15:
                         controller.exit();
                     default:
                         log.warn("Wrong input!");

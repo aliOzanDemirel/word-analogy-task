@@ -104,26 +104,41 @@ public class Word2vecUtil extends BaseModel implements Word2vecUtilInt {
                 .workers(params.getWorkers())
                 .negativeSample(params.getNegative())
                 .sampling(params.getSampling())
-                // skip-gram veya cbow
+                // skip-gram or cbow
                 .elementsLearningAlgorithm(params.getSkipGramOrCBOW())
                 .build();
 
-        long start = System.nanoTime();
-        word2vec.fit();
-        log.info("Done building word2vec model in " + (System.nanoTime() - start) / 60000 + " minutes.");
+        long start = System.currentTimeMillis();
+        try {
+            word2vec.fit();
+        } catch (OutOfMemoryError e) {
+            // release the memory if it could not be built properly
+            word2vec = null;
+            throw new ModelBuildException(e);
+        }
+        log.info("Done building word2vec model in "
+                + (System.currentTimeMillis() - start) / 1000 + " seconds.");
     }
 
     // csv, binary ve dl4j compressed yüklüyor
     // loadStaticModel word vectorlere erişmek için sadece
-    private void loadPretrainedModel(String corpusPath) {
+    private void loadPretrainedModel(String corpusPath) throws ModelBuildException {
 
-        log.info("Starting to load word2vec from file: "
-                + corpusPath + " This may take a while. Total memory: ");
+        log.info("Starting to load word2vec from: " + corpusPath + " This may take a while.");
         word2vec = null;
 
-        long start = System.nanoTime();
-        word2vec = WordVectorSerializer.readWord2VecModel(corpusPath);
-        log.info("Done loading word2vec model in " + (System.nanoTime() - start) / 60000 + " minutes.");
+        long start = System.currentTimeMillis();
+        try {
+            // extendedModel: true olarak okusun
+            word2vec = WordVectorSerializer.readWord2VecModel(new File(corpusPath),
+                    true);
+        } catch (OutOfMemoryError e) {
+            // release the memory if it could not be loaded properly
+            word2vec = null;
+            throw new ModelBuildException(e);
+        }
+        log.info("Done loading word2vec model in "
+                + (System.currentTimeMillis() - start) / 1000 + " seconds.");
     }
 
     /**
@@ -154,11 +169,14 @@ public class Word2vecUtil extends BaseModel implements Word2vecUtilInt {
     @Override
     public boolean hasWord(String word) {
 
-        boolean result = word2vec.hasWord(word);
-        if (!result && debugEnabled) {
-            log.debug(word + " does not exist in word2vec model.");
+        if (word2vec.hasWord(word)) {
+            return true;
+        } else {
+            if (debugEnabled) {
+                log.debug(word + " does not exist in word2vec model.");
+            }
+            return false;
         }
-        return result;
     }
 
     @Override
