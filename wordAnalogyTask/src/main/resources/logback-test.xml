@@ -16,7 +16,7 @@
 
     <appender name="MAIN"
               class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${logHome}/main.log</file>
+        <file>${logHome}/main_test.log</file>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <pattern>
                 %d{yyyy-MM-dd HH:mm:ss} - %msg%n
@@ -36,7 +36,7 @@
 
     <appender name="ERROR"
               class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${logHome}/error.log</file>
+        <file>${logHome}/error_test.log</file>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <pattern>
                 %d{yyyy-MM-dd HH:mm:ss} - %msg%n
