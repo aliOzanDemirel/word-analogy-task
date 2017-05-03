@@ -7,10 +7,8 @@ import wat.file.FileActions;
 import wat.helper.Constants;
 import wat.training.model.BaseModelInt;
 import wat.training.model.word2vec.Word2vecUtil;
-import wat.training.model.word2vec.Word2vecUtilInt;
 import wat.wordnet.WordNetUtil;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class WordNetTest {

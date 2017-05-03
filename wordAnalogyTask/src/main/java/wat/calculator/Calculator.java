@@ -7,7 +7,13 @@ import java.util.List;
 public class Calculator implements CalculatorInt {
 
     private double similarityScore, analogyScore, maxScoreForAnalogy;
-    private int totalSimCalculations, totalAnalogicCalculations, baseSensitivity;
+    private int totalSimCalculations, totalAnalogicCalculations;
+
+    /**
+     * base number to set maximum score while evaluating word2vec's accuracy. higher number means
+     * exponentially bigger gap between orders of returned nearest words from word2vec.
+     */
+    private int baseSensitivity = DefaultSettings.BASE_SENSITIVITY;
 
     public Calculator() {
 

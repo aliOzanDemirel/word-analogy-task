@@ -12,12 +12,12 @@ import org.slf4j.LoggerFactory;
 import wat.exceptions.ModelBuildException;
 import wat.helper.Constants;
 import wat.training.model.BaseModel;
+import wat.training.model.BaseModelInt;
 
 import java.io.*;
-import java.util.Collection;
 import java.util.List;
 
-public class Word2vecUtil extends BaseModel implements Word2vecUtilInt {
+public class Word2vecUtil extends BaseModel implements BaseModelInt {
 
     private static Logger log = LoggerFactory.getLogger(Word2vecUtil.class);
     private static boolean debugEnabled = log.isDebugEnabled();
@@ -154,7 +154,7 @@ public class Word2vecUtil extends BaseModel implements Word2vecUtilInt {
      * @return the number of the words in vocab cache of word2vec.
      */
     @Override
-    public int getTotalWordNumberInModelVocab() {
+    public int getTotalWordSizeInVocab() {
 
         return word2vec.getVocab().numWords();
     }

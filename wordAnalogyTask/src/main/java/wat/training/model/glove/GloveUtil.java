@@ -1,9 +1,7 @@
 package wat.training.model.glove;
 
 import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
-import org.deeplearning4j.models.embeddings.wordvectors.WordVectors;
 import org.deeplearning4j.models.glove.Glove;
-import org.deeplearning4j.models.sequencevectors.interfaces.SequenceElementFactory;
 import org.deeplearning4j.text.sentenceiterator.BasicLineIterator;
 import org.deeplearning4j.text.sentenceiterator.SentenceIterator;
 import org.deeplearning4j.text.tokenization.tokenizer.preprocessor.CommonPreprocessor;
@@ -14,11 +12,12 @@ import org.slf4j.LoggerFactory;
 import wat.exceptions.ModelBuildException;
 import wat.helper.Constants;
 import wat.training.model.BaseModel;
+import wat.training.model.BaseModelInt;
 
 import java.io.File;
 import java.util.List;
 
-public class GloveUtil extends BaseModel implements GloveUtilInt {
+public class GloveUtil extends BaseModel implements BaseModelInt {
 
     private static final Logger log = LoggerFactory.getLogger(GloveUtil.class);
     private static boolean debugEnabled = log.isDebugEnabled();
@@ -141,7 +140,7 @@ public class GloveUtil extends BaseModel implements GloveUtilInt {
      * @return the number of the words in vocab cache of word2vec.
      */
     @Override
-    public int getTotalWordNumberInModelVocab() {
+    public int getTotalWordSizeInVocab() {
 
         return glove.getVocab().numWords();
     }

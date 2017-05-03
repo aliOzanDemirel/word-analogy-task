@@ -16,12 +16,6 @@ public abstract class BaseModel implements BaseModelInt {
      */
     protected int closestWordSize = DefaultSettings.CLOSEST_WORD_SIZE;
 
-    /**
-     * base number to set maximum score while evaluating word2vec's accuracy. higher number means
-     * exponentially bigger gap between orders of returned nearest words from word2vec.
-     */
-    protected int baseSensitivity = DefaultSettings.BASE_SENSITIVITY;
-
     @Override
     public void setCorpusPath(String corpusPath) {
 

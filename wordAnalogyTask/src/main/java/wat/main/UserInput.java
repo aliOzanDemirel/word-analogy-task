@@ -43,10 +43,11 @@ public class UserInput {
         log.info("* 12-) calculate similarity score        *");
         log.info("* 13-) change calculation settings       *");
         log.info("* 14-) get most similar words of a word  *");
-        log.info("* 15-) log memory                        *");
-        log.info("* 16-) exit                              *");
+        log.info("* 15-) print number of words in vocab    *");
+        log.info("* 16-) log memory                        *");
+        log.info("* 17-) exit                              *");
         log.info("******************************************");
-        return UserInput.getSelectionBetween(1, 16);
+        return UserInput.getSelectionBetween(1, 17);
     }
 
     public static int getPOSSelection() {

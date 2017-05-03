@@ -11,9 +11,7 @@ import wat.helper.Constants;
 import wat.helper.DefaultSettings;
 import wat.training.model.BaseModelInt;
 import wat.training.model.glove.GloveUtil;
-import wat.training.model.glove.GloveUtilInt;
 import wat.training.model.word2vec.Word2vecUtil;
-import wat.training.model.word2vec.Word2vecUtilInt;
 import wat.wordnet.WordNetUtil;
 import wat.wordnet.WordNetUtilInt;
 
@@ -26,13 +24,13 @@ public class ApplicationController {
 
     private static final Logger log = LoggerFactory.getLogger(ApplicationController.class);
 
-    private Word2vecUtilInt w2vecCalc = new Word2vecUtil();
-    private GloveUtilInt gloveCalc = new GloveUtil();
+    private Word2vecUtil word2vecUtil = new Word2vecUtil();
+    private GloveUtil gloveUtil = new GloveUtil();
 
     // bu kaldırılabilir
     private int usedModelID = Constants.WORD2VEC;
     // default olarak word2vec kullanımda
-    private BaseModelInt usedModel = w2vecCalc;
+    private BaseModelInt usedModel = word2vecUtil;
     private WordNetUtilInt wordNetUtil = null;
 
     public ApplicationController(String wordNetPath) throws IOException, ModelBuildException {
@@ -59,9 +57,9 @@ public class ApplicationController {
 
         if (usedModelID != choice) {
             if (choice == Constants.GLOVE) {
-                usedModel = gloveCalc;
+                usedModel = gloveUtil;
             } else if (choice == Constants.WORD2VEC) {
-                usedModel = w2vecCalc;
+                usedModel = word2vecUtil;
             }
             usedModelID = choice;
         } else {
@@ -278,6 +276,16 @@ public class ApplicationController {
                 }
                 log.info("Nearest words: " + string.toString());
             }
+        } else {
+            log.warn("You should first train or load a model.");
+        }
+    }
+
+    public void printTotalWordSizeInModelVocab() {
+
+        if (usedModel.isModelReady()) {
+            log.info(usedModel.getName() + " has "
+                    + usedModel.getTotalWordSizeInVocab() + " words in total.");
         } else {
             log.warn("You should first train or load a model.");
         }

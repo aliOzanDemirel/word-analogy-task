@@ -117,11 +117,15 @@ public class WordAnalogyTask {
                         controller.getNearestOfInputWord();
                         break;
                     case 15:
+                        // print number of words in model's vocabulary
+                        controller.printTotalWordSizeInModelVocab();
+                        break;
+                    case 16:
                         log.info("FREE MB: " + Runtime.getRuntime().freeMemory() / 1024 / 1024);
                         log.info("TOTAL MB: " + Runtime.getRuntime().totalMemory() / 1024 / 1024);
                         log.info("MAX MB: " + Runtime.getRuntime().maxMemory() / 1024 / 1024);
                         break;
-                    case 16:
+                    case 17:
                         controller.exit();
                     default:
                         log.warn("Wrong input!");

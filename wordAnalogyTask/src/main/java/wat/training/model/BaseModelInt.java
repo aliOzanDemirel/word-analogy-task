@@ -20,7 +20,7 @@ public interface BaseModelInt {
 
     boolean hasWord(String word);
 
-    int getTotalWordNumberInModelVocab();
+    int getTotalWordSizeInVocab();
 
     boolean saveTrainedModel(File file);
 
