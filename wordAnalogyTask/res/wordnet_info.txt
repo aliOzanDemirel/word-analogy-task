@@ -1,0 +1,33 @@
+setDefaultPathsForWAT.sh dosyası içindeki pathler düzeltilip /etc/profile.d içine taşınmalı.
+
+polysemy -> çok anlamlı.
+synset -> eş anlamlı kelimeler kümesi.
+
+synsetlerin diğer synsetlerle olan bağları:
+hypernyms -> the synsets that are more general; mailbox'tan box'a olan bağ
+hyponyms -> the synsets that are more specific; box'dan mailbox'a olan bağ
+holonyms -> things that the item is contained in; tree'den forest'a olan bağ
+meronyms -> components or substances that make up the item; forest'dan tree'ye olan bağ
+
+wordNetEncylopedia.pdf alıntıları:
+
+-Membership of a word in multiple synonyms reflects that word’s polysemy, or multiplicity of meaning.
+
+-WordNet 2.1 contains almost 118 000 synsets, comprising more than 81,000 noun synsets, 13 600 verb synsets, 19 000 adjective synsets, and 3 600 adverb synsets.
+
+-Relations are encoded in WordNet only once between a given pair of synsets or words. The pointer gets automatically reversed.
+
+-Morphosemantic relations link words from all four parts of speech that are both morphologically and semantically related; interrogator, interrogate, and interrogative are interlinked.
+
+-WordNet distinguishes types and instances, china is a type of crockery. Proper names are instances: China is an instance, rather than a type of a country.
+
+Noun için iki ana ilişki var; meronymy ve hyponymy.
+
+-Meronymy in WordNet actually encompasses three distinct partwhole relations. One holds among proper parts or components, such as {leg} and {table}. Another links substances that are constituents of other substances: {oxygen} is a part of {water} and {air}. Members such as {tree} and {parent} are parts of groups such as {forest} and {family}.
+
+-Concepts expressed by nouns are densely interconnected by the hyponymy relation which links specific concepts to more general ones. Hyponymy builds hierarchical ‘trees’ with increasingly specific ‘leaf’ concepts growing from an abstract ‘root.’ All noun synsets ultimately descend from {entity}.
+
+-Verbs are organized by a several entailment relations. The most prevalent is troponymy, which relates synset pairs such that one expresses a particular manner of the other; {whisper}-{talk} and {punch}-{strike}. Like hyponymy, troponymy builds hierarchies of several levels of specificity. Other relations are backward entailment (divorce-marry), presupposition (buy-pay), and cause (show-see).
+
+-Descriptive adjectives are organized into direct antonym pairs, such as wet-dry and long-short. Each member of a direct antonym pair is associated with a number of ‘semantically similar’ adjectives. Relational adjectives (atomic, nuclear) are linked to the corresponding morphologically and semantically related nouns (atom, nucleus). Most adverbs point to their base adjectives (rapid-rapidly, slow-slowly).
+

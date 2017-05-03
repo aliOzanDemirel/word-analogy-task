@@ -207,7 +207,7 @@ public class Word2vecUtil extends BaseModel implements Word2vecUtilInt {
     @Override
     public List<String> getNearestWords(final String word) {
 
-        return (List) word2vec.wordsNearest(word, closestWordSize);
+        return (List<String>) word2vec.wordsNearest(word, closestWordSize);
 
     }
 
