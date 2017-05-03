@@ -7,13 +7,13 @@ import java.util.List;
 public class Calculator implements CalculatorInt {
 
     private double similarityScore, analogyScore, maxScoreForAnalogy;
-    private int totalSimCalculations, totalAnalogicCalculations;
-    private int baseSensitivity, closestWordSize;
+    private int totalSimCalculations, totalAnalogicCalculations, baseSensitivity;
 
     public Calculator() {
 
         this.resetScores();
-        this.resetMaxScoreForAnalogy();
+        this.setBaseSensitivity(DefaultSettings.BASE_SENSITIVITY,
+                DefaultSettings.CLOSEST_WORD_SIZE);
     }
 
     @Override
@@ -23,22 +23,6 @@ public class Calculator implements CalculatorInt {
         totalAnalogicCalculations = 0;
         similarityScore = 0.0;
         totalSimCalculations = 0;
-    }
-
-    @Override
-    public void resetMaxScoreForAnalogy() {
-
-        baseSensitivity = DefaultSettings.BASE_SENSITIVITY;
-        closestWordSize = DefaultSettings.CLOSEST_WORD_SIZE;
-        this.setMaxScore();
-    }
-
-    private void setMaxScore() {
-        // buradaki 3 arttırılarak fark arttırılabilir
-        // base'in üssünün 3/2'si maximum score
-        // base 4, size 5 olunca: 1536 max -> 5. 512 / 4. 768 / 3. 960
-        // base 5, size 5 olunca: 4688 max -> 5. 1563 / 4. 4063 / 3. 4563
-        maxScoreForAnalogy = 3 * Math.pow(baseSensitivity, closestWordSize) / 2;
     }
 
     /**
@@ -145,20 +129,41 @@ public class Calculator implements CalculatorInt {
     }
 
     @Override
-    public void setBaseSensitivity(int baseSensitivity) {
+    public int getBaseSensitivity() {
+
+        return baseSensitivity;
+    }
+
+    /**
+     * this always updates max score for analogy.
+     *
+     * @param baseSensitivity
+     * @param closestWordSize
+     */
+    @Override
+    public void setBaseSensitivity(int baseSensitivity, int closestWordSize) {
 
         if (baseSensitivity >= 2 && baseSensitivity <= 100) {
             this.baseSensitivity = baseSensitivity;
-            this.setMaxScore();
+            this.setMaxScoreForAnalogy(baseSensitivity, closestWordSize);
         }
     }
 
+    /**
+     * it is used to reset max score and base sensitivity.
+     *
+     * @param baseSensitivity
+     * @param closestWordSize
+     */
     @Override
-    public void setClosestWordSize(int closestWordSize) {
+    public void setMaxScoreForAnalogy(int baseSensitivity, int closestWordSize) {
 
-        if (closestWordSize >= 3 && closestWordSize <= 100) {
-            this.closestWordSize = closestWordSize;
-            this.setMaxScore();
-        }
+        this.baseSensitivity = baseSensitivity;
+        // buradaki 3 arttırılarak fark arttırılabilir
+        // base'in üssünün 3/2'si maximum score
+        // base 4, size 5 olunca: 1536 max -> 5. 512 / 4. 768 / 3. 960
+        // base 5, size 5 olunca: 4688 max -> 5. 1563 / 4. 4063 / 3. 4563
+        maxScoreForAnalogy = 3 * Math.pow(baseSensitivity, closestWordSize) / 2;
     }
+
 }

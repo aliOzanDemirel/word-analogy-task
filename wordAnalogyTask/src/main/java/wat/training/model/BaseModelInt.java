@@ -3,6 +3,7 @@ package wat.training.model;
 import wat.exceptions.ModelBuildException;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.List;
 
 public interface BaseModelInt {
@@ -11,17 +12,9 @@ public interface BaseModelInt {
 
     void createModel(int corpusIsPretrained) throws ModelBuildException;
 
-    String getCorpusPath();
-
     void setCorpusPath(String corpusPath);
 
-    int getClosestWordSize();
-
     void setClosestWordSize(int closestWordSize);
-
-    int getBaseSensitivity();
-
-    void setBaseSensitivity(int baseSensitivity);
 
     boolean isModelReady();
 
@@ -33,7 +26,11 @@ public interface BaseModelInt {
 
     double getSimilarity(String firstWord, String secondWord);
 
+    void resetParams();
+
     List<String> getClosestWords(List<String> positive, List<String> negative);
 
-    void resetParams();
+    List<String> getNearestWords(String word);
+
+    int getClosestWordSize();
 }

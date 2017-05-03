@@ -11,6 +11,7 @@ import wat.training.model.word2vec.Word2vecUtilInt;
 import wat.wordnet.WordNetUtil;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class WordNetTest {
 
@@ -53,6 +54,17 @@ public class WordNetTest {
         BaseModelInt w2vecModel = this.prepareWord2vec();
         wordNetUtil.calculateAnalogyScoreOfWordInput(w2vecModel, word);
         log.info(wordNetUtil.getCalc().toString());
+    }
+
+    @Test
+    public void testGetNearestWords() throws ModelBuildException {
+
+        final String word = "gangster";
+        BaseModelInt w2vecModel = this.prepareWord2vec();
+        List<String> returned = w2vecModel.getNearestWords(word);
+
+        log.info(w2vecModel.getClosestWordSize() + " closest word for " + word);
+        returned.forEach(result -> log.info(result));
     }
 
     @Test

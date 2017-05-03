@@ -42,21 +42,14 @@ public class Word2vecUtil extends BaseModel implements Word2vecUtilInt {
     @Override
     public void createModel(int corpusIsPretrained) throws ModelBuildException {
 
-        this.createWord2vec(this.corpusPath, corpusIsPretrained, params);
-    }
-
-    private void createWord2vec(String corpusPath, int corpusIsPretrained, Word2vecTrainingParams params)
-            throws ModelBuildException {
-
         if (corpusIsPretrained == Constants.CORPUS_IS_PRETRAINED) {
-            this.loadPretrainedModel(corpusPath);
+            this.loadPretrainedModel();
         } else if (corpusIsPretrained == Constants.TRAIN_CORPUS) {
-            this.buildWord2vecAfterCheckingParams(corpusPath, params);
+            this.buildWord2vecAfterCheckingParams();
         }
     }
 
-    private void buildWord2vecAfterCheckingParams(String corpusPath, Word2vecTrainingParams params)
-            throws ModelBuildException {
+    private void buildWord2vecAfterCheckingParams() throws ModelBuildException {
 
         params.validate();
 
@@ -80,10 +73,10 @@ public class Word2vecUtil extends BaseModel implements Word2vecUtilInt {
         TokenizerFactory tokenizer = new DefaultTokenizerFactory();
         tokenizer.setTokenPreProcessor(new CommonPreprocessor());
 
-        this.buildWord2vec(params, sentenceIterator, tokenizer);
+        this.buildWord2vec(sentenceIterator, tokenizer);
     }
 
-    private void buildWord2vec(Word2vecTrainingParams params, SentenceIterator sentenceIterator,
+    private void buildWord2vec(SentenceIterator sentenceIterator,
             TokenizerFactory tokenizer) throws ModelBuildException {
 
         log.info("Building word2vec may take a while. Parameters: " + params.toString());
@@ -122,7 +115,7 @@ public class Word2vecUtil extends BaseModel implements Word2vecUtilInt {
 
     // csv, binary ve dl4j compressed yüklüyor
     // loadStaticModel word vectorlere erişmek için sadece
-    private void loadPretrainedModel(String corpusPath) throws ModelBuildException {
+    private void loadPretrainedModel() throws ModelBuildException {
 
         log.info("Starting to load word2vec from: " + corpusPath + " This may take a while.");
         word2vec = null;
@@ -190,12 +183,6 @@ public class Word2vecUtil extends BaseModel implements Word2vecUtilInt {
     }
 
     @Override
-    public Word2vecTrainingParams getWord2vecParams() {
-
-        return params;
-    }
-
-    @Override
     public void resetParams() {
 
         params.reset();
@@ -217,20 +204,11 @@ public class Word2vecUtil extends BaseModel implements Word2vecUtilInt {
         return result;
     }
 
-    /**
-     * liste halinde stringleri yollayınca son eleman için bir accuracy yolluyor test edilmeli
-     *
-     * @param questions
-     */
-    public void getAccuracyByQuestions(List<String> questions) {
+    @Override
+    public List<String> getNearestWords(final String word) {
 
-        word2vec.accuracy(questions);
-    }
+        return (List) word2vec.wordsNearest(word, closestWordSize);
 
-    public Collection<String> getNearestWords(String word) {
-
-        // en yakın 3 kelime
-        return word2vec.wordsNearest(word, 3);
     }
 
 }

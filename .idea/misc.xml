@@ -3,7 +3,7 @@
   <component name="MavenProjectsManager">
     <option name="originalFiles">
       <list>
-        <option value="$PROJECT_DIR$/wat-workspace/pom.xml" />
+          <option value="$PROJECT_DIR$/wordAnalogyTask/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">

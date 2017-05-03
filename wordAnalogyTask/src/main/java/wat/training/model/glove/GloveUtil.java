@@ -1,6 +1,9 @@
 package wat.training.model.glove;
 
+import org.deeplearning4j.models.embeddings.loader.WordVectorSerializer;
+import org.deeplearning4j.models.embeddings.wordvectors.WordVectors;
 import org.deeplearning4j.models.glove.Glove;
+import org.deeplearning4j.models.sequencevectors.interfaces.SequenceElementFactory;
 import org.deeplearning4j.text.sentenceiterator.BasicLineIterator;
 import org.deeplearning4j.text.sentenceiterator.SentenceIterator;
 import org.deeplearning4j.text.tokenization.tokenizer.preprocessor.CommonPreprocessor;
@@ -9,6 +12,7 @@ import org.deeplearning4j.text.tokenization.tokenizerfactory.TokenizerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import wat.exceptions.ModelBuildException;
+import wat.helper.Constants;
 import wat.training.model.BaseModel;
 
 import java.io.File;
@@ -17,6 +21,7 @@ import java.util.List;
 public class GloveUtil extends BaseModel implements GloveUtilInt {
 
     private static final Logger log = LoggerFactory.getLogger(GloveUtil.class);
+    private static boolean debugEnabled = log.isDebugEnabled();
 
     private GloveTrainingParams params = new GloveTrainingParams();
     private Glove glove = null;
@@ -27,16 +32,31 @@ public class GloveUtil extends BaseModel implements GloveUtilInt {
         return "glove";
     }
 
+    /**
+     * @param corpusIsPretrained 1 to train text file, 2 to use already trained model.
+     * @throws ModelBuildException
+     */
     @Override
-    public void createModel(int corpusType) throws ModelBuildException {
+    public void createModel(int corpusIsPretrained) throws ModelBuildException {
 
+        if (corpusIsPretrained == Constants.CORPUS_IS_PRETRAINED) {
+            this.loadPretrainedModel();
+        } else if (corpusIsPretrained == Constants.TRAIN_CORPUS) {
+            this.buildGloveFromCorpus();
+        }
     }
 
     private void buildGloveFromCorpus() throws ModelBuildException {
 
+        log.info("Building glove may take a while. Parameters: " + params.toString());
+        params.validate();
+
         if (corpusPath == null || corpusPath.isEmpty()) {
             corpusPath = System.getenv("DEFAULT_CORPUS_PATH");
-            log.warn("Corpus path is empty, setting to default: " + corpusPath);
+            if (corpusPath == null || corpusPath.isEmpty()) {
+                throw new ModelBuildException("DEFAULT_CORPUS_PATH is not set!");
+            }
+            log.warn("Setting corpus path to default: " + corpusPath);
         }
 
         SentenceIterator sentenceIterator;
@@ -69,34 +89,74 @@ public class GloveUtil extends BaseModel implements GloveUtilInt {
                 .seed(params.getSeed())
                 .build();
 
-        log.info("");
-
-        glove.fit();
-        log.info("");
+        long start = System.currentTimeMillis();
+        try {
+            glove.fit();
+        } catch (Exception e) {
+            // release the memory if it could not be built properly
+            glove = null;
+            throw new ModelBuildException(e);
+        }
+        log.info("Done building glove model in "
+                + (System.currentTimeMillis() - start) / 1000 + " seconds.");
     }
 
-    @Override
-    public double getSimilarity(String firstWord, String secondWord) {
+    // TODO: glove load edilmeli
+    private void loadPretrainedModel() throws ModelBuildException {
 
-        return glove.similarity(firstWord, secondWord);
+        log.info("Starting to load word2vec from: " + corpusPath + " This may take a while.");
+        glove = null;
+
+        long start = System.currentTimeMillis();
+        try {
+            // extendedModel: true olarak okusun
+//            glove = WordVectorSerializer.readSequenceVectors(new SequenceElementFactory<>(),
+//                    true);
+        } catch (OutOfMemoryError e) {
+            // release the memory if it could not be loaded properly
+            glove = null;
+            throw new ModelBuildException(e);
+        }
+        log.info("Done loading glove model in "
+                + (System.currentTimeMillis() - start) / 1000 + " seconds.");
     }
 
+    /**
+     * @param file represents a folder to save compressed model file in.
+     * @return false if model could not be written to file.
+     */
     @Override
-    public List<String> getClosestWords(List<String> positive, List<String> negative) {
+    public boolean saveTrainedModel(File file) {
 
-        return null;
+        try {
+            WordVectorSerializer.writeWordVectors(glove, file);
+            return true;
+        } catch (Exception e) {
+            log.error("Cannot find the directory: " + file.getAbsolutePath(), e);
+            return false;
+        }
     }
 
+    /**
+     * @return the number of the words in vocab cache of word2vec.
+     */
     @Override
-    public void resetParams() {
+    public int getTotalWordNumberInModelVocab() {
 
-        params.reset();
+        return glove.getVocab().numWords();
     }
 
     @Override
     public boolean hasWord(String word) {
 
-        return glove.hasWord(word);
+        if (glove.hasWord(word)) {
+            return true;
+        } else {
+            if (debugEnabled) {
+                log.debug(word + " does not exist in word2vec model.");
+            }
+            return false;
+        }
     }
 
     @Override
@@ -110,15 +170,32 @@ public class GloveUtil extends BaseModel implements GloveUtilInt {
     }
 
     @Override
-    public int getTotalWordNumberInModelVocab() {
+    public void resetParams() {
 
-        return 0;
+        params.reset();
     }
 
     @Override
-    public boolean saveTrainedModel(File file) {
+    public List<String> getClosestWords(List<String> positive, List<String> negative) {
 
-        return false;
+        return (List<String>) glove.wordsNearest(positive, negative, closestWordSize);
+    }
+
+    @Override
+    public double getSimilarity(String firstWord, String secondWord) {
+
+        double result = glove.similarity(firstWord, secondWord);
+        if (debugEnabled) {
+            log.debug("Similarity between " + firstWord + " - " + secondWord + ": " + result);
+        }
+        return result;
+    }
+
+    @Override
+    public List<String> getNearestWords(final String word) {
+
+        return (List) glove.wordsNearest(word, closestWordSize);
+
     }
 
 

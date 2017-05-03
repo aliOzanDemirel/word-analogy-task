@@ -28,24 +28,25 @@ public class UserInput {
 
     public static int getMenuSelection() {
 
-        log.info("*****************************************");
-        log.info("* 1-) load word net into memory         *");
-        log.info("* 2-) show listing options              *");
-        log.info("* 3-) choose model for training         *");
-        log.info("* 4-) change model's params             *");
-        log.info("* 5-) reset model params                *");
-        log.info("* 6-) change corpus path for model      *");
-        log.info("* 7-) build or load model               *");
-        log.info("* 8-) save trained model                *");
-        log.info("* 9-) save calculated scores            *");
-        log.info("* 10-) get analogy score of one word    *");
-        log.info("* 11-) calculate analogy score          *");
-        log.info("* 12-) calculate similarity score       *");
-        log.info("* 13-) change calculation settings      *");
-        log.info("* 14-) log memory                       *");
-        log.info("* 15-) exit                             *");
-        log.info("*****************************************");
-        return UserInput.getSelectionBetween(1, 14);
+        log.info("******************************************");
+        log.info("* 1-) load word net into memory          *");
+        log.info("* 2-) show listing options               *");
+        log.info("* 3-) choose model for training          *");
+        log.info("* 4-) change model's params              *");
+        log.info("* 5-) reset model params                 *");
+        log.info("* 6-) change corpus path for model       *");
+        log.info("* 7-) build or load model                *");
+        log.info("* 8-) save trained model                 *");
+        log.info("* 9-) save calculated scores             *");
+        log.info("* 10-) get analogy score of one word     *");
+        log.info("* 11-) calculate analogy score           *");
+        log.info("* 12-) calculate similarity score        *");
+        log.info("* 13-) change calculation settings       *");
+        log.info("* 14-) get most similar words of a word  *");
+        log.info("* 15-) log memory                        *");
+        log.info("* 16-) exit                              *");
+        log.info("******************************************");
+        return UserInput.getSelectionBetween(1, 16);
     }
 
     public static int getPOSSelection() {

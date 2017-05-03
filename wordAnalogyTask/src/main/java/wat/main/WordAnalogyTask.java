@@ -89,10 +89,7 @@ public class WordAnalogyTask {
                         break;
                     case 10:
                         // calculate analogy score of a word of user's choice
-                        String selection = UserInput.getWordInput();
-                        if (selection != null) {
-                            controller.getAnalogyScoreOfTypedWord(selection);
-                        }
+                        controller.getAnalogyScoreOfTypedWord();
                         break;
                     case 11:
                         // calculate analogy score
@@ -116,11 +113,15 @@ public class WordAnalogyTask {
                         }
                         break;
                     case 14:
+                        // get closest words from model for a given word
+                        controller.getNearestOfInputWord();
+                        break;
+                    case 15:
                         log.info("FREE MB: " + Runtime.getRuntime().freeMemory() / 1024 / 1024);
                         log.info("TOTAL MB: " + Runtime.getRuntime().totalMemory() / 1024 / 1024);
                         log.info("MAX MB: " + Runtime.getRuntime().maxMemory() / 1024 / 1024);
                         break;
-                    case 15:
+                    case 16:
                         controller.exit();
                     default:
                         log.warn("Wrong input!");

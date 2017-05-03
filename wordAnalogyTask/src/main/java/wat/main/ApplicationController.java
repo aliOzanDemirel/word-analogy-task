@@ -8,6 +8,7 @@ import wat.calculator.CalculatorInt;
 import wat.exceptions.ModelBuildException;
 import wat.file.FileActions;
 import wat.helper.Constants;
+import wat.helper.DefaultSettings;
 import wat.training.model.BaseModelInt;
 import wat.training.model.glove.GloveUtil;
 import wat.training.model.glove.GloveUtilInt;
@@ -123,10 +124,13 @@ public class ApplicationController {
         }
     }
 
-    public void getAnalogyScoreOfTypedWord(final String wordInput) {
+    public void getAnalogyScoreOfTypedWord() {
 
         if (usedModel.isModelReady()) {
-            wordNetUtil.calculateAnalogyScoreOfWordInput(usedModel, wordInput);
+            final String wordInput = UserInput.getWordInput();
+            if (wordInput != null) {
+                wordNetUtil.calculateAnalogyScoreOfWordInput(usedModel, wordInput);
+            }
         } else {
             log.warn("You should first train or load a model.");
         }
@@ -197,10 +201,13 @@ public class ApplicationController {
 
         switch (settingID) {
             case Constants.BASE_SENSITIVITY_SETTING:
-                wordNetUtil.getCalc().setBaseSensitivity(UserInput.getSelectionBetween(2, 100));
+                wordNetUtil.getCalc().setBaseSensitivity(UserInput.getSelectionBetween(2, 100),
+                        usedModel.getClosestWordSize());
                 break;
             case Constants.CLOSEST_WORD_SIZE_SETTING:
-                wordNetUtil.getCalc().setClosestWordSize(UserInput.getSelectionBetween(3, 100));
+                usedModel.setClosestWordSize(UserInput.getSelectionBetween(3, 100));
+                wordNetUtil.getCalc().setMaxScoreForAnalogy(wordNetUtil.getCalc().getBaseSensitivity(),
+                        usedModel.getClosestWordSize());
                 break;
             case Constants.ITERATION_CAP_FOR_POINTER_SETTING:
                 wordNetUtil.setIterationCapForPointer(UserInput.getSelectionBetween(3, 200000));
@@ -209,8 +216,10 @@ public class ApplicationController {
                 wordNetUtil.resetIterationCapForPointer();
                 break;
             case Constants.RESET_MAX_SCORE_SETTING:
-                // also reset base sensitivity and closest word size
-                wordNetUtil.getCalc().resetMaxScoreForAnalogy();
+                usedModel.setClosestWordSize(DefaultSettings.CLOSEST_WORD_SIZE);
+                // also resets base sensitivity
+                wordNetUtil.getCalc().setMaxScoreForAnalogy(DefaultSettings.BASE_SENSITIVITY,
+                        usedModel.getClosestWordSize());
                 break;
             default:
                 log.error("Invalid setting ID: " + settingID);
@@ -254,6 +263,24 @@ public class ApplicationController {
     public String getUsedModelName() {
 
         return usedModel.getName();
+    }
+
+    public void getNearestOfInputWord() {
+
+        if (usedModel.isModelReady()) {
+            final String wordInput = UserInput.getWordInput();
+            if (wordInput != null) {
+                final List<String> result = usedModel.getNearestWords(wordInput);
+                final int resultSize = result.size();
+                StringBuilder string = new StringBuilder(30);
+                for (int i = 0; i < resultSize; i++) {
+                    string.append("\n").append(i).append("- ").append(result.get(i));
+                }
+                log.info("Nearest words: " + string.toString());
+            }
+        } else {
+            log.warn("You should first train or load a model.");
+        }
     }
 
 }

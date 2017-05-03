@@ -22,34 +22,29 @@ public abstract class BaseModel implements BaseModelInt {
      */
     protected int baseSensitivity = DefaultSettings.BASE_SENSITIVITY;
 
-    public String getCorpusPath() {
-
-        return corpusPath;
-    }
-
+    @Override
     public void setCorpusPath(String corpusPath) {
 
         this.corpusPath = corpusPath;
     }
 
+    @Override
     public int getClosestWordSize() {
 
         return closestWordSize;
     }
 
+    /**
+     * max score for analogy should definitely be updated after a call to this method.
+     *
+     * @param closestWordSize
+     */
+    @Override
     public void setClosestWordSize(int closestWordSize) {
 
-        this.closestWordSize = closestWordSize;
-    }
-
-    public int getBaseSensitivity() {
-
-        return baseSensitivity;
-    }
-
-    public void setBaseSensitivity(int baseSensitivity) {
-
-        this.baseSensitivity = baseSensitivity;
+        if (closestWordSize >= 3 && closestWordSize <= 100) {
+            this.closestWordSize = closestWordSize;
+        }
     }
 
 }
