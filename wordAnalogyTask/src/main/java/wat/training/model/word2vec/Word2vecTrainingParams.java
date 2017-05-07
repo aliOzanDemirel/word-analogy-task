@@ -3,6 +3,7 @@ package wat.training.model.word2vec;
 import org.deeplearning4j.models.embeddings.learning.ElementsLearningAlgorithm;
 import org.deeplearning4j.models.embeddings.learning.impl.elements.CBOW;
 import org.deeplearning4j.models.embeddings.learning.impl.elements.SkipGram;
+import wat.helper.DefaultSettingValues;
 import wat.helper.DefaultTrainingParamValues;
 import wat.training.model.BaseTrainingParams;
 
@@ -46,16 +47,12 @@ public class Word2vecTrainingParams extends BaseTrainingParams {
         skipGramOrCBOW = new SkipGram();
     }
 
-    // TODO: validate ve toString doldurulacak
-    public boolean validate() {
-
-        return this.validateCommonParams();
-    }
-
     @Override
     public String toString() {
 
-        return super.toString();
+        return super.toString() + " skipGramOrCBOW: " + skipGramOrCBOW + ", iterations: " + iterations
+                + ", hugeModelExpected: " + hugeModelExpected + ", useHierarchicSoftmax: " +
+                useHierarchicSoftmax + ", negative: " + negative + ", sampling: " + sampling;
     }
 
     public ElementsLearningAlgorithm getSkipGramOrCBOW() {

@@ -39,20 +39,13 @@ public class GloveTrainingParams extends BaseTrainingParams {
         alpha = DefaultTrainingParamValues.ALPHA;
         shuffle = DefaultTrainingParamValues.SHUFFLE;
         symmetric = DefaultTrainingParamValues.SYMMETRIC;
-
-        epochs = DefaultTrainingParamValues.GLOVE_EPOCHS;
-    }
-
-    // TODO: validate ve toString doldurulacak
-    public boolean validate() {
-
-        return this.validateCommonParams();
     }
 
     @Override
     public String toString() {
 
-        return super.toString();
+        return super.toString() + " xMax: " + xMax + ", alpha: " + alpha
+                + ", shuffle: " + shuffle + ", symmetric: " + symmetric;
     }
 
     public boolean isShuffle() {

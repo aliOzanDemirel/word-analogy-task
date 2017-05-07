@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import wat.calculator.Calculator;
 import wat.calculator.CalculatorInt;
-import wat.helper.DefaultSettings;
+import wat.helper.DefaultSettingValues;
 import wat.helper.WordNetPointers;
 import wat.training.model.BaseModelInt;
 
@@ -143,12 +143,23 @@ public class WordNetUtil implements WordNetUtilInt {
     }
 
     /**
+     * calls {@link #preparePointerToWordMap()} before
+     * calling {@link #calculateScoreForPOS(BaseModelInt, POS, boolean)}.
+     */
+    @Override
+    public void calculateScoreForPOSFromController(final BaseModelInt usedModel,
+            final POS partOfSpeech, final boolean isAnalogyTest) {
+
+        this.preparePointerToWordMap();
+        this.calculateScoreForPOS(usedModel, partOfSpeech, isAnalogyTest);
+    }
+
+    /**
      * @param usedModel     can be glove or word2vec usedModel.
      * @param partOfSpeech  can be noun, verb, adjective or adverb.
      * @param isAnalogyTest true to calculate analogical relationship.
      */
-    @Override
-    public void calculateScoreForPOS(final BaseModelInt usedModel,
+    private void calculateScoreForPOS(final BaseModelInt usedModel,
             final POS partOfSpeech, final boolean isAnalogyTest) {
 
         if (isAnalogyTest) {
@@ -161,8 +172,8 @@ public class WordNetUtil implements WordNetUtilInt {
     }
 
     /**
-     * calculates similarity score by summing word2vec's similarity score for given word and its synset's
-     * words as pairs.
+     * calculates similarity score by summing word2vec's similarity score
+     * for given word and its synset's words as pairs.
      *
      * @param usedModel
      * @param indexWordIterator
@@ -216,6 +227,7 @@ public class WordNetUtil implements WordNetUtilInt {
     public void calculateAnalogyScoreOfWordInput(final BaseModelInt usedModel,
             final String wordInput) {
 
+        log.info(calc.toString());
         long start = System.currentTimeMillis();
         if (this.validateWord(wordInput)) {
             if (usedModel.hasWord(wordInput)) {
@@ -323,7 +335,7 @@ public class WordNetUtil implements WordNetUtilInt {
                     relatedWordLemma = relatedWord.getLemma();
 
                     // related kelime ile root aynı olmamalı
-                    if (rootWordLemma.equals(relatedWordLemma)) {
+                    if (rootWordLemma.equalsIgnoreCase(relatedWordLemma)) {
                         if (debugEnabled) {
                             log.debug(relatedWordLemma + " is same as root word, it cannot be checked.");
                         }
@@ -340,8 +352,8 @@ public class WordNetUtil implements WordNetUtilInt {
                             if (usedModel.hasWord(comparedWordLemma)) {
 
                                 // kıyaslanan kelime root veya related'la aynı olamaz
-                                if (comparedWordLemma.equals(rootWordLemma)
-                                        || comparedWordLemma.equals(relatedWordLemma)) {
+                                if (comparedWordLemma.equalsIgnoreCase(rootWordLemma)
+                                        || comparedWordLemma.equalsIgnoreCase(relatedWordLemma)) {
                                     if (debugEnabled) {
                                         log.debug("Word to be compared: " + comparedWordLemma
                                                 + " is same as one of the words in pair: "
@@ -398,7 +410,7 @@ public class WordNetUtil implements WordNetUtilInt {
                         synsetWordLemma = relatedSynsetWord.getLemma();
 
                         // başka synset'teki kelime ile root aynı olmamalı
-                        if (rootWordLemma.equals(synsetWordLemma)) {
+                        if (rootWordLemma.equalsIgnoreCase(synsetWordLemma)) {
                             if (debugEnabled) {
                                 log.debug(synsetWordLemma + " is same as root word, it cannot be checked.");
                             }
@@ -426,8 +438,8 @@ public class WordNetUtil implements WordNetUtilInt {
 
         if (usedModel.hasWord(comparedWordLemma)) {
 
-            if (comparedWordLemma.equals(rootWordLemma) || comparedWordLemma
-                    .equals(synsetWordLemma)) {
+            if (comparedWordLemma.equalsIgnoreCase(rootWordLemma) || comparedWordLemma
+                    .equalsIgnoreCase(synsetWordLemma)) {
                 if (debugEnabled) {
                     log.debug("Word to be compared: " + comparedWordLemma
                             + " is same as one of the words in pair: "
@@ -439,8 +451,7 @@ public class WordNetUtil implements WordNetUtilInt {
                 final List<IWord> synsetWordsOfCompared = comparedWord.getSynset()
                         .getWords();
 
-                this.compareWordPairWithGivenThird(usedModel,
-                        synsetWordsOfCompared,
+                this.compareWordPairWithGivenThird(usedModel, synsetWordsOfCompared,
                         rootWordLemma, synsetWordLemma, comparedWordLemma);
             }
         }
@@ -816,13 +827,13 @@ public class WordNetUtil implements WordNetUtilInt {
     @Override
     public void resetIterationCapForPointer() {
 
-        iterationCapForPointer = DefaultSettings.ITERATION_CAP_FOR_POINTER;
+        iterationCapForPointer = DefaultSettingValues.ITERATION_CAP_FOR_POINTER;
     }
 
     @Override
     public void setIterationCapForPointer(int iterationCap) {
 
-        if (iterationCap > DefaultSettings.ITERATION_CAP_FOR_POINTER) {
+        if (iterationCap > DefaultSettingValues.ITERATION_CAP_FOR_POINTER) {
             log.warn("Iteration cap for a pointer is set too high: " + iterationCap);
         }
         iterationCapForPointer = iterationCap;

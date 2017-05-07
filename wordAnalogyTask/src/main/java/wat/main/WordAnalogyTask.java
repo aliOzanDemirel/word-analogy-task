@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import wat.exceptions.ModelBuildException;
 import wat.file.FileActions;
 import wat.helper.Constants;
+import wat.helper.TrainingParamTypes;
 
 import java.io.IOException;
 
@@ -51,11 +52,11 @@ public class WordAnalogyTask {
                     case 4:
                         // change parameter for model training
                         for (; ; ) {
-                            int paramType = UserInput.getWord2vecParam();
-                            if (paramType == 8) {
+                            int paramType = UserInput.getParamType();
+                            if (paramType == 0) {
                                 break;
                             }
-                            controller.updateSelectedModelParams(paramType);
+                            controller.updateSelectedModelParams(TrainingParamTypes.getByValue(paramType));
                         }
                         break;
                     case 5:
@@ -75,7 +76,7 @@ public class WordAnalogyTask {
                     case 7:
                         // gets corpus type before loading model
                         int corpusType = UserInput.getCorpusType();
-                        if (corpusType != 3) {
+                        if (corpusType != 0) {
                             controller.prepareModel(corpusType);
                         }
                         break;

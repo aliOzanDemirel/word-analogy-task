@@ -11,7 +11,7 @@ public interface WordNetUtilInt {
     void calculateScoreForAllWords(final BaseModelInt usedModel,
             final boolean isAnalogyTest) throws IOException;
 
-    void calculateScoreForPOS(final BaseModelInt usedModel, final POS partOfSpeech,
+    void calculateScoreForPOSFromController(final BaseModelInt usedModel, final POS partOfSpeech,
             final boolean isAnalogyTest) throws IOException;
 
     void calculateAnalogyScoreOfWordInput(final BaseModelInt usedModel, final String wordInput);

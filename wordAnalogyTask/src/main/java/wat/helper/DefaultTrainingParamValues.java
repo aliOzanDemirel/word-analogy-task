@@ -26,7 +26,6 @@ public class DefaultTrainingParamValues {
      * glove için özel
      * dl4j örneğinde learningRate 0.1, epochs 25, batchSize da 1000
      */
-    public static final int GLOVE_EPOCHS = 20;
     public static final double X_MAX = 100.0d;
     public static final boolean SYMMETRIC = false;
     public static final boolean SHUFFLE = false;

@@ -13,8 +13,10 @@ import wat.exceptions.ModelBuildException;
 import wat.helper.Constants;
 import wat.training.model.BaseModel;
 import wat.training.model.BaseModelInt;
+import wat.training.model.BaseTrainingParams;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.List;
 
 public class GloveUtil extends BaseModel implements BaseModelInt {
@@ -47,8 +49,7 @@ public class GloveUtil extends BaseModel implements BaseModelInt {
 
     private void buildGloveFromCorpus() throws ModelBuildException {
 
-        log.info("Building glove may take a while. Parameters: " + params.toString());
-        params.validate();
+        params.validateCommonParams();
 
         if (corpusPath == null || corpusPath.isEmpty()) {
             corpusPath = System.getenv("DEFAULT_CORPUS_PATH");
@@ -70,6 +71,7 @@ public class GloveUtil extends BaseModel implements BaseModelInt {
         TokenizerFactory t = new DefaultTokenizerFactory();
         t.setTokenPreProcessor(new CommonPreprocessor());
 
+        log.info("Building glove with parameters: " + params.toString());
         Glove glove = new Glove.Builder()
                 .iterate(sentenceIterator)
                 .tokenizerFactory(t)
@@ -89,30 +91,20 @@ public class GloveUtil extends BaseModel implements BaseModelInt {
                 .build();
 
         long start = System.currentTimeMillis();
-        try {
-            glove.fit();
-        } catch (Exception e) {
-            // release the memory if it could not be built properly
-            glove = null;
-            throw new ModelBuildException(e);
-        }
+        glove.fit();
         log.info("Done building glove model in "
                 + (System.currentTimeMillis() - start) / 1000 + " seconds.");
     }
 
-    // TODO: glove load edilmeli
     private void loadPretrainedModel() throws ModelBuildException {
 
-        log.info("Starting to load word2vec from: " + corpusPath + " This may take a while.");
+        log.info("Starting to load glove model from: " + corpusPath + " This may take a while.");
         glove = null;
 
         long start = System.currentTimeMillis();
         try {
-            // extendedModel: true olarak okusun
-//            glove = WordVectorSerializer.readSequenceVectors(new SequenceElementFactory<>(),
-//                    true);
-        } catch (OutOfMemoryError e) {
-            // release the memory if it could not be loaded properly
+            glove = (Glove) WordVectorSerializer.loadTxtVectors(new File(corpusPath));
+        } catch (Exception e) {
             glove = null;
             throw new ModelBuildException(e);
         }
@@ -193,8 +185,14 @@ public class GloveUtil extends BaseModel implements BaseModelInt {
     @Override
     public List<String> getNearestWords(final String word) {
 
-        return (List) glove.wordsNearest(word, closestWordSize);
+        return (List<String>) glove.wordsNearest(word, closestWordSize);
 
+    }
+
+    @Override
+    public BaseTrainingParams getParams() {
+
+        return params;
     }
 
 

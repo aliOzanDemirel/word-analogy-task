@@ -44,8 +44,7 @@ public class WordNetTest {
     @Test
     public void testCalculateAnalogyOfOneWord() throws ModelBuildException {
 
-        final String another = "bluff";
-        final String word = "gangster";
+        final String word = "man";
         // gangster -> Derivationally related form -> gang
         // tek bir lexical pointer var (ganster - gang) çifti ile
         // 'Derivationally related form'a sahip 250 kelime kıyaslanacak

@@ -33,4 +33,6 @@ public interface BaseModelInt {
     List<String> getNearestWords(String word);
 
     int getClosestWordSize();
+
+    BaseTrainingParams getParams();
 }

@@ -60,7 +60,7 @@ public enum WordNetPointers {
 
     public static WordNetPointers getByCode(final String code) {
 
-        for (WordNetPointers pointer : values()) {
+        for (WordNetPointers pointer : WordNetPointers.values()) {
             if (pointer.value.equals(code)) {
                 return pointer;
             }

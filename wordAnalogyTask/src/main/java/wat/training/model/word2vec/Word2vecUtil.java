@@ -14,7 +14,7 @@ import wat.helper.Constants;
 import wat.training.model.BaseModel;
 import wat.training.model.BaseModelInt;
 
-import java.io.*;
+import java.io.File;
 import java.util.List;
 
 public class Word2vecUtil extends BaseModel implements BaseModelInt {
@@ -51,7 +51,7 @@ public class Word2vecUtil extends BaseModel implements BaseModelInt {
 
     private void buildWord2vecAfterCheckingParams() throws ModelBuildException {
 
-        params.validate();
+        params.validateCommonParams();
 
         if (corpusPath == null || corpusPath.isEmpty()) {
             corpusPath = System.getenv("DEFAULT_CORPUS_PATH");
@@ -79,7 +79,7 @@ public class Word2vecUtil extends BaseModel implements BaseModelInt {
     private void buildWord2vec(SentenceIterator sentenceIterator,
             TokenizerFactory tokenizer) throws ModelBuildException {
 
-        log.info("Building word2vec may take a while. Parameters: " + params.toString());
+        log.info("Building word2vec with parameters: " + params.toString());
         word2vec = null;
 
         word2vec = new Word2Vec.Builder()
@@ -186,6 +186,15 @@ public class Word2vecUtil extends BaseModel implements BaseModelInt {
     public void resetParams() {
 
         params.reset();
+    }
+
+    /**
+     * @return word2vec params for building model.
+     */
+    @Override
+    public Word2vecTrainingParams getParams() {
+
+        return params;
     }
 
     @Override

@@ -1,6 +1,6 @@
 package wat.training.model;
 
-import wat.helper.DefaultSettings;
+import wat.helper.DefaultSettingValues;
 
 public abstract class BaseModel implements BaseModelInt {
 
@@ -14,7 +14,7 @@ public abstract class BaseModel implements BaseModelInt {
      * setting to hold how many words should be retrieved
      * while querying word2vec by negative&positive words
      */
-    protected int closestWordSize = DefaultSettings.CLOSEST_WORD_SIZE;
+    protected int closestWordSize = DefaultSettingValues.CLOSEST_WORD_SIZE;
 
     @Override
     public void setCorpusPath(String corpusPath) {

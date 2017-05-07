@@ -15,16 +15,13 @@ public enum TrainingParamTypes {
     ITERATIONS_W2(10),
     NEGATIVE_W2(11),
     SAMPLING_W2(12),
-    USE_HIERARCHIC_SOFTMAX_W2(13),
-    USE_NEGATIVE_SAMPLING_W2(14),
-    HUGE_MODEL_EXPECTED_W2(15),
-    HUGE_MODEL_NOT_EXPECTED_W2(16),
-    USE_CBOW_W2(17),
-    USE_SKIP_GRAM_W2(18),
-    SHUFFLE_G(19),
-    SYMMETRIC_G(20),
-    XMAX_G(21),
-    ALPHA_G(22);
+    HUGE_MODEL_EXPECTED_W2(13),
+    HIERARCHIC_SOFTMAX_OR_NEGATIVE_SAMPLING_W2(14),
+    CBOW_OR_SKIP_GRAM_W2(15),
+    SHUFFLE_G(16),
+    SYMMETRIC_G(17),
+    XMAX_G(18),
+    ALPHA_G(19);
 
     int value;
 
@@ -34,6 +31,16 @@ public enum TrainingParamTypes {
     TrainingParamTypes(int value) {
 
         this.value = value;
+    }
+
+    public static TrainingParamTypes getByValue(final int intValue) {
+
+        for (TrainingParamTypes param : TrainingParamTypes.values()) {
+            if (param.value == intValue) {
+                return param;
+            }
+        }
+        throw new IllegalArgumentException(intValue + " is not a valid TrainingParamTypes!");
     }
 
 }

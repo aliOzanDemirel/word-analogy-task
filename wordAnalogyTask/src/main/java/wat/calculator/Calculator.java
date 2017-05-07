@@ -1,10 +1,15 @@
 package wat.calculator;
 
-import wat.helper.DefaultSettings;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import wat.helper.DefaultSettingValues;
 
 import java.util.List;
 
 public class Calculator implements CalculatorInt {
+
+    private static final Logger log = LoggerFactory.getLogger(Calculator.class);
+    private static final boolean debugEnabled = log.isDebugEnabled();
 
     private double similarityScore, analogyScore, maxScoreForAnalogy;
     private int totalSimCalculations, totalAnalogicCalculations;
@@ -13,13 +18,13 @@ public class Calculator implements CalculatorInt {
      * base number to set maximum score while evaluating word2vec's accuracy. higher number means
      * exponentially bigger gap between orders of returned nearest words from word2vec.
      */
-    private int baseSensitivity = DefaultSettings.BASE_SENSITIVITY;
+    private int baseSensitivity = DefaultSettingValues.BASE_SENSITIVITY;
 
     public Calculator() {
 
         this.resetScores();
-        this.setBaseSensitivity(DefaultSettings.BASE_SENSITIVITY,
-                DefaultSettings.CLOSEST_WORD_SIZE);
+        this.setBaseSensitivity(DefaultSettingValues.BASE_SENSITIVITY,
+                DefaultSettingValues.CLOSEST_WORD_SIZE);
     }
 
     @Override
@@ -32,13 +37,12 @@ public class Calculator implements CalculatorInt {
     }
 
     /**
-     * since similarity is the same as word2vec's cosine similarity,
-     * it returns similarityScore / totalSimCalculations as score.
+     * similarity of one word is the cosine similarity of model.
      */
     @Override
     public double getSimilarityPercentage() {
 
-        return similarityScore / totalSimCalculations;
+        return 100 * similarityScore / totalSimCalculations;
     }
 
     /**
@@ -74,7 +78,11 @@ public class Calculator implements CalculatorInt {
         int closestWordSize = closestWords.size();
         for (int i = 0; i < closestWordSize; i++) {
             String wordReturnedFromW2vec = closestWords.get(i);
-            if (relatedWordLemmaOfCompared.equals(wordReturnedFromW2vec)) {
+            if (relatedWordLemmaOfCompared.equalsIgnoreCase(wordReturnedFromW2vec)) {
+                if (debugEnabled) {
+                    log.debug("Related word of the compared is found in " + (i + 1)
+                            + ". result from word vectors.");
+                }
                 errorMargin = Math.pow(baseSensitivity, i + 1);
                 analogyScore += maxScoreForAnalogy - errorMargin;
                 break;

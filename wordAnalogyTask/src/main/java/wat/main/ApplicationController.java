@@ -8,9 +8,13 @@ import wat.calculator.CalculatorInt;
 import wat.exceptions.ModelBuildException;
 import wat.file.FileActions;
 import wat.helper.Constants;
-import wat.helper.DefaultSettings;
+import wat.helper.DefaultSettingValues;
+import wat.helper.TrainingParamTypes;
 import wat.training.model.BaseModelInt;
+import wat.training.model.BaseTrainingParams;
+import wat.training.model.glove.GloveTrainingParams;
 import wat.training.model.glove.GloveUtil;
+import wat.training.model.word2vec.Word2vecTrainingParams;
 import wat.training.model.word2vec.Word2vecUtil;
 import wat.wordnet.WordNetUtil;
 import wat.wordnet.WordNetUtilInt;
@@ -107,7 +111,7 @@ public class ApplicationController {
                 case Constants.VERBS_ONLY:
                 case Constants.ADJECTIVES_ONLY:
                 case Constants.ADVERBS_ONLY:
-                    wordNetUtil.calculateScoreForPOS(usedModel,
+                    wordNetUtil.calculateScoreForPOSFromController(usedModel,
                             POS.getPartOfSpeech(choice), isAnalogyTest);
                     break;
                 default:
@@ -174,24 +178,119 @@ public class ApplicationController {
         usedModel.createModel(corpusIsPretrained);
     }
 
-    // TODO: doldurulmalı
-    public void updateSelectedModelParams(int trainingParamType) {
+    public void updateSelectedModelParams(final TrainingParamTypes trainingParamType) {
+
+        boolean notCommon = false;
+        final BaseTrainingParams params = usedModel.getParams();
 
         switch (trainingParamType) {
-//            case Word2vecParamType.WORKERS:
-//                int workers = UserInput.getSelectionBetween(1, 8);
-//                int availableProcessors = Runtime.getRuntime().availableProcessors();
-//                if (workers > availableProcessors) {
-//                    log.info(workers + " processors are not available so param 'workers' is set to: " +
-//                            availableProcessors);
-//                    workers = availableProcessors;
-//                }
-//                usedModel.getWord2vecParams().setWorkers(workers);
-//                break;
-//            case Word2vecParamType.MIN_WORD_FREQUENCY:
-//                break;
+            case LAYER_SIZE:
+                System.out.println("\nParameter layer size:");
+                params.setLayerSize(UserInput.getSelectionBetween(
+                        DefaultSettingValues.LAYER_SIZE_LEAST, DefaultSettingValues.LAYER_SIZE_CAP));
+                break;
+            case WINDOW_SIZE:
+                System.out.println("\nParameter window size:");
+                params.setWindowSize(UserInput.getSelectionBetween(
+                        DefaultSettingValues.WINDOW_SIZE_LEAST, DefaultSettingValues.WINDOW_SIZE_CAP));
+                break;
+            case MIN_WORD_FREQUENCY:
+                System.out.println("\nParameter min word frequency:");
+                params.setMinWordFrequency(UserInput.getSelectionBetween(
+                        DefaultSettingValues.MIN_WORD_FREQUENCY_LEAST, DefaultSettingValues
+                                .MIN_WORD_FREQUENCY_CAP));
+                break;
+            case WORKERS:
+                System.out.println("\nParameter workers:");
+                params.setWorkers(UserInput.getSelectionBetween(1, 8));
+                break;
+            case EPOCHS:
+                System.out.println("\nParameter epochs:");
+                params.setEpochs(UserInput.getSelectionBetween(
+                        DefaultSettingValues.EPOCHS_LEAST, DefaultSettingValues.EPOCHS_CAP));
+                break;
+            case BATCH_SIZE:
+                System.out.println("\nParameter batch size:");
+                params.setBatchSize(UserInput.getSelectionBetween(
+                        DefaultSettingValues.BATCH_SIZE_LEAST, DefaultSettingValues.BATCH_SIZE_CAP));
+                break;
+            case LEARNING_RATE:
+                System.out.println("\nParameter learning rate:");
+                params.setLearningRate(UserInput.getDoubleSelection(
+                        DefaultSettingValues.LEARNING_RATE_LEAST, DefaultSettingValues.LEARNING_RATE_CAP));
+                break;
+            case MIN_LEARNING_RATE:
+                System.out.println("\nParameter min learning rate:");
+                params.setMinLearningRate(UserInput.getDoubleSelection(
+                        DefaultSettingValues.MIN_LEARNING_RATE_LEAST, DefaultSettingValues
+                                .MIN_LEARNING_RATE_CAP));
+                break;
+            case SEED:
+                System.out.println("\nParameter seed:");
+                params.setSeed(UserInput.getSelectionBetween(1, Integer.MAX_VALUE));
+                break;
             default:
-                log.warn("Wrong word2vec param type: " + trainingParamType);
+                notCommon = true;
+                log.info("Param type: " + trainingParamType + " is not common.");
+        }
+
+        // glove ve word2vec için her parametre case'ine if else koymamak için
+        if (notCommon) {
+            if (usedModelID == Constants.GLOVE) {
+
+                switch (trainingParamType) {
+                    case SHUFFLE_G:
+                        ((GloveTrainingParams) params).setShuffle(UserInput.getParamShuffle());
+                        break;
+                    case SYMMETRIC_G:
+                        ((GloveTrainingParams) params).setSymmetric(UserInput.getParamSymmetric());
+                        break;
+                    case XMAX_G:
+                        System.out.println("\nParameter xMax:");
+                        ((GloveTrainingParams) params).setxMax(UserInput.getDoubleSelection(1.0d, 500.0d));
+                        break;
+                    case ALPHA_G:
+                        System.out.println("\nParameter alpha:");
+                        ((GloveTrainingParams) params).setAlpha(UserInput.getDoubleSelection(0.0001d, 1.0d));
+                        break;
+                    default:
+                        log.warn("Invalid param type: " + trainingParamType
+                                + " for model: " + usedModel.getName());
+                }
+            } else if (usedModelID == Constants.WORD2VEC) {
+                switch (trainingParamType) {
+                    case ITERATIONS_W2:
+                        System.out.println("\nParameter iterations:");
+                        ((Word2vecTrainingParams) params).setIterations(UserInput.
+                                getSelectionBetween(1, 100));
+                        break;
+                    case NEGATIVE_W2:
+                        System.out.println("\nParameter negative:");
+                        ((Word2vecTrainingParams) params).setNegative(UserInput
+                                .getDoubleSelection(0.0d, 100.0d));
+                        break;
+                    case SAMPLING_W2:
+                        System.out.println("\nParameter sampling:");
+                        ((Word2vecTrainingParams) params).setSampling(UserInput
+                                .getDoubleSelection(0.0d, 100.0d));
+                        break;
+                    case HIERARCHIC_SOFTMAX_OR_NEGATIVE_SAMPLING_W2:
+                        ((Word2vecTrainingParams) params).setUseHierarchicSoftmax(
+                                UserInput.getParamUseHierarchicSoftmax());
+                        break;
+                    case HUGE_MODEL_EXPECTED_W2:
+                        ((Word2vecTrainingParams) params).setHugeModelExpected(
+                                UserInput.getParamHugeModelExpected());
+                        break;
+                    case CBOW_OR_SKIP_GRAM_W2:
+                        ((Word2vecTrainingParams) params).setSkipGramOrCBOW(
+                                UserInput.getParamSkipGramOrCBOW());
+                        break;
+                    default:
+                        log.warn("Invalid param type: " + trainingParamType
+                                + " for model: " + usedModel.getName());
+                }
+            }
         }
     }
 
@@ -214,9 +313,9 @@ public class ApplicationController {
                 wordNetUtil.resetIterationCapForPointer();
                 break;
             case Constants.RESET_MAX_SCORE_SETTING:
-                usedModel.setClosestWordSize(DefaultSettings.CLOSEST_WORD_SIZE);
+                usedModel.setClosestWordSize(DefaultSettingValues.CLOSEST_WORD_SIZE);
                 // also resets base sensitivity
-                wordNetUtil.getCalc().setMaxScoreForAnalogy(DefaultSettings.BASE_SENSITIVITY,
+                wordNetUtil.getCalc().setMaxScoreForAnalogy(DefaultSettingValues.BASE_SENSITIVITY,
                         usedModel.getClosestWordSize());
                 break;
             default:

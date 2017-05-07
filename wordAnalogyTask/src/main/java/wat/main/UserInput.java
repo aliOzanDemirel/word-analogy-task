@@ -1,7 +1,5 @@
 package wat.main;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import wat.file.FileActions;
 
 import java.util.InputMismatchException;
@@ -10,17 +8,30 @@ import java.util.Scanner;
 public class UserInput {
 
     private static Scanner input = new Scanner(System.in);
-    private static final Logger log = LoggerFactory.getLogger(UserInput.class);
 
     public static int getSelectionBetween(int min, int max) {
 
         int selection = 0;
         do {
-            log.warn("Enter a valid value between " + min + " and " + max);
+            System.out.println("\nEnter a valid value between " + min + " and " + max);
             try {
                 selection = input.nextInt();
             } catch (InputMismatchException e) {
-                log.warn("Only numbers!");
+                System.out.println("Only numbers!");
+            }
+        } while (selection < min || selection > max);
+        return selection;
+    }
+
+    public static double getDoubleSelection(double min, double max) {
+
+        double selection = 0;
+        do {
+            System.out.println("\nEnter a valid value between " + min + " and " + max);
+            try {
+                selection = input.nextDouble();
+            } catch (InputMismatchException e) {
+                System.out.println("Only numbers!");
             }
         } while (selection < min || selection > max);
         return selection;
@@ -28,64 +39,74 @@ public class UserInput {
 
     public static int getMenuSelection() {
 
-        log.info("******************************************");
-        log.info("* 1-) load word net into memory          *");
-        log.info("* 2-) show listing options               *");
-        log.info("* 3-) choose model for training          *");
-        log.info("* 4-) change model's params              *");
-        log.info("* 5-) reset model params                 *");
-        log.info("* 6-) change corpus path for model       *");
-        log.info("* 7-) build or load model                *");
-        log.info("* 8-) save trained model                 *");
-        log.info("* 9-) save calculated scores             *");
-        log.info("* 10-) get analogy score of one word     *");
-        log.info("* 11-) calculate analogy score           *");
-        log.info("* 12-) calculate similarity score        *");
-        log.info("* 13-) change calculation settings       *");
-        log.info("* 14-) get most similar words of a word  *");
-        log.info("* 15-) print number of words in vocab    *");
-        log.info("* 16-) log memory                        *");
-        log.info("* 17-) exit                              *");
-        log.info("******************************************");
+        System.out.println("\n******************************************");
+        System.out.println("* 1-) load word net into memory          *");
+        System.out.println("* 2-) show listing options               *");
+        System.out.println("* 3-) choose model for training          *");
+        System.out.println("* 4-) change model's params              *");
+        System.out.println("* 5-) reset model params                 *");
+        System.out.println("* 6-) change corpus path for model       *");
+        System.out.println("* 7-) build or load model                *");
+        System.out.println("* 8-) save trained model                 *");
+        System.out.println("* 9-) save calculated scores             *");
+        System.out.println("* 10-) get analogy score of one word     *");
+        System.out.println("* 11-) calculate analogy score           *");
+        System.out.println("* 12-) calculate similarity score        *");
+        System.out.println("* 13-) change calculation settings       *");
+        System.out.println("* 14-) get most similar words of a word  *");
+        System.out.println("* 15-) print number of words in vocab    *");
+        System.out.println("* 16-) log memory                        *");
+        System.out.println("* 17-) exit                              *");
+        System.out.println("******************************************\n");
         return UserInput.getSelectionBetween(1, 17);
     }
 
     public static int getPOSSelection() {
 
-        log.info("**********************");
-        log.info("* 0 to cancel        *");
-        log.info("* 1 for noun         *");
-        log.info("* 2 for verb         *");
-        log.info("* 3 for adjective    *");
-        log.info("* 4 for adverb       *");
-        log.info("* 5 for all          *");
-        log.info("**********************");
+        System.out.println("\n******************");
+        System.out.println("0 to cancel");
+        System.out.println("1 for noun");
+        System.out.println("2 for verb");
+        System.out.println("3 for adjective");
+        System.out.println("4 for adverb");
+        System.out.println("5 for all");
+        System.out.println("******************\n");
         return UserInput.getSelectionBetween(0, 5);
     }
 
     public static int getCorpusType() {
 
-        log.info("******************************************");
-        log.info("* 1 to build model by training corpus    *");
-        log.info("* 2 to use an already trained model      *");
-        log.info("* 3 to cancel                            *");
-        log.info("******************************************");
+        System.out.println("\n**************************************");
+        System.out.println("0 to cancel");
+        System.out.println("1 to build model by training corpus");
+        System.out.println("2 to use an already trained model");
+        System.out.println("**************************************\n");
         return UserInput.getSelectionBetween(1, 3);
     }
 
     public static int getListingOptions() {
 
-        log.info("************************************");
-        log.info("* 1 to listPointerMap              *");
-        log.info("* 2 to listWordsLexicalPointers    *");
-        log.info("* 3 to listWordsSemanticPointers   *");
-        log.info("* 4 to listNouns                   *");
-        log.info("* 5 to listVerbs                   *");
-        log.info("* 6 to listAdjectives              *");
-        log.info("* 7 to listAdverbs                 *");
-        log.info("* 8 to cancel                      *");
-        log.info("************************************");
+        System.out.println("\n*********************************");
+        System.out.println("1 to listPointerMap");
+        System.out.println("2 to listWordsLexicalPointers");
+        System.out.println("3 to listWordsSemanticPointers");
+        System.out.println("4 to listNouns");
+        System.out.println("5 to listVerbs");
+        System.out.println("6 to listAdjectives");
+        System.out.println("7 to listAdverbs");
+        System.out.println("8 to cancel");
+        System.out.println("*********************************\n");
         return UserInput.getSelectionBetween(1, 8);
+    }
+
+    public static int getModelID() {
+
+        System.out.println("\n****************");
+        System.out.println("0 to cancel");
+        System.out.println("1 for glove");
+        System.out.println("2 for word2vec");
+        System.out.println("****************\n");
+        return UserInput.getSelectionBetween(0, 2);
     }
 
     public static String getNewPathForCorpus() {
@@ -93,9 +114,9 @@ public class UserInput {
         // clear line
         input.nextLine();
 
-        String selection = null;
+        String selection;
         do {
-            log.warn("Enter a valid path for corpus file or enter 'c' to cancel.");
+            System.out.println("\nEnter a valid path for corpus file or enter 'c' to cancel.");
             selection = input.nextLine();
             if ("c".equals(selection)) {
                 return null;
@@ -110,7 +131,7 @@ public class UserInput {
         // clear line
         input.nextLine();
 
-        log.warn("Enter a word or enter 'c' to cancel.");
+        System.out.println("\nEnter a word or enter 'c' to cancel.");
         String selection = input.nextLine();
         if ("c".equals(selection)) {
             selection = null;
@@ -118,37 +139,12 @@ public class UserInput {
         return selection;
     }
 
-    public static int getModelID() {
-
-        log.info("********************");
-        log.info("* 0 to cancel      *");
-        log.info("* 1 for glove      *");
-        log.info("* 2 for word2vec   *");
-        log.info("********************");
-        return UserInput.getSelectionBetween(0, 2);
-    }
-
-    public static int getWord2vecParam() {
-
-        log.info("******************************************************************");
-        log.info("* 1 to change how many threads can be utilized                   *");
-        log.info("* 2 to change window size                                        *");
-        log.info("* 3 to change layer size                                         *");
-        log.info("* 4 to change minumum word frequency                             *");
-        log.info("* 5 if huge model is expected                                    *");
-        log.info("* 6 to use negative sampling instead of hierarchic softmax       *");
-        log.info("* 7 to disallow parallel tokenization                            *");
-        log.info("* 8 to cancel                                                    *");
-        log.info("******************************************************************");
-        return UserInput.getSelectionBetween(1, 8);
-    }
-
     public static boolean isUserSure() {
 
         // clear line
         input.nextLine();
 
-        log.warn("Press 'y' if you are sure, press anything else to cancel.");
+        System.out.println("\nPress 'y' if you are sure, press anything else to cancel.");
         String selection = input.nextLine();
         if ("y".equalsIgnoreCase(selection)) {
             return true;
@@ -159,18 +155,79 @@ public class UserInput {
 
     public static int getSettingID() {
 
-        log.info("**********************");
-        log.info("* 0 to cancel        *");
-        log.info("* 1 for base value of max score, higher means bigger gap between 1st and 2nd order       " +
-                "     *");
-        log.info("* 2 for total words to retrieve from model when checking proximity of a word with a word " +
-                "pair *");
-        log.info("* 3 for iteration cap of a pointer while doing analogy test.                             " +
-                "     *");
-        log.info("* 4 for resetting iteration cap to default value.                     *");
-        log.info("* 5 for resetting base sensitivity, closest word size and max score.  *");
-        log.info("**********************");
+        System.out.println("\n**********************************************************************");
+        System.out.println("0 to cancel");
+        System.out.println("1 for base value of max score, higher means " +
+                "bigger gap between 1st and 2nd order");
+        System.out.println("2 for total words to retrieve from model when " +
+                "checking proximity of a word with a word pair");
+        System.out.println("3 for iteration cap of a pointer while doing analogy test");
+        System.out.println("4 for resetting iteration cap to default value");
+        System.out.println("5 for resetting base sensitivity, closest word size and max score");
+        System.out.println("**********************************************************************\n");
         return UserInput.getSelectionBetween(0, 5);
+    }
+
+    public static int getParamType() {
+
+        System.out.println("\n*********************************************************************");
+        System.out.println("0 to cancel");
+        System.out.println("1 to change layer size");
+        System.out.println("2 to change window size");
+        System.out.println("3 to change minumum word frequency");
+        System.out.println("4 to change how many threads can be utilized");
+        System.out.println("5 to change epochs");
+        System.out.println("6 to change batch size");
+        System.out.println("7 to change learning rate");
+        System.out.println("8 to change minumum learning rate");
+        System.out.println("9 to change seed value");
+        System.out.println("10 to change iterations (word2vec)");
+        System.out.println("11 to change negative value (word2vec)");
+        System.out.println("12 to change sampling value (word2vec)");
+        System.out.println("13 to choose if huge model is expected (word2vec)");
+        System.out.println("14 to choose negative sampling or hierarchic softmax (word2vec)");
+        System.out.println("15 to choose CBOW or skip gram (word2vec)");
+        System.out.println("16 to choose if shuffle is allowed (glove)");
+        System.out.println("17 to choose if training is symmetric (glove)");
+        System.out.println("18 to change xMax (glove)");
+        System.out.println("19 to change alpha (glove)");
+        System.out.println("*********************************************************************\n");
+        return UserInput.getSelectionBetween(1, 8);
+    }
+
+    public static boolean getParamShuffle() {
+
+        System.out.println("0 to not shuffle batches");
+        System.out.println("1 to shuffle before training");
+        return UserInput.getSelectionBetween(0, 1) == 1;
+    }
+
+    public static boolean getParamSymmetric() {
+
+        System.out.println("0 to use one direction for word pairs");
+        System.out.println("1 to build word pairs in both direction");
+        return UserInput.getSelectionBetween(0, 1) == 1;
+    }
+
+    public static boolean getParamHugeModelExpected() {
+
+        System.out.println("0 for normal model");
+        System.out.println("1 for huge model");
+        return UserInput.getSelectionBetween(0, 1) == 1;
+    }
+
+    public static boolean getParamUseHierarchicSoftmax() {
+
+        System.out.println("0 for negative sampling");
+        System.out.println("1 for hierarchic softmax");
+        return UserInput.getSelectionBetween(0, 1) == 1;
+    }
+
+    public static boolean getParamSkipGramOrCBOW() {
+
+        System.out.println("0 for CBOW");
+        System.out.println("1 for skip gram");
+        return UserInput.getSelectionBetween(0, 1) == 1;
     }
 
 }
