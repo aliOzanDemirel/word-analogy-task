@@ -57,7 +57,7 @@ public class UserInput {
         System.out.println("* 15-) print number of words in vocab    *");
         System.out.println("* 16-) log memory                        *");
         System.out.println("* 17-) exit                              *");
-        System.out.println("******************************************\n");
+        System.out.println("******************************************");
         return UserInput.getSelectionBetween(1, 17);
     }
 
@@ -81,7 +81,7 @@ public class UserInput {
         System.out.println("1 to build model by training corpus");
         System.out.println("2 to use an already trained model");
         System.out.println("**************************************\n");
-        return UserInput.getSelectionBetween(1, 3);
+        return UserInput.getSelectionBetween(0, 2);
     }
 
     public static int getListingOptions() {
@@ -192,7 +192,7 @@ public class UserInput {
         System.out.println("18 to change xMax (glove)");
         System.out.println("19 to change alpha (glove)");
         System.out.println("*********************************************************************\n");
-        return UserInput.getSelectionBetween(1, 8);
+        return UserInput.getSelectionBetween(0, 19);
     }
 
     public static boolean getParamShuffle() {

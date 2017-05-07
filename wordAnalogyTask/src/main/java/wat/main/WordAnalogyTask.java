@@ -16,7 +16,7 @@ public class WordAnalogyTask {
     public static void main(String[] args) throws IOException, ModelBuildException {
 
         // prints logback status for debug
-//        StatusPrinter.print((LoggerContext) LoggerFactory.getILoggerFactory());
+        // StatusPrinter.print((LoggerContext) LoggerFactory.getILoggerFactory());
 
         String wordNetDictHome = System.getenv("WORDNET_PATH");
         if (wordNetDictHome == null || !FileActions.isPathValid(wordNetDictHome)) {
