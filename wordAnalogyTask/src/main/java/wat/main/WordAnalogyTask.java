@@ -15,10 +15,7 @@ public class WordAnalogyTask {
 
     public static void main(String[] args) throws IOException, ModelBuildException {
 
-        // prints logback status for debug
-        // StatusPrinter.print((LoggerContext) LoggerFactory.getILoggerFactory());
-
-        String wordNetDictHome = System.getenv("WORDNET_PATH");
+        final String wordNetDictHome = System.getenv("WORDNET_PATH");
         if (wordNetDictHome == null || !FileActions.isPathValid(wordNetDictHome)) {
             log.error("WORDNET_PATH does not have a valid path, thus WordNet could not be found!");
             System.exit(1);
@@ -26,25 +23,27 @@ public class WordAnalogyTask {
 
         log.info("Application started. WordNet home: " + wordNetDictHome
                 + " Java home: " + System.getenv("JAVA_HOME"));
-        ApplicationController controller = new ApplicationController(wordNetDictHome);
+        final ApplicationController controller = new ApplicationController(wordNetDictHome);
         for (; ; ) {
             try {
                 log.info("Using " + controller.getUsedModelName());
                 switch (UserInput.getMenuSelection()) {
+                    case 0:
+                        controller.exit();
                     case 1:
                         // load WordNet into memory for higher speed
                         controller.loadDictionaryIntoMemory();
                         break;
                     case 2:
-                        // log WordNet data to examine relations
-                        int listing = UserInput.getListingOptions();
-                        if (listing != 8) {
-                            controller.listBySelection(listing);
+                        // changes some calculation settings
+                        final int setting = UserInput.getSettingID();
+                        if (setting != 0) {
+                            controller.changeSettings(setting);
                         }
                         break;
                     case 3:
                         // change training model to use
-                        int modelID = UserInput.getModelID();
+                        final int modelID = UserInput.getModelID();
                         if (modelID != 0) {
                             controller.changeModelToUse(modelID);
                         }
@@ -61,7 +60,7 @@ public class WordAnalogyTask {
                         break;
                     case 5:
                         // reset model parameters
-                        boolean isSure = UserInput.isUserSure();
+                        final boolean isSure = UserInput.isUserSure();
                         if (isSure) {
                             controller.resetModelParams();
                         }
@@ -75,7 +74,7 @@ public class WordAnalogyTask {
                         break;
                     case 7:
                         // gets corpus type before loading model
-                        int corpusType = UserInput.getCorpusType();
+                        final int corpusType = UserInput.getCorpusType();
                         if (corpusType != 0) {
                             controller.prepareModel(corpusType);
                         }
@@ -94,40 +93,45 @@ public class WordAnalogyTask {
                         break;
                     case 11:
                         // calculate analogy score
-                        int pos = UserInput.getPOSSelection();
+                        final int pos = UserInput.getPOSSelection();
                         if (pos != 0) {
                             controller.calculateScore(pos, Constants.IS_ANALOGY_TEST);
                         }
                         break;
                     case 12:
                         // calculate similarity score
-                        int posChoice = UserInput.getPOSSelection();
+                        final int posChoice = UserInput.getPOSSelection();
                         if (posChoice != 0) {
                             controller.calculateScore(posChoice, Constants.IS_SIMILARITY_TEST);
                         }
                         break;
                     case 13:
-                        // changes some calculation settings
-                        int setting = UserInput.getSettingID();
-                        if (setting != 0) {
-                            controller.changeSettings(setting);
-                        }
+                        // print number of words in model's vocabulary
+                        controller.printTotalWordSizeInModelVocab();
                         break;
                     case 14:
                         // get closest words from model for a given word
                         controller.getNearestOfInputWord();
                         break;
                     case 15:
-                        // print number of words in model's vocabulary
-                        controller.printTotalWordSizeInModelVocab();
+                        // change log level of root
+                        final int logLevel = UserInput.getLogLevel();
+                        if (logLevel != 0) {
+                            controller.changeLogLevel(logLevel);
+                        }
                         break;
                     case 16:
-                        log.info("FREE MB: " + Runtime.getRuntime().freeMemory() / 1024 / 1024);
-                        log.info("TOTAL MB: " + Runtime.getRuntime().totalMemory() / 1024 / 1024);
-                        log.info("MAX MB: " + Runtime.getRuntime().maxMemory() / 1024 / 1024);
+                        log.info("(MB) Free: " + Runtime.getRuntime().freeMemory() / 1024 / 1024);
+                        log.info("(MB) Total: " + Runtime.getRuntime().totalMemory() / 1024 / 1024);
+                        log.info("(GB) Max: " + Runtime.getRuntime().maxMemory() / 1024 / 1024 / 1024);
                         break;
                     case 17:
-                        controller.exit();
+                        // log WordNet data to examine relations
+                        final int listing = UserInput.getListingOptions();
+                        if (listing != 0) {
+                            controller.listBySelection(listing);
+                        }
+                        break;
                     default:
                         log.warn("Wrong input!");
                 }

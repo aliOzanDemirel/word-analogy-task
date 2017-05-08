@@ -186,6 +186,7 @@ public class Word2vecUtil extends BaseModel implements BaseModelInt {
     public void resetParams() {
 
         params.reset();
+        log.info("Parameters are reset to default values.\n" + params.toString());
     }
 
     /**

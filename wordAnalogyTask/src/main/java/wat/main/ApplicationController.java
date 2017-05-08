@@ -1,10 +1,12 @@
 package wat.main;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.LoggerContext;
 import edu.mit.jwi.data.ILoadPolicy;
 import edu.mit.jwi.item.POS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import wat.calculator.CalculatorInt;
+import wat.calculator.Calculator;
 import wat.exceptions.ModelBuildException;
 import wat.file.FileActions;
 import wat.helper.Constants;
@@ -140,7 +142,7 @@ public class ApplicationController {
 
     public void saveCalculationScore() {
 
-        CalculatorInt calc = wordNetUtil.getCalc();
+        Calculator calc = wordNetUtil.getCalc();
         List<String> lines = new ArrayList<String>(7) {{
             add("Similarity score: " + calc.getSimilarityScore());
             add("Total similarity calculations: " + calc.getTotalSimCalculations());
@@ -297,14 +299,23 @@ public class ApplicationController {
     public void changeSettings(int settingID) {
 
         switch (settingID) {
+            case Constants.CALCULATION_OPTION:
+                wordNetUtil.getCalc().setCalculationOption(UserInput.getCalculationOption());
+                wordNetUtil.getCalc().prepareScoresForAnalogyTask(usedModel.getClosestWordSize());
+                break;
             case Constants.BASE_SENSITIVITY_SETTING:
-                wordNetUtil.getCalc().setBaseSensitivity(UserInput.getSelectionBetween(2, 100),
-                        usedModel.getClosestWordSize());
+                // proportional hesaplama yapılıyorsa sensitivity için input alma
+                if (wordNetUtil.getCalc().getCalculationOption()
+                        == DefaultSettingValues.CALCULATE_PROPORTIONALLY) {
+                    log.info("Calculation option is set to proportional.");
+                } else {
+                    wordNetUtil.getCalc().setBaseSensitivityAndMaxScore(
+                            UserInput.getSelectionBetween(2, 100), usedModel.getClosestWordSize());
+                }
                 break;
             case Constants.CLOSEST_WORD_SIZE_SETTING:
                 usedModel.setClosestWordSize(UserInput.getSelectionBetween(3, 100));
-                wordNetUtil.getCalc().setMaxScoreForAnalogy(wordNetUtil.getCalc().getBaseSensitivity(),
-                        usedModel.getClosestWordSize());
+                wordNetUtil.getCalc().prepareScoresForAnalogyTask(usedModel.getClosestWordSize());
                 break;
             case Constants.ITERATION_CAP_FOR_POINTER_SETTING:
                 wordNetUtil.setIterationCapForPointer(UserInput.getSelectionBetween(3, 200000));
@@ -312,11 +323,11 @@ public class ApplicationController {
             case Constants.RESET_ITERATION_CAP_SETTING:
                 wordNetUtil.resetIterationCapForPointer();
                 break;
-            case Constants.RESET_MAX_SCORE_SETTING:
+            case Constants.RESET_SCORES_SETTING:
                 usedModel.setClosestWordSize(DefaultSettingValues.CLOSEST_WORD_SIZE);
-                // also resets base sensitivity
-                wordNetUtil.getCalc().setMaxScoreForAnalogy(DefaultSettingValues.BASE_SENSITIVITY,
-                        usedModel.getClosestWordSize());
+                wordNetUtil.getCalc().setCalculationOption(DefaultSettingValues.CALCULATE_PROPORTIONALLY);
+                wordNetUtil.getCalc().prepareScoresForAnalogyTask(
+                        DefaultSettingValues.BASE_SENSITIVITY, usedModel.getClosestWordSize());
                 break;
             default:
                 log.error("Invalid setting ID: " + settingID);
@@ -388,6 +399,23 @@ public class ApplicationController {
         } else {
             log.warn("You should first train or load a model.");
         }
+    }
+
+    public void changeLogLevel(int logLevel) {
+
+        final LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
+        final ch.qos.logback.classic.Logger root = context.getLogger("ROOT");
+        final String levelBeforeChange = root.getEffectiveLevel().toString();
+        root.setLevel(Level.toLevel(logLevel));
+        if (log.isWarnEnabled()) {
+            log.warn("Log level of root is changed from " + levelBeforeChange
+                    + " to: " + root.getEffectiveLevel().toString());
+        } else {
+            log.error("Logged as an error because of high level. Log level of root is changed from "
+                    + levelBeforeChange + " to: " + root.getEffectiveLevel().toString());
+        }
+//        log.warn("Logback status for debug purposes:");
+//        StatusPrinter.print(context);
     }
 
 }

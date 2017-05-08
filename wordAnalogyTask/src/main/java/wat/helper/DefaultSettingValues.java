@@ -2,9 +2,10 @@ package wat.helper;
 
 public class DefaultSettingValues {
 
+    public static final boolean CALCULATE_PROPORTIONALLY = true;
     public static final int BASE_SENSITIVITY = 4;
-    public static final int CLOSEST_WORD_SIZE = 5;
-    public static final int ITERATION_CAP_FOR_POINTER = 250;
+    public static final int CLOSEST_WORD_SIZE = 10;
+    public static final int ITERATION_CAP_FOR_POINTER = 50;
 
     public static final int WINDOW_SIZE_LEAST = 1;
     public static final int WINDOW_SIZE_CAP = 100;

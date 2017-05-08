@@ -45,12 +45,8 @@ public class WordNetTest {
     public void testCalculateAnalogyOfOneWord() throws ModelBuildException {
 
         final String word = "man";
-        // gangster -> Derivationally related form -> gang
-        // tek bir lexical pointer var (ganster - gang) çifti ile
-        // 'Derivationally related form'a sahip 250 kelime kıyaslanacak
         BaseModelInt w2vecModel = this.prepareWord2vec();
         wordNetUtil.calculateAnalogyScoreOfWordInput(w2vecModel, word);
-        log.info(wordNetUtil.getCalc().toString());
     }
 
     @Test

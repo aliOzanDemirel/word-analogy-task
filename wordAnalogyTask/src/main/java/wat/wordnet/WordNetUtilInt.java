@@ -1,7 +1,7 @@
 package wat.wordnet;
 
 import edu.mit.jwi.item.POS;
-import wat.calculator.CalculatorInt;
+import wat.calculator.Calculator;
 import wat.training.model.BaseModelInt;
 
 import java.io.IOException;
@@ -34,7 +34,7 @@ public interface WordNetUtilInt {
 
     void listPointerMap();
 
-    CalculatorInt getCalc();
+    Calculator getCalc();
 
     void resetIterationCapForPointer();
 

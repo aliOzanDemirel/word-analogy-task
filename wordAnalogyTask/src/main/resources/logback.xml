@@ -61,13 +61,14 @@
         <appender-ref ref="MAIN"/>
     </appender>
 
-    <!-- özel bir paket veya class için ayrı log seviyesi tanımlamak için
-    <logger name="ch.qos.logback" level="WARN" additivity="false">
-        <appender-ref ref="asynchronous"/>
-        <appender-ref ref="console"/>
+    <!-- özel bir paket veya class için ayrı log seviyesi tanımlamak için -->
+    <logger name="org.deeplearning4j.models.embeddings" level="INFO" additivity="false">
+        <appender-ref ref="ASYNC_MAIN"/>
+        <appender-ref ref="ERROR"/>
+        <appender-ref ref="CONSOLE"/>
     </logger>
-    -->
-    <root level="DEBUG">
+
+    <root level="INFO">
         <appender-ref ref="ASYNC_MAIN"/>
         <appender-ref ref="ERROR"/>
         <appender-ref ref="CONSOLE"/>

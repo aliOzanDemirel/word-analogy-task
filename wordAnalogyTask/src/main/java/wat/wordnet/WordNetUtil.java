@@ -6,7 +6,6 @@ import edu.mit.jwi.item.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import wat.calculator.Calculator;
-import wat.calculator.CalculatorInt;
 import wat.helper.DefaultSettingValues;
 import wat.helper.WordNetPointers;
 import wat.training.model.BaseModelInt;
@@ -37,8 +36,10 @@ public class WordNetUtil implements WordNetUtilInt {
      */
     private int iterationCapForPointer;
 
+    private boolean comparePhrases;
+
     private IRAMDictionary dict = null;
-    private CalculatorInt calc = new Calculator();
+    private Calculator calc = new Calculator();
 
     private HashSet<WordNetPointers> analogyTypes = new HashSet<WordNetPointers>(21) {{
         add(WordNetPointers.ATTRIBUTE);
@@ -227,7 +228,7 @@ public class WordNetUtil implements WordNetUtilInt {
     public void calculateAnalogyScoreOfWordInput(final BaseModelInt usedModel,
             final String wordInput) {
 
-        log.info(calc.toString());
+        log.info("Before calculation: " + calc.toString());
         long start = System.currentTimeMillis();
         if (this.validateWord(wordInput)) {
             if (usedModel.hasWord(wordInput)) {
@@ -244,8 +245,8 @@ public class WordNetUtil implements WordNetUtilInt {
                 } else {
                     this.preparePointerToWordMap();
                     this.calculateAnalogyScoreOfIndexWord(usedModel, indexWord);
-                    log.info("Took " + (System.currentTimeMillis() - start) / 1000
-                            + " seconds for word: " + wordInput);
+                    log.info("Took " + (System.currentTimeMillis() - start) / 1000 + " seconds for word: "
+                            + wordInput + "\nAfter calculation: " + calc.toString());
                 }
             } else if (!debugEnabled) {
                 log.info(wordInput + " is not in model's vocabulary.");
@@ -491,8 +492,19 @@ public class WordNetUtil implements WordNetUtilInt {
             final List<String> closestWords = usedModel.getClosestWords(Arrays.asList(rootWordLemma,
                     pairWordLemma), Arrays.asList(comparedWordLemma));
 
-            for (IWord wrd : relatedWordsOfCompared) {
-                calc.updateAnalogicalAccuracy(wrd.getLemma(), closestWords);
+            // birden çok related kelime olabilir ve mesela bunlardan 2. sıradaki modelden gelen yakın kelime
+            // listesinde 2. sırada olabilir ama önceden 1. sıradaki başka bir related kelimeyle eşleşmişse
+            // skorda azalma olmamalı, bu yüzden match olan kelime listeden çıkarılıyor
+            int relatedWordSize = relatedWordsOfCompared.size();
+            for (int i = 0; i < relatedWordSize; i++) {
+                final IWord relatedOfComparedWord;
+                relatedOfComparedWord = relatedWordsOfCompared.get(i);
+                // if relatedOfComparedWord matches with any word returned from word2vec
+                if (calc.updateAnalogicalAccuracy(relatedOfComparedWord.getLemma(), closestWords)) {
+                    closestWords.remove(i);
+                    i--;
+                    relatedWordSize--;
+                }
             }
         }
     }
@@ -819,7 +831,7 @@ public class WordNetUtil implements WordNetUtilInt {
     }
 
     @Override
-    public CalculatorInt getCalc() {
+    public Calculator getCalc() {
 
         return calc;
     }

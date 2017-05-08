@@ -6,7 +6,7 @@ import wat.helper.DefaultSettingValues;
 
 import java.util.List;
 
-public class Calculator implements CalculatorInt {
+public class Calculator {
 
     private static final Logger log = LoggerFactory.getLogger(Calculator.class);
     private static final boolean debugEnabled = log.isDebugEnabled();
@@ -14,20 +14,141 @@ public class Calculator implements CalculatorInt {
     private double similarityScore, analogyScore, maxScoreForAnalogy;
     private int totalSimCalculations, totalAnalogicCalculations;
 
+    private double[] scores;
     /**
      * base number to set maximum score while evaluating word2vec's accuracy. higher number means
      * exponentially bigger gap between orders of returned nearest words from word2vec.
      */
-    private int baseSensitivity = DefaultSettingValues.BASE_SENSITIVITY;
+    private int sensitivity = DefaultSettingValues.BASE_SENSITIVITY;
+    private boolean calculationOption = DefaultSettingValues.CALCULATE_PROPORTIONALLY;
 
     public Calculator() {
 
         this.resetScores();
-        this.setBaseSensitivity(DefaultSettingValues.BASE_SENSITIVITY,
+        this.prepareScoresForAnalogyTask(DefaultSettingValues.BASE_SENSITIVITY,
                 DefaultSettingValues.CLOSEST_WORD_SIZE);
     }
 
-    @Override
+    public void prepareScoresForAnalogyTask(int closestWordSize) {
+
+        this.prepareScoresForAnalogyTask(sensitivity, closestWordSize);
+    }
+
+    /**
+     * prepares all scores for given closestWordSize of word list to be retrieved from model.
+     *
+     * @param sensitivity     sets this to default value when its option is not enabled.
+     * @param closestWordSize size of word list to be checked by querying model.
+     */
+    public void prepareScoresForAnalogyTask(int sensitivity, int closestWordSize) {
+
+        if (calculationOption) {
+            this.sensitivity = DefaultSettingValues.BASE_SENSITIVITY;
+            this.prepareScoresForProportionalError(closestWordSize);
+        } else {
+            this.setBaseSensitivityAndMaxScore(sensitivity, closestWordSize);
+        }
+    }
+
+    /**
+     * this always updates max score for analogy.
+     *
+     * @param baseSensitivity
+     * @param closestWordSize
+     */
+    public void setBaseSensitivityAndMaxScore(int baseSensitivity, int closestWordSize) {
+
+        if (baseSensitivity >= 2 && baseSensitivity <= 100) {
+            this.sensitivity = baseSensitivity;
+            this.prepareScoresUpToSensitiveError(baseSensitivity, closestWordSize);
+        }
+    }
+
+    /**
+     * sets max score and calculate scores up to {{@link #sensitivity}}.
+     *
+     * @param baseSensitivity
+     * @param closestWordSize
+     */
+    public void prepareScoresUpToSensitiveError(int baseSensitivity, int closestWordSize) {
+
+        // base'in wordSize kadar üssünün 3/2'si maximum score
+        maxScoreForAnalogy = 3 * Math.pow(baseSensitivity, closestWordSize) / 2;
+        this.fillScoresUpToSensitivity(closestWordSize);
+    }
+
+    /**
+     * least score is too low compared to first 2-3 scores, but it can also be really high
+     * and can stack way more score compared to a word that does not match.
+     *
+     * @param closestWordSize
+     */
+    private void fillScoresUpToSensitivity(int closestWordSize) {
+
+        scores = new double[closestWordSize];
+        for (int i = 0; i < closestWordSize; i++) {
+            scores[i] = maxScoreForAnalogy - Math.pow(sensitivity, i + 1);
+            log.info(i + 1 + ". Word Score: " + scores[i]);
+        }
+    }
+
+    /**
+     * sets max score and calculate scores.
+     *
+     * @param closestWordSize
+     */
+    public void prepareScoresForProportionalError(int closestWordSize) {
+
+        maxScoreForAnalogy = Math.pow(closestWordSize, 2) * 2;
+        this.fillScoresProportionally(closestWordSize);
+    }
+
+    /**
+     * least score is always equal to (max score + 1) / 2
+     *
+     * @param closestWordSize
+     */
+    private void fillScoresProportionally(int closestWordSize) {
+
+        scores = new double[closestWordSize];
+        for (int i = 0; i < closestWordSize; i++) {
+            scores[i] = maxScoreForAnalogy - Math.pow(i + 1, 2);
+            log.info(i + 1 + ". Word Score: " + scores[i]);
+        }
+    }
+
+    public boolean updateAnalogicalAccuracy(final String relatedWordLemmaOfCompared,
+            final List<String> closestWords) {
+
+        totalAnalogicCalculations++;
+        int closestWordSize = closestWords.size();
+        for (int i = 0; i < closestWordSize; i++) {
+            String wordReturnedFromW2vec = closestWords.get(i);
+            if (relatedWordLemmaOfCompared.equalsIgnoreCase(wordReturnedFromW2vec)) {
+                if (debugEnabled) {
+                    log.debug("Related word of the compared is found in " + (i + 1)
+                            + ". result from word vectors.");
+                }
+                // accuracy ağırlığı fark etsin diye üssü alınacak bir base koydum
+                // sensitivity daha büyük de olabilir ama closestWordSize'la çok fark olmamalı
+                analogyScore += scores[i];
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * updates similarity accuracy.
+     *
+     * @param similarity
+     */
+    public void updateSimilarityAccuracy(final double similarity) {
+
+        this.similarityScore += similarity;
+        this.totalSimCalculations++;
+    }
+
     public void resetScores() {
 
         analogyScore = 0.0;
@@ -39,7 +160,6 @@ public class Calculator implements CalculatorInt {
     /**
      * similarity of one word is the cosine similarity of model.
      */
-    @Override
     public double getSimilarityPercentage() {
 
         return 100 * similarityScore / totalSimCalculations;
@@ -48,136 +168,58 @@ public class Calculator implements CalculatorInt {
     /**
      * percentage of score is calculated up to the max score defined.
      */
-    @Override
     public double getAnalogicalPercentage() {
 
         return (analogyScore / totalAnalogicCalculations) * 100 / maxScoreForAnalogy;
     }
 
-    /**
-     * @param relatedWordLemmaOfCompared
-     * @param closestWords
-     */
-    @Override
-    public void updateAnalogicalAccuracy(final String relatedWordLemmaOfCompared,
-            final List<String> closestWords) {
-
-        // mesela king queen man gönderince woman gelirse ve man'in her related kelimesi için
-        // dönen sonuçta bu kelime var mı diye kontrol edilecek ve eğer bu kelime dönen listede
-        // ilk elemansa accuracy ağırlığı daha fazla olmalı
-        double errorMargin = 0.0;
-        // accuracy ağırlığı fark etsin diye üssü alınacak bir base koydum
-        // baseSensitivity daha büyük de olabilir ama closestWordSize'la çok fark olmamalı
-        //closestWordSize kadar elemanla eşleşme yoksa skora ekleme yapma
-
-        // burada sıkıntı var üstteki döngüde birden çok related kelime olabilir ve
-        // bunlardan biri önceden gelen kelimelerin ilkinde bulunmuş olabilir
-        // bu durumda 2. sıradakiyle de aynı olsa kıyaslanan kelime, tam skor almalı
-
-        // TODO: ilkinde bulma ile ikincide bulma arasındaki fark artsın diye ama yine ufak fark
-        int closestWordSize = closestWords.size();
-        for (int i = 0; i < closestWordSize; i++) {
-            String wordReturnedFromW2vec = closestWords.get(i);
-            if (relatedWordLemmaOfCompared.equalsIgnoreCase(wordReturnedFromW2vec)) {
-                if (debugEnabled) {
-                    log.debug("Related word of the compared is found in " + (i + 1)
-                            + ". result from word vectors.");
-                }
-                errorMargin = Math.pow(baseSensitivity, i + 1);
-                analogyScore += maxScoreForAnalogy - errorMargin;
-                break;
-            }
-        }
-        totalAnalogicCalculations++;
-    }
-
-    /**
-     * updates similarity accuracy.
-     *
-     * @param similarity
-     */
-    @Override
-    public void updateSimilarityAccuracy(final double similarity) {
-
-        this.similarityScore += similarity;
-        this.totalSimCalculations++;
-    }
-
-    @Override
-    public String toString() {
-
-        return "similarity: " + similarityScore + ", totalSimCalculations: "
-                + totalSimCalculations + ", analogyScore: " + analogyScore
-                + ", totalAnalogicCalculations: " + totalAnalogicCalculations
-                + ", maxScoreForAnalogy: " + maxScoreForAnalogy;
-    }
-
-    @Override
     public double getSimilarityScore() {
 
         return similarityScore;
     }
 
-    @Override
     public int getTotalSimCalculations() {
 
         return totalSimCalculations;
     }
 
-    @Override
     public double getAnalogyScore() {
 
         return analogyScore;
     }
 
-    @Override
     public int getTotalAnalogicCalculations() {
 
         return totalAnalogicCalculations;
     }
 
-    @Override
     public double getMaxScoreForAnalogy() {
 
         return maxScoreForAnalogy;
     }
 
-    @Override
-    public int getBaseSensitivity() {
+    public boolean getCalculationOption() {
 
-        return baseSensitivity;
+        return calculationOption;
     }
 
-    /**
-     * this always updates max score for analogy.
-     *
-     * @param baseSensitivity
-     * @param closestWordSize
-     */
-    @Override
-    public void setBaseSensitivity(int baseSensitivity, int closestWordSize) {
+    public void setCalculationOption(boolean calculationOption) {
 
-        if (baseSensitivity >= 2 && baseSensitivity <= 100) {
-            this.baseSensitivity = baseSensitivity;
-            this.setMaxScoreForAnalogy(baseSensitivity, closestWordSize);
+        this.calculationOption = calculationOption;
+    }
+
+    public String toString() {
+
+        final StringBuilder strBuilder = new StringBuilder("similarity: " + similarityScore + ", " +
+                "totalSimCalculations: " + totalSimCalculations + ", analogyScore: " + analogyScore
+                + ", totalAnalogicCalculations: " + totalAnalogicCalculations
+                + ", maxScoreForAnalogy: " + maxScoreForAnalogy + "\n");
+
+        for (int i = 0; i < scores.length; i++) {
+            strBuilder.append(i + 1 + ". Word Score: " + scores[i]);
         }
-    }
 
-    /**
-     * it is used to reset max score and base sensitivity.
-     *
-     * @param baseSensitivity
-     * @param closestWordSize
-     */
-    @Override
-    public void setMaxScoreForAnalogy(int baseSensitivity, int closestWordSize) {
-
-        this.baseSensitivity = baseSensitivity;
-        // buradaki 3 arttırılarak fark arttırılabilir
-        // base'in üssünün 3/2'si maximum score
-        // base 4, size 5 olunca: 1536 max -> 5. 512 / 4. 768 / 3. 960
-        // base 5, size 5 olunca: 4688 max -> 5. 1563 / 4. 4063 / 3. 4563
-        maxScoreForAnalogy = 3 * Math.pow(baseSensitivity, closestWordSize) / 2;
+        return strBuilder.toString();
     }
 
 }
