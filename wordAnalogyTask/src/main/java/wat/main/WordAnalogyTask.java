@@ -88,30 +88,30 @@ public class WordAnalogyTask {
                         controller.saveCalculationScore();
                         break;
                     case 10:
+                        // print number of words in model's vocabulary
+                        controller.printTotalWordSizeInModelVocab();
+                        break;
+                    case 11:
+                        // get closest words from model for a given word
+                        controller.getNearestOfInputWord();
+                        break;
+                    case 12:
                         // calculate analogy score of a word of user's choice
                         controller.getAnalogyScoreOfTypedWord();
                         break;
-                    case 11:
+                    case 13:
                         // calculate analogy score
                         final int pos = UserInput.getPOSSelection();
                         if (pos != 0) {
                             controller.calculateScore(pos, Constants.IS_ANALOGY_TEST);
                         }
                         break;
-                    case 12:
+                    case 14:
                         // calculate similarity score
                         final int posChoice = UserInput.getPOSSelection();
                         if (posChoice != 0) {
                             controller.calculateScore(posChoice, Constants.IS_SIMILARITY_TEST);
                         }
-                        break;
-                    case 13:
-                        // print number of words in model's vocabulary
-                        controller.printTotalWordSizeInModelVocab();
-                        break;
-                    case 14:
-                        // get closest words from model for a given word
-                        controller.getNearestOfInputWord();
                         break;
                     case 15:
                         // change log level of root

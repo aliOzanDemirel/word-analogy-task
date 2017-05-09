@@ -1,4 +1,5 @@
 import edu.mit.jwi.data.ILoadPolicy;
+import edu.mit.jwi.item.POS;
 import org.junit.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,8 +36,8 @@ public class WordNetTest {
 
     private BaseModelInt prepareWord2vec() throws ModelBuildException {
 
-        BaseModelInt w2vecModel = new Word2vecUtil();
-        w2vecModel.setCorpusPath("/home/ozan/word2vec_saved/2017-04-28_56035_trained_word2vec");
+        final BaseModelInt w2vecModel = new Word2vecUtil();
+        w2vecModel.setCorpusPath("/home/ozan/word2vec_saved/2017-05-09_35476_trained_word2vec");
         w2vecModel.createModel(Constants.CORPUS_IS_PRETRAINED);
         return w2vecModel;
     }
@@ -44,9 +45,17 @@ public class WordNetTest {
     @Test
     public void testCalculateAnalogyOfOneWord() throws ModelBuildException {
 
-        final String word = "man";
-        BaseModelInt w2vecModel = this.prepareWord2vec();
+        final String word = "defend";
+        final BaseModelInt w2vecModel = this.prepareWord2vec();
         wordNetUtil.calculateAnalogyScoreOfWordInput(w2vecModel, word);
+    }
+
+    @Test
+    public void testCalculateAnalogyOfPOS() throws ModelBuildException {
+
+        final BaseModelInt w2vecModel = this.prepareWord2vec();
+        wordNetUtil.calculateScoreForPOSFromController(w2vecModel,
+                POS.VERB, Constants.IS_ANALOGY_TEST);
     }
 
     @Test

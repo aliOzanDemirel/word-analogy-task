@@ -139,8 +139,8 @@ public class WordNetUtil implements WordNetUtilInt {
         for (POS partOfSpeech : POS.values()) {
             this.calculateScoreForPOS(usedModel, partOfSpeech, isAnalogyTest);
         }
-        long timePassed = (System.currentTimeMillis() - started) / 1000;
-        log.info(timePassed + " seconds passed while calculating similarity score for all words.");
+        log.info(((System.currentTimeMillis() - started) / 1000)
+                + " seconds passed while calculating score for all words.");
     }
 
     /**
@@ -152,7 +152,10 @@ public class WordNetUtil implements WordNetUtilInt {
             final POS partOfSpeech, final boolean isAnalogyTest) {
 
         this.preparePointerToWordMap();
+        long started = System.currentTimeMillis();
         this.calculateScoreForPOS(usedModel, partOfSpeech, isAnalogyTest);
+        log.info(((System.currentTimeMillis() - started) / 1000)
+                + " seconds passed while calculating score for " + partOfSpeech.toString());
     }
 
     /**
@@ -246,7 +249,8 @@ public class WordNetUtil implements WordNetUtilInt {
                     this.preparePointerToWordMap();
                     this.calculateAnalogyScoreOfIndexWord(usedModel, indexWord);
                     log.info("Took " + (System.currentTimeMillis() - start) / 1000 + " seconds for word: "
-                            + wordInput + "\nAfter calculation: " + calc.toString());
+                            + wordInput + "\nCalculated score: " + calc.getAnalogicalPercentage()
+                            + " in " + calc.getTotalAnalogicCalculations() + " calculations.");
                 }
             } else if (!debugEnabled) {
                 log.info(wordInput + " is not in model's vocabulary.");
@@ -259,8 +263,12 @@ public class WordNetUtil implements WordNetUtilInt {
     private void calculateAnalogyScoreOfWordIterator(final BaseModelInt usedModel,
             final Iterator<IIndexWord> indexWordIterator) {
 
+        int i = 1;
         while (indexWordIterator.hasNext()) {
-            IIndexWord indexWord = indexWordIterator.next();
+            if (i++ % 100 == 0) {
+                log.info("Done iterating " + i + " words.");
+            }
+            final IIndexWord indexWord = indexWordIterator.next();
 
             // kelime word2vec'e yollanmaya uygun mu
             if (this.validateWord(indexWord.getLemma())) {
@@ -492,19 +500,11 @@ public class WordNetUtil implements WordNetUtilInt {
             final List<String> closestWords = usedModel.getClosestWords(Arrays.asList(rootWordLemma,
                     pairWordLemma), Arrays.asList(comparedWordLemma));
 
-            // birden çok related kelime olabilir ve mesela bunlardan 2. sıradaki modelden gelen yakın kelime
-            // listesinde 2. sırada olabilir ama önceden 1. sıradaki başka bir related kelimeyle eşleşmişse
-            // skorda azalma olmamalı, bu yüzden match olan kelime listeden çıkarılıyor
             int relatedWordSize = relatedWordsOfCompared.size();
             for (int i = 0; i < relatedWordSize; i++) {
-                final IWord relatedOfComparedWord;
-                relatedOfComparedWord = relatedWordsOfCompared.get(i);
-                // if relatedOfComparedWord matches with any word returned from word2vec
-                if (calc.updateAnalogicalAccuracy(relatedOfComparedWord.getLemma(), closestWords)) {
-                    closestWords.remove(i);
-                    i--;
-                    relatedWordSize--;
-                }
+
+                // update analogy score and remove the word from closestWords list if there is a match
+                calc.updateAnalogicalAccuracy(relatedWordsOfCompared.get(i).getLemma(), closestWords);
             }
         }
     }

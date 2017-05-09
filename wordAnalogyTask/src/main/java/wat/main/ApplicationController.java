@@ -307,7 +307,8 @@ public class ApplicationController {
                 // proportional hesaplama yapılıyorsa sensitivity için input alma
                 if (wordNetUtil.getCalc().getCalculationOption()
                         == DefaultSettingValues.CALCULATE_PROPORTIONALLY) {
-                    log.info("Calculation option is set to proportional.");
+                    log.info("Calculation option is chosen proportionally, " +
+                            "sensitivity is not used in this function.");
                 } else {
                     wordNetUtil.getCalc().setBaseSensitivityAndMaxScore(
                             UserInput.getSelectionBetween(2, 100), usedModel.getClosestWordSize());
@@ -378,13 +379,17 @@ public class ApplicationController {
         if (usedModel.isModelReady()) {
             final String wordInput = UserInput.getWordInput();
             if (wordInput != null) {
-                final List<String> result = usedModel.getNearestWords(wordInput);
-                final int resultSize = result.size();
-                StringBuilder string = new StringBuilder(30);
-                for (int i = 0; i < resultSize; i++) {
-                    string.append("\n").append(i).append("- ").append(result.get(i));
+                if (usedModel.hasWord(wordInput)) {
+                    final List<String> result = usedModel.getNearestWords(wordInput);
+                    final int resultSize = result.size();
+                    StringBuilder string = new StringBuilder(30);
+                    for (int i = 0; i < resultSize; i++) {
+                        string.append("\n").append(i).append("- ").append(result.get(i));
+                    }
+                    log.info("Nearest words: " + string.toString());
+                } else {
+                    log.info("Word: " + wordInput + " does not exist in model vocab.");
                 }
-                log.info("Nearest words: " + string.toString());
             }
         } else {
             log.warn("You should first train or load a model.");

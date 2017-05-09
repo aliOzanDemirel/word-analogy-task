@@ -52,11 +52,11 @@ public class UserInput {
         System.out.println("* 7-) train or load model                *");
         System.out.println("* 8-) save trained model                 *");
         System.out.println("* 9-) save calculated scores             *");
-        System.out.println("* 10-) get analogy score of one word     *");
-        System.out.println("* 11-) calculate analogy score           *");
-        System.out.println("* 12-) calculate similarity score        *");
-        System.out.println("* 13-) get size of words in vocab        *");
-        System.out.println("* 14-) get most similar words of a word  *");
+        System.out.println("* 10-) get size of words in vocab        *");
+        System.out.println("* 11-) get most similar words of a word  *");
+        System.out.println("* 12-) get analogy score of one word     *");
+        System.out.println("* 13-) calculate analogy score           *");
+        System.out.println("* 14-) calculate similarity score        *");
         System.out.println("* 15-) change level of root logger       *");
         System.out.println("* 16-) log free, total and max memory    *");
         System.out.println("* 17-) options for logging WordNet       *");
@@ -158,15 +158,16 @@ public class UserInput {
 
         System.out.println("\n**********************************************************************");
         System.out.println("0 to return menu");
-        System.out.println("1 for base value of max score, higher means " +
+        System.out.println("1 for changing calculation function");
+        System.out.println("2 for base value of max score, higher means " +
                 "bigger gap between 1st and 2nd order");
-        System.out.println("2 for total words to retrieve from model when " +
+        System.out.println("3 for total words to retrieve from model when " +
                 "checking proximity of a word with a word pair");
-        System.out.println("3 for iteration cap of a pointer while doing analogy test");
-        System.out.println("4 for resetting iteration cap to default value");
-        System.out.println("5 for resetting base sensitivity, closest word size and max score");
+        System.out.println("4 for iteration cap of a pointer while doing analogy test");
+        System.out.println("5 for resetting iteration cap to default value");
+        System.out.println("6 for resetting base sensitivity, closest word size and max score");
         System.out.println("**********************************************************************");
-        return UserInput.getSelectionBetween(0, 5);
+        return UserInput.getSelectionBetween(0, 6);
     }
 
     public static int getParamType() {

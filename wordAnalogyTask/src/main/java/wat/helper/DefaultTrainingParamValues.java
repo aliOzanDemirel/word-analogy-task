@@ -8,7 +8,10 @@ public class DefaultTrainingParamValues {
      */
     public static final int EPOCHS = 1;
     public static final int LAYER_SIZE = 200;
-    public static final int WINDOW_SIZE = 4;
+    /**
+     * 5 is suggested for hierarchic softmax
+     */
+    public static final int WINDOW_SIZE = 10;
     public static final int SEED = 24;
     public static final int BATCH_SIZE = 512;
     public static final double LEARNING_RATE = 0.025;

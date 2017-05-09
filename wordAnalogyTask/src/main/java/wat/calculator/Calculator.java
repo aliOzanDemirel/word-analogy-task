@@ -117,13 +117,15 @@ public class Calculator {
         }
     }
 
-    public boolean updateAnalogicalAccuracy(final String relatedWordLemmaOfCompared,
+    public void updateAnalogicalAccuracy(final String relatedWordLemmaOfCompared,
             final List<String> closestWords) {
 
+        String wordReturnedFromW2vec;
         totalAnalogicCalculations++;
+
         int closestWordSize = closestWords.size();
         for (int i = 0; i < closestWordSize; i++) {
-            String wordReturnedFromW2vec = closestWords.get(i);
+            wordReturnedFromW2vec = closestWords.get(i);
             if (relatedWordLemmaOfCompared.equalsIgnoreCase(wordReturnedFromW2vec)) {
                 if (debugEnabled) {
                     log.debug("Related word of the compared is found in " + (i + 1)
@@ -132,10 +134,14 @@ public class Calculator {
                 // accuracy ağırlığı fark etsin diye üssü alınacak bir base koydum
                 // sensitivity daha büyük de olabilir ama closestWordSize'la çok fark olmamalı
                 analogyScore += scores[i];
-                return true;
+
+                // birden çok related kelime varsa, bunlardan 2. sıradaki closestWord listesinde de
+                // 2. sırada olabilir ama önceden 1. sıradaki başka bir related kelimeyle closestWord
+                // eşleşmişse skorda azalma olmamalı, bu yüzden match olan kelime listeden çıkarılıyor
+                closestWords.remove(i);
+                break;
             }
         }
-        return false;
     }
 
     /**
@@ -213,10 +219,10 @@ public class Calculator {
         final StringBuilder strBuilder = new StringBuilder("similarity: " + similarityScore + ", " +
                 "totalSimCalculations: " + totalSimCalculations + ", analogyScore: " + analogyScore
                 + ", totalAnalogicCalculations: " + totalAnalogicCalculations
-                + ", maxScoreForAnalogy: " + maxScoreForAnalogy + "\n");
+                + ", maxScoreForAnalogy: " + maxScoreForAnalogy + ", scores:");
 
         for (int i = 0; i < scores.length; i++) {
-            strBuilder.append(i + 1 + ". Word Score: " + scores[i]);
+            strBuilder.append("\n" + (i + 1) + ". Score: " + scores[i]);
         }
 
         return strBuilder.toString();
