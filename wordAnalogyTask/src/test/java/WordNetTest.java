@@ -70,12 +70,6 @@ public class WordNetTest {
     }
 
     @Test
-    public void testPrepareMultiplePointersToWordMap() {
-
-        wordNetUtil.prepareMultiplePointersToWordMap();
-    }
-
-    @Test
     public void testPreparePointerToWordMap() {
 
         wordNetUtil.preparePointerToWordMap();

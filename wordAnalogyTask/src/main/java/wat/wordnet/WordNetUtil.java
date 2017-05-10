@@ -22,7 +22,8 @@ public class WordNetUtil implements WordNetUtilInt {
     private static final Logger log = LoggerFactory.getLogger(WordNetUtil.class);
     private static final boolean debugEnabled = log.isDebugEnabled();
 
-    private HashMap<Set<IPointer>, HashSet<IWord>> multiplePointersToWordMap = null;
+    // kullanılmıyor
+    // private HashMap<Set<IPointer>, HashSet<IWord>> multiplePointersToWordMap = null;
 
     /**
      * holds mapping of pointers in {@link #analogyTypes} to words.
@@ -34,9 +35,12 @@ public class WordNetUtil implements WordNetUtilInt {
      * to be checked for a word pair. if it is set to a high number (like 200.000), every word of a pointer
      * will be sent to analogy test which is not very efficient computationally.
      */
-    private int iterationCapForPointer;
+    private int iterationCapForPointer = DefaultSettingValues.ITERATION_CAP_FOR_POINTER;
 
-    private boolean comparePhrases;
+    /**
+     * setting to include phrases (connected with '_') while calculating analogy and similarity scores.
+     */
+    private boolean dontComparePhrases = DefaultSettingValues.DONT_COMPARE_PHRASES;
 
     private IRAMDictionary dict = null;
     private Calculator calc = new Calculator();
@@ -79,7 +83,6 @@ public class WordNetUtil implements WordNetUtilInt {
         this.openDictionary();
         log.info("WordNet (version " + dict.getVersion() + ") is loaded with policy: "
                 + loadPolicy + " (NO_LOAD: 2, BACKGROUND_LOAD = 4, IMMEDIATE_LOAD = 8)");
-        this.resetIterationCapForPointer();
     }
 
     /**
@@ -111,17 +114,20 @@ public class WordNetUtil implements WordNetUtilInt {
      */
     @Override
     public void loadDictionaryIntoMemory() {
-        // wordnet'i kapatmaya gerek olabilir
-        log.info("Loading wordnet into memory...");
-        long start = System.currentTimeMillis();
-        try {
-            // setLoadPolicy'ye gerek yok sanırım
-            // true ile çağırınca loading'in bitmesini bekliyor method call
-            dict.load(true);
-        } catch (InterruptedException e) {
-            log.error("Dictionary load process is interrupted, it may not be loaded properly!", e);
+        // wordnet'i kapatmaya gerek yok sanırım LoadPolicy'yi değiştirmeyince
+        if (!dict.isLoaded()) {
+            log.info("Loading wordnet into memory...");
+            long start = System.currentTimeMillis();
+            try {
+                // true ile çağırınca loading'in bitmesini bekliyor method call
+                dict.load(true);
+            } catch (InterruptedException e) {
+                log.error("Dictionary load process is interrupted, it may not be loaded properly!", e);
+            }
+            log.info("Loading is done in " + (System.currentTimeMillis() - start) / 1000 + " seconds.");
+        } else {
+            log.info("Dictionary is already loaded.");
         }
-        log.info("Loading is done in " + (System.currentTimeMillis() - start) / 1000 + " seconds.");
     }
 
     /**
@@ -140,7 +146,8 @@ public class WordNetUtil implements WordNetUtilInt {
             this.calculateScoreForPOS(usedModel, partOfSpeech, isAnalogyTest);
         }
         log.info(((System.currentTimeMillis() - started) / 1000)
-                + " seconds passed while calculating score for all words.");
+                + " seconds passed while calculating score for all words."
+                + "\nAnalogy Score: " + calc.getAnalogicalPercentage());
     }
 
     /**
@@ -155,7 +162,8 @@ public class WordNetUtil implements WordNetUtilInt {
         long started = System.currentTimeMillis();
         this.calculateScoreForPOS(usedModel, partOfSpeech, isAnalogyTest);
         log.info(((System.currentTimeMillis() - started) / 1000)
-                + " seconds passed while calculating score for " + partOfSpeech.toString());
+                + " seconds passed while calculating score for " + partOfSpeech.toString()
+                + "\nAnalogy Score: " + calc.getAnalogicalPercentage());
     }
 
     /**
@@ -231,7 +239,6 @@ public class WordNetUtil implements WordNetUtilInt {
     public void calculateAnalogyScoreOfWordInput(final BaseModelInt usedModel,
             final String wordInput) {
 
-        log.info("Before calculation: " + calc.toString());
         long start = System.currentTimeMillis();
         if (this.validateWord(wordInput)) {
             if (usedModel.hasWord(wordInput)) {
@@ -248,9 +255,9 @@ public class WordNetUtil implements WordNetUtilInt {
                 } else {
                     this.preparePointerToWordMap();
                     this.calculateAnalogyScoreOfIndexWord(usedModel, indexWord);
-                    log.info("Took " + (System.currentTimeMillis() - start) / 1000 + " seconds for word: "
-                            + wordInput + "\nCalculated score: " + calc.getAnalogicalPercentage()
-                            + " in " + calc.getTotalAnalogicCalculations() + " calculations.");
+                    log.info("Took " + (System.currentTimeMillis() - start) / 1000
+                            + " seconds for word: " + wordInput
+                            + "\nAnalogy Score: " + calc.getAnalogicalPercentage());
                 }
             } else if (!debugEnabled) {
                 log.info(wordInput + " is not in model's vocabulary.");
@@ -266,7 +273,8 @@ public class WordNetUtil implements WordNetUtilInt {
         int i = 1;
         while (indexWordIterator.hasNext()) {
             if (i++ % 100 == 0) {
-                log.info("Done iterating " + i + " words.");
+                log.info("Done iterating " + i + " words, analogy score: "
+                        + calc.getAnalogicalPercentage());
             }
             final IIndexWord indexWord = indexWordIterator.next();
 
@@ -285,9 +293,7 @@ public class WordNetUtil implements WordNetUtilInt {
                     log.debug(indexWord.getLemma() + " is not a valid word.");
                 }
             }
-
         }
-        log.info("Analogy score: " + calc.getAnalogicalPercentage());
     }
 
     /**
@@ -575,7 +581,7 @@ public class WordNetUtil implements WordNetUtilInt {
     /**
      * creates and fills {@link #multiplePointersToWordMap} by {@link #mapWordWithItsPointers(IWord, Set)}.
      */
-    public void prepareMultiplePointersToWordMap() {
+/*    public void prepareMultiplePointersToWordMap() {
 
         if (multiplePointersToWordMap == null) {
             log.info("Creating pointers of word to word map...");
@@ -623,7 +629,7 @@ public class WordNetUtil implements WordNetUtilInt {
         } else {
             iWords.add(word);
         }
-    }
+    } */
 
     /**
      * WordNet has phrases which are connected to each other by '_'. Also it has words as '.22' or '10'
@@ -635,7 +641,8 @@ public class WordNetUtil implements WordNetUtilInt {
     public boolean validateWord(final String wordLemma) {
 
         // regex checks if a number exists
-        if (wordLemma.contains("_") || wordLemma.matches(".*\\d+.*")) {
+        if ((dontComparePhrases && wordLemma.contains("_"))
+                || wordLemma.matches(".*\\d+.*")) {
             if (debugEnabled) {
                 log.debug(wordLemma + " is not a valid word.");
             }
@@ -837,18 +844,23 @@ public class WordNetUtil implements WordNetUtilInt {
     }
 
     @Override
-    public void resetIterationCapForPointer() {
-
-        iterationCapForPointer = DefaultSettingValues.ITERATION_CAP_FOR_POINTER;
-    }
-
-    @Override
     public void setIterationCapForPointer(int iterationCap) {
 
         if (iterationCap > DefaultSettingValues.ITERATION_CAP_FOR_POINTER) {
             log.warn("Iteration cap for a pointer is set too high: " + iterationCap);
         }
-        iterationCapForPointer = iterationCap;
+        this.iterationCapForPointer = iterationCap;
+    }
+
+    @Override
+    public void setPhraseComparisonSetting(boolean dontComparePhrases) {
+
+        if (dontComparePhrases) {
+            log.info("Phrases are excluded while calculating scores.");
+        } else {
+            log.info("Phrases are now allowed while calculating scores.");
+        }
+        this.dontComparePhrases = dontComparePhrases;
     }
 
 }

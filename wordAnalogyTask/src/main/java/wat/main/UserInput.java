@@ -235,7 +235,14 @@ public class UserInput {
     public static boolean getCalculationOption() {
 
         System.out.println("0 for exponential calculation");
-        System.out.println("1 for proportional calculation");
+        System.out.println("1 for proportional calculation (default)");
+        return UserInput.getSelectionBetween(0, 1) == 1;
+    }
+
+    public static boolean getPhraseSetting() {
+
+        System.out.println("0 to include phrases for calculations");
+        System.out.println("1 to exclude phrases for calculations (default)");
         return UserInput.getSelectionBetween(0, 1) == 1;
     }
 

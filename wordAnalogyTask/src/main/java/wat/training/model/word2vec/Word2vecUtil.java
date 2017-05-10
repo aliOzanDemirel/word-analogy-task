@@ -117,7 +117,7 @@ public class Word2vecUtil extends BaseModel implements BaseModelInt {
     // loadStaticModel word vectorlere erişmek için sadece
     private void loadPretrainedModel() throws ModelBuildException {
 
-        log.info("Starting to load word2vec from: " + corpusPath + " This may take a while.");
+        log.info("Starting to load word2vec from: " + corpusPath);
         word2vec = null;
 
         long start = System.currentTimeMillis();
@@ -218,7 +218,6 @@ public class Word2vecUtil extends BaseModel implements BaseModelInt {
     public List<String> getNearestWords(final String word) {
 
         return (List<String>) word2vec.wordsNearest(word, closestWordSize);
-
     }
 
 }

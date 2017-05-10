@@ -122,7 +122,7 @@ public class ApplicationController {
             // first save scores
             this.saveCalculationScore();
             // then reset all
-            wordNetUtil.getCalc().resetScores();
+            wordNetUtil.getCalc().resetProperties();
         } else {
             log.warn("You should first train or load a model.");
         }
@@ -134,6 +134,10 @@ public class ApplicationController {
             final String wordInput = UserInput.getWordInput();
             if (wordInput != null) {
                 wordNetUtil.calculateAnalogyScoreOfWordInput(usedModel, wordInput);
+                // first save scores
+                this.saveCalculationScore();
+                // then reset all
+                wordNetUtil.getCalc().resetProperties();
             }
         } else {
             log.warn("You should first train or load a model.");
@@ -142,15 +146,11 @@ public class ApplicationController {
 
     public void saveCalculationScore() {
 
-        Calculator calc = wordNetUtil.getCalc();
-        List<String> lines = new ArrayList<String>(7) {{
-            add("Similarity score: " + calc.getSimilarityScore());
-            add("Total similarity calculations: " + calc.getTotalSimCalculations());
-            add("Similarity percentage: " + calc.getSimilarityPercentage());
-            add("Analogy score: " + calc.getAnalogyScore());
-            add("Total analogy calculations: " + calc.getTotalAnalogicCalculations());
+        final Calculator calc = wordNetUtil.getCalc();
+        List<String> lines = new ArrayList<String>(3) {{
+            add("After calculation: " + calc.toString());
             add("Analogical percentage: " + calc.getAnalogicalPercentage());
-            add("Maximum score for analogy algorithm: " + calc.getMaxScoreForAnalogy());
+            add("Similarity percentage: " + calc.getSimilarityPercentage());
         }};
 
         try {
@@ -296,10 +296,10 @@ public class ApplicationController {
         }
     }
 
-    public void changeSettings(int settingID) {
+    public void changeSettings(int setting) {
 
-        switch (settingID) {
-            case Constants.CALCULATION_OPTION:
+        switch (setting) {
+            case Constants.CALCULATION_SETTING:
                 wordNetUtil.getCalc().setCalculationOption(UserInput.getCalculationOption());
                 wordNetUtil.getCalc().prepareScoresForAnalogyTask(usedModel.getClosestWordSize());
                 break;
@@ -322,7 +322,7 @@ public class ApplicationController {
                 wordNetUtil.setIterationCapForPointer(UserInput.getSelectionBetween(3, 200000));
                 break;
             case Constants.RESET_ITERATION_CAP_SETTING:
-                wordNetUtil.resetIterationCapForPointer();
+                wordNetUtil.setIterationCapForPointer(DefaultSettingValues.ITERATION_CAP_FOR_POINTER);
                 break;
             case Constants.RESET_SCORES_SETTING:
                 usedModel.setClosestWordSize(DefaultSettingValues.CLOSEST_WORD_SIZE);
@@ -330,8 +330,11 @@ public class ApplicationController {
                 wordNetUtil.getCalc().prepareScoresForAnalogyTask(
                         DefaultSettingValues.BASE_SENSITIVITY, usedModel.getClosestWordSize());
                 break;
+            case Constants.PHRASE_SETTING:
+                wordNetUtil.setPhraseComparisonSetting(UserInput.getPhraseSetting());
+                break;
             default:
-                log.error("Invalid setting ID: " + settingID);
+                log.error("Invalid setting: " + setting);
         }
     }
 

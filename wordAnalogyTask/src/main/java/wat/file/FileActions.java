@@ -61,7 +61,9 @@ public class FileActions {
 
         Path directory = Files.createDirectories(Paths.get(System.getProperty("user.home")
                 + File.separator + folderName + File.separator));
-        log.info("Directory should exist: " + directory.toAbsolutePath());
+        if (log.isDebugEnabled()) {
+            log.debug("Directory should exist: " + directory.toAbsolutePath());
+        }
         return directory;
     }
 

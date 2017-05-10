@@ -17,11 +17,12 @@ public class Constants {
     public static final boolean IS_ANALOGY_TEST = true;
     public static final boolean IS_SIMILARITY_TEST = false;
 
-    public static final int CALCULATION_OPTION = 1;
+    public static final int CALCULATION_SETTING = 1;
     public static final int BASE_SENSITIVITY_SETTING = 2;
     public static final int CLOSEST_WORD_SIZE_SETTING = 3;
     public static final int ITERATION_CAP_FOR_POINTER_SETTING = 4;
     public static final int RESET_ITERATION_CAP_SETTING = 5;
     public static final int RESET_SCORES_SETTING = 6;
+    public static final int PHRASE_SETTING = 7;
 
 }

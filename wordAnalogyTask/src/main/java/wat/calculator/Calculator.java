@@ -11,10 +11,10 @@ public class Calculator {
     private static final Logger log = LoggerFactory.getLogger(Calculator.class);
     private static final boolean debugEnabled = log.isDebugEnabled();
 
-    private double similarityScore, analogyScore, maxScoreForAnalogy;
-    private int totalSimCalculations, totalAnalogicCalculations;
-
     private double[] scores;
+    private double analogyScore, similarityScore, maxScoreForAnalogy;
+    private int totalCalculations, totalMatchForAnalogy;
+
     /**
      * base number to set maximum score while evaluating word2vec's accuracy. higher number means
      * exponentially bigger gap between orders of returned nearest words from word2vec.
@@ -24,7 +24,7 @@ public class Calculator {
 
     public Calculator() {
 
-        this.resetScores();
+        this.resetProperties();
         this.prepareScoresForAnalogyTask(DefaultSettingValues.BASE_SENSITIVITY,
                 DefaultSettingValues.CLOSEST_WORD_SIZE);
     }
@@ -88,7 +88,7 @@ public class Calculator {
         scores = new double[closestWordSize];
         for (int i = 0; i < closestWordSize; i++) {
             scores[i] = maxScoreForAnalogy - Math.pow(sensitivity, i + 1);
-            log.info(i + 1 + ". Word Score: " + scores[i]);
+            log.info((i + 1) + ". Word Score: " + scores[i]);
         }
     }
 
@@ -113,28 +113,26 @@ public class Calculator {
         scores = new double[closestWordSize];
         for (int i = 0; i < closestWordSize; i++) {
             scores[i] = maxScoreForAnalogy - Math.pow(i + 1, 2);
-            log.info(i + 1 + ". Word Score: " + scores[i]);
+            log.info((i + 1) + ". Word Score: " + scores[i]);
         }
     }
 
     public void updateAnalogicalAccuracy(final String relatedWordLemmaOfCompared,
             final List<String> closestWords) {
 
-        String wordReturnedFromW2vec;
-        totalAnalogicCalculations++;
+        String wordReturnedFromModel;
+        totalCalculations++;
 
         int closestWordSize = closestWords.size();
         for (int i = 0; i < closestWordSize; i++) {
-            wordReturnedFromW2vec = closestWords.get(i);
-            if (relatedWordLemmaOfCompared.equalsIgnoreCase(wordReturnedFromW2vec)) {
+            wordReturnedFromModel = closestWords.get(i);
+            if (relatedWordLemmaOfCompared.equalsIgnoreCase(wordReturnedFromModel)) {
                 if (debugEnabled) {
                     log.debug("Related word of the compared is found in " + (i + 1)
                             + ". result from word vectors.");
                 }
-                // accuracy ağırlığı fark etsin diye üssü alınacak bir base koydum
-                // sensitivity daha büyük de olabilir ama closestWordSize'la çok fark olmamalı
                 analogyScore += scores[i];
-
+                totalMatchForAnalogy++;
                 // birden çok related kelime varsa, bunlardan 2. sıradaki closestWord listesinde de
                 // 2. sırada olabilir ama önceden 1. sıradaki başka bir related kelimeyle closestWord
                 // eşleşmişse skorda azalma olmamalı, bu yüzden match olan kelime listeden çıkarılıyor
@@ -152,15 +150,15 @@ public class Calculator {
     public void updateSimilarityAccuracy(final double similarity) {
 
         this.similarityScore += similarity;
-        this.totalSimCalculations++;
+        this.totalCalculations++;
     }
 
-    public void resetScores() {
+    public void resetProperties() {
 
-        analogyScore = 0.0;
-        totalAnalogicCalculations = 0;
-        similarityScore = 0.0;
-        totalSimCalculations = 0;
+        totalMatchForAnalogy = 0;
+        totalCalculations = 0;
+        similarityScore = 0.0d;
+        analogyScore = 0.0d;
     }
 
     /**
@@ -168,7 +166,11 @@ public class Calculator {
      */
     public double getSimilarityPercentage() {
 
-        return 100 * similarityScore / totalSimCalculations;
+        if (totalCalculations > 0.0d) {
+            return 100 * similarityScore / totalCalculations;
+        } else {
+            return -1.0d;
+        }
     }
 
     /**
@@ -176,32 +178,11 @@ public class Calculator {
      */
     public double getAnalogicalPercentage() {
 
-        return (analogyScore / totalAnalogicCalculations) * 100 / maxScoreForAnalogy;
-    }
-
-    public double getSimilarityScore() {
-
-        return similarityScore;
-    }
-
-    public int getTotalSimCalculations() {
-
-        return totalSimCalculations;
-    }
-
-    public double getAnalogyScore() {
-
-        return analogyScore;
-    }
-
-    public int getTotalAnalogicCalculations() {
-
-        return totalAnalogicCalculations;
-    }
-
-    public double getMaxScoreForAnalogy() {
-
-        return maxScoreForAnalogy;
+        if (totalCalculations > 0.0d) {
+            return (analogyScore / totalCalculations) * 100 / maxScoreForAnalogy;
+        } else {
+            return -1;
+        }
     }
 
     public boolean getCalculationOption() {
@@ -216,13 +197,14 @@ public class Calculator {
 
     public String toString() {
 
-        final StringBuilder strBuilder = new StringBuilder("similarity: " + similarityScore + ", " +
-                "totalSimCalculations: " + totalSimCalculations + ", analogyScore: " + analogyScore
-                + ", totalAnalogicCalculations: " + totalAnalogicCalculations
-                + ", maxScoreForAnalogy: " + maxScoreForAnalogy + ", scores:");
+        final StringBuilder strBuilder = new StringBuilder("totalCalculations: " + totalCalculations
+                + "\ntotalMatchForAnalogy: " + totalMatchForAnalogy
+                + "\nmaxScoreForAnalogy: " + maxScoreForAnalogy
+                + "\nanalogyScore: " + analogyScore
+                + "\nsimilarityScore: " + similarityScore + "\nscores: ");
 
         for (int i = 0; i < scores.length; i++) {
-            strBuilder.append("\n" + (i + 1) + ". Score: " + scores[i]);
+            strBuilder.append((i + 1) + "-" + scores[i] + " / ");
         }
 
         return strBuilder.toString();

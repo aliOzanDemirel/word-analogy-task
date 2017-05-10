@@ -36,8 +36,7 @@ public interface WordNetUtilInt {
 
     Calculator getCalc();
 
-    void resetIterationCapForPointer();
-
     void setIterationCapForPointer(int iterationCap);
 
+    void setPhraseComparisonSetting(boolean dontComparePhrases);
 }

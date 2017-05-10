@@ -2,6 +2,7 @@ package wat.helper;
 
 public class DefaultSettingValues {
 
+    public static final boolean DONT_COMPARE_PHRASES = true;
     public static final boolean CALCULATE_PROPORTIONALLY = true;
     public static final int BASE_SENSITIVITY = 4;
     public static final int CLOSEST_WORD_SIZE = 10;
