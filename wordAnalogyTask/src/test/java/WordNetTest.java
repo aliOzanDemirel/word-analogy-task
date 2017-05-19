@@ -34,7 +34,7 @@ public class WordNetTest {
         wordNetUtil = new WordNetUtil(wordNetDictHome, ILoadPolicy.NO_LOAD);
     }
 
-    private BaseModelInt prepareWord2vec() throws ModelBuildException {
+    public static BaseModelInt prepareWord2vec() throws ModelBuildException {
 
         final BaseModelInt w2vecModel = new Word2vecUtil();
         w2vecModel.setCorpusPath("/home/ozan/word2vec_saved/2017-05-09_35476_trained_word2vec");
@@ -45,7 +45,7 @@ public class WordNetTest {
     @Test
     public void testCalculateAnalogyOfOneWord() throws ModelBuildException {
 
-        final String word = "defend";
+        final String word = "father";
         final BaseModelInt w2vecModel = this.prepareWord2vec();
         wordNetUtil.calculateAnalogyScoreOfWordInput(w2vecModel, word);
     }
@@ -58,16 +58,6 @@ public class WordNetTest {
                 POS.VERB, Constants.IS_ANALOGY_TEST);
     }
 
-    @Test
-    public void testGetNearestWords() throws ModelBuildException {
-
-        final String word = "gangster";
-        BaseModelInt w2vecModel = this.prepareWord2vec();
-        List<String> returned = w2vecModel.getNearestWords(word);
-
-        log.info(w2vecModel.getClosestWordSize() + " closest word for " + word);
-        returned.forEach(result -> log.info(result));
-    }
 
     @Test
     public void testPreparePointerToWordMap() {

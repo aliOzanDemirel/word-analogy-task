@@ -1,12 +1,30 @@
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import wat.exceptions.ModelBuildException;
 import wat.file.FileActions;
+import wat.training.model.BaseModelInt;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 public class BasicTests {
+
+    private static final Logger log = LoggerFactory.getLogger(BasicTests.class);
+
+    @Test
+    public void testGetNearestWords() throws ModelBuildException {
+
+        final String word = "gangster";
+        final BaseModelInt w2vecModel = WordNetTest.prepareWord2vec();
+        final List<String> returned = w2vecModel.getNearestWords(word);
+
+        log.info(w2vecModel.getClosestWordSize() + " closest word for " + word);
+        returned.forEach(result -> log.info(result));
+    }
 
     @Test
     public void testGetFileByCreatingIfNecessary() throws IOException {

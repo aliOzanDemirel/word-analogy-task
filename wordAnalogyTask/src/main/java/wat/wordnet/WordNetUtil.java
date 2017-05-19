@@ -46,22 +46,23 @@ public class WordNetUtil implements WordNetUtilInt {
     private Calculator calc = new Calculator();
 
     private HashSet<WordNetPointers> analogyTypes = new HashSet<WordNetPointers>(21) {{
-        add(WordNetPointers.ATTRIBUTE);
-        add(WordNetPointers.CAUSE);
-        add(WordNetPointers.ENTAILMENT);
+//        add(WordNetPointers.ATTRIBUTE);
+//        add(WordNetPointers.CAUSE);
+//        add(WordNetPointers.ENTAILMENT);
         add(WordNetPointers.HYPERNYM);
         add(WordNetPointers.HYPERNYM_INSTANCE);
         add(WordNetPointers.HYPONYM);
         add(WordNetPointers.HYPONYM_INSTANCE);
-        add(WordNetPointers.HOLONYM_MEMBER);
-        add(WordNetPointers.HOLONYM_PART);
-        add(WordNetPointers.HOLONYM_SUBSTANCE);
-        add(WordNetPointers.MEMBER);
+//        add(WordNetPointers.HOLONYM_MEMBER);
+//        add(WordNetPointers.HOLONYM_PART);
+//        add(WordNetPointers.HOLONYM_SUBSTANCE);
         add(WordNetPointers.MERONYM_MEMBER);
         add(WordNetPointers.MERONYM_SUBSTANCE);
         add(WordNetPointers.MERONYM_PART);
-        add(WordNetPointers.SIMILAR_TO);
-        add(WordNetPointers.VERB_GROUP);
+//        add(WordNetPointers.SIMILAR_TO);
+//        add(WordNetPointers.MEMBER);
+//        add(WordNetPointers.VERB_GROUP);
+
 //        add(WordNetPointers.ALSO_SEE);
 //        add(WordNetPointers.TOPIC);
 //        add(WordNetPointers.TOPIC_MEMBER);
@@ -70,9 +71,9 @@ public class WordNetUtil implements WordNetUtilInt {
 //        add(WordNetPointers.REGION);
 //        add(WordNetPointers.REGION_MEMBER);
         // lexical relationships
-        add(WordNetPointers.ANTONYM);
-        add(WordNetPointers.PERTAINYM);
-        add(WordNetPointers.PARTICIPLE);
+//        add(WordNetPointers.ANTONYM);
+//        add(WordNetPointers.PERTAINYM);
+//        add(WordNetPointers.PARTICIPLE);
         add(WordNetPointers.DERIVED_FROM_ADJ);
         add(WordNetPointers.DERIVATIONALLY_RELATED);
     }};
@@ -404,13 +405,14 @@ public class WordNetUtil implements WordNetUtilInt {
         String synsetWordLemma;
 
         // kelimenin synsetindeki her ilişki için yap
-        for (IPointer iPointer : relatedSynsetMap.keySet()) {
+        for (final IPointer iPointer : relatedSynsetMap.keySet()) {
 
             // o andaki pointer'a sahip bütün kelimeleri çek
             final HashSet<IWord> wordsOfPointer = pointerToWordMap.get(iPointer);
             // pointer karşılaştırma için uygunsa
             if (wordsOfPointer != null) {
-                // bu pointer için ilişkili olduğu synset'leri çek
+
+                // root kelimenin synset'inin ilişkili olduğu synset'leri bu ilişki döngüsünde çek
                 final List<ISynsetID> semanticallyRelatedSynsetIDs = relatedSynsetMap.get(iPointer);
                 int relatedSynsetSizeForPointer = semanticallyRelatedSynsetIDs.size();
 
@@ -418,9 +420,14 @@ public class WordNetUtil implements WordNetUtilInt {
 
                     // kelimeyi, kendi synset'indeki kelimelerle değil de ilişkili synset'teki kelimelerle
                     // (pair) ve synset'ler arasındaki ilişkiye sahip kelimelerle (third) sorgulamalı
-                    ISynset relatedSynset = dict.getSynset(semanticallyRelatedSynsetIDs.get(k));
+                    final ISynset relatedSynset = dict.getSynset(semanticallyRelatedSynsetIDs.get(k));
                     final List<IWord> relatedSynsetWords = relatedSynset.getWords();
 
+                    final StringBuilder strBuilder = new StringBuilder();
+                    if (debugEnabled) {
+                        strBuilder.append("Related synset's meaning: ")
+                                .append(relatedSynset.getGloss()).append("\nWords in synset: ");
+                    }
                     for (IWord relatedSynsetWord : relatedSynsetWords) {
                         synsetWordLemma = relatedSynsetWord.getLemma();
 
@@ -432,14 +439,23 @@ public class WordNetUtil implements WordNetUtilInt {
                         } else if (this.validateWord(synsetWordLemma)
                                 && usedModel.hasWord(synsetWordLemma)) {
 
-                            int counter = 0;
+                            if (debugEnabled) {
+                                // root word'ün synset'inin ilişkili olduğu synset'teki kelimeyi logla
+                                strBuilder.append(synsetWordLemma).append(" - ");
+                            }
+
+                            int counterForPointerCap = 0;
                             final Iterator<IWord> iterator = wordsOfPointer.iterator();
-                            while (iterator.hasNext() && counter < iterationCapForPointer) {
-                                counter++;
-                                this.calculateSemanticAnalogyWithThirdWord(usedModel, iterator.next(),
+                            while (iterator.hasNext() && counterForPointerCap < iterationCapForPointer) {
+                                counterForPointerCap++;
+                                final IWord wordToCompare = iterator.next();
+                                this.calculateSemanticAnalogyWithThirdWord(usedModel, wordToCompare,
                                         rootWordLemma, synsetWordLemma);
                             }
                         }
+                    }
+                    if (debugEnabled) {
+                        log.debug(strBuilder.toString());
                     }
                 }
             }
@@ -461,10 +477,9 @@ public class WordNetUtil implements WordNetUtilInt {
                             + rootWordLemma + " - " + synsetWordLemma);
                 }
             } else {
-                // kelimenin synseti yukarıdan gelen pointer'a sahip mi
-                // iyi test edilmeli
-                final List<IWord> synsetWordsOfCompared = comparedWord.getSynset()
-                        .getWords();
+
+                // comparedWord burada process edilen pointer'a sahip bir kelime
+                final List<IWord> synsetWordsOfCompared = comparedWord.getSynset().getWords();
 
                 this.compareWordPairWithGivenThird(usedModel, synsetWordsOfCompared,
                         rootWordLemma, synsetWordLemma, comparedWordLemma);
@@ -488,16 +503,17 @@ public class WordNetUtil implements WordNetUtilInt {
      * when there is a call to this method.
      *
      * @param usedModel
-     * @param relatedWordsOfCompared
-     * @param rootWordLemma          root word that has started iteration.
-     * @param pairWordLemma          related word of root either lexically or semantically.
-     * @param comparedWordLemma      third word to be compared.
+     * @param expectedWordsForCompared can be words in synset or words that are directly related to
+     *                                 compared word by lexical pointers.
+     * @param rootWordLemma            root word that has started iteration.
+     * @param pairWordLemma            related word of root either lexically or semantically.
+     * @param comparedWordLemma        third word to be compared.
      */
     private void compareWordPairWithGivenThird(final BaseModelInt usedModel,
-            final List<IWord> relatedWordsOfCompared, final String rootWordLemma,
+            final List<IWord> expectedWordsForCompared, final String rootWordLemma,
             final String pairWordLemma, final String comparedWordLemma) {
 
-        if (relatedWordsOfCompared.isEmpty()) {
+        if (expectedWordsForCompared.isEmpty()) {
 
             log.error(comparedWordLemma + " does not have any related words when it should have!");
         } else {
@@ -506,11 +522,28 @@ public class WordNetUtil implements WordNetUtilInt {
             final List<String> closestWords = usedModel.getClosestWords(Arrays.asList(rootWordLemma,
                     pairWordLemma), Arrays.asList(comparedWordLemma));
 
-            int relatedWordSize = relatedWordsOfCompared.size();
-            for (int i = 0; i < relatedWordSize; i++) {
+            final StringBuilder strBuilder = new StringBuilder();
+            if (debugEnabled) {
+                strBuilder.append(rootWordLemma).append(" - ").append(pairWordLemma)
+                        .append(", compared with: ").append(comparedWordLemma)
+                        .append("\nReturned words from model: ").append(closestWords.toString())
+                        .append("\nExpected words of compared word: ");
+            }
 
+            int sizeOfExpectedWords = expectedWordsForCompared.size();
+            for (int i = 0; i < sizeOfExpectedWords; i++) {
+
+                final String expectedWordOfCompared = expectedWordsForCompared.get(i).getLemma();
+
+                if (debugEnabled) {
+                    strBuilder.append(expectedWordOfCompared).append(" - ");
+                }
                 // update analogy score and remove the word from closestWords list if there is a match
-                calc.updateAnalogicalAccuracy(relatedWordsOfCompared.get(i).getLemma(), closestWords);
+                calc.updateAnalogicalAccuracy(expectedWordOfCompared, closestWords);
+            }
+
+            if (debugEnabled) {
+                log.debug(strBuilder.toString());
             }
         }
     }
@@ -765,8 +798,8 @@ public class WordNetUtil implements WordNetUtilInt {
         final Iterator<IIndexWord> indexWordIterator = dict.getIndexWordIterator(POS.NOUN);
         while (indexWordIterator.hasNext()) {
             IIndexWord iIndexWord = indexWordIterator.next();
-            if (iIndexWord.getWordIDs().get(0).getLemma().startsWith("b")) {
-                throw new RuntimeException("B'de bitsin!");
+            if (iIndexWord.getWordIDs().get(0).getLemma().startsWith("g")) {
+                throw new RuntimeException("G'de bitsin!");
             }
             List<IWordID> wordIDs = iIndexWord.getWordIDs();
             if (wordIDs.size() > 1) {

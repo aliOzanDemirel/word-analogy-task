@@ -7,11 +7,12 @@ public class DefaultTrainingParamValues {
      * ortak parametreler
      */
     public static final int EPOCHS = 1;
-    public static final int LAYER_SIZE = 200;
+    public static final int LAYER_SIZE = 300;
     /**
      * 5 is suggested for hierarchic softmax
+     * 10 is suggested for negative sampling
      */
-    public static final int WINDOW_SIZE = 10;
+    public static final int WINDOW_SIZE = 5;
     public static final int SEED = 24;
     public static final int BATCH_SIZE = 512;
     public static final double LEARNING_RATE = 0.025;

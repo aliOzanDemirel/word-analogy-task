@@ -118,14 +118,14 @@ public class Calculator {
     }
 
     public void updateAnalogicalAccuracy(final String relatedWordLemmaOfCompared,
-            final List<String> closestWords) {
+            final List<String> closestWordsFromModel) {
 
         String wordReturnedFromModel;
         totalCalculations++;
 
-        int closestWordSize = closestWords.size();
+        int closestWordSize = closestWordsFromModel.size();
         for (int i = 0; i < closestWordSize; i++) {
-            wordReturnedFromModel = closestWords.get(i);
+            wordReturnedFromModel = closestWordsFromModel.get(i);
             if (relatedWordLemmaOfCompared.equalsIgnoreCase(wordReturnedFromModel)) {
                 if (debugEnabled) {
                     log.debug("Related word of the compared is found in " + (i + 1)
@@ -136,7 +136,7 @@ public class Calculator {
                 // birden çok related kelime varsa, bunlardan 2. sıradaki closestWord listesinde de
                 // 2. sırada olabilir ama önceden 1. sıradaki başka bir related kelimeyle closestWord
                 // eşleşmişse skorda azalma olmamalı, bu yüzden match olan kelime listeden çıkarılıyor
-                closestWords.remove(i);
+                closestWordsFromModel.remove(i);
                 break;
             }
         }

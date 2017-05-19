@@ -147,7 +147,7 @@ public class ApplicationController {
     public void saveCalculationScore() {
 
         final Calculator calc = wordNetUtil.getCalc();
-        List<String> lines = new ArrayList<String>(3) {{
+        final List<String> lines = new ArrayList<String>(3) {{
             add("After calculation: " + calc.toString());
             add("Analogical percentage: " + calc.getAnalogicalPercentage());
             add("Similarity percentage: " + calc.getSimilarityPercentage());
@@ -387,7 +387,7 @@ public class ApplicationController {
                     final int resultSize = result.size();
                     StringBuilder string = new StringBuilder(30);
                     for (int i = 0; i < resultSize; i++) {
-                        string.append("\n").append(i).append("- ").append(result.get(i));
+                        string.append("\n").append(i).append(" - ").append(result.get(i));
                     }
                     log.info("Nearest words: " + string.toString());
                 } else {

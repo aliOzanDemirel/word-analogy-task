@@ -17,6 +17,7 @@ public class UserInput {
             try {
                 selection = input.nextInt();
             } catch (InputMismatchException e) {
+                // YAZI GİRİLİNCE exit methodu çağrılıyor.
                 System.err.println("Only numbers!");
                 input.nextLine();
             }

@@ -67,7 +67,7 @@
         <appender-ref ref="console"/>
     </logger>
     -->
-    <root level="INFO">
+    <root level="DEBUG">
         <appender-ref ref="ASYNC_MAIN"/>
         <appender-ref ref="ERROR"/>
         <appender-ref ref="CONSOLE"/>
