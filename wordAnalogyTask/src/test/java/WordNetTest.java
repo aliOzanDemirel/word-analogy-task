@@ -43,11 +43,19 @@ public class WordNetTest {
     }
 
     @Test
-    public void testCalculateAnalogyOfOneWord() throws ModelBuildException {
+    public void testCalculateAnalogyWithOnlySynsetComparison() throws ModelBuildException {
 
         final String word = "father";
         final BaseModelInt w2vecModel = this.prepareWord2vec();
-        wordNetUtil.calculateAnalogyScoreOfWordInput(w2vecModel, word);
+        wordNetUtil.calculateAnalogyScoreOfWordInput(w2vecModel, word, true);
+    }
+
+    @Test
+    public void testCalculateAnalogyInStandardWay() throws ModelBuildException {
+
+        final String word = "father";
+        final BaseModelInt w2vecModel = this.prepareWord2vec();
+        wordNetUtil.calculateAnalogyScoreOfWordInput(w2vecModel, word, false);
     }
 
     @Test

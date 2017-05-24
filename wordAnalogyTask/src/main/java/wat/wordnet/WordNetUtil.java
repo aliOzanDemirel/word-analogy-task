@@ -22,13 +22,15 @@ public class WordNetUtil implements WordNetUtilInt {
     private static final Logger log = LoggerFactory.getLogger(WordNetUtil.class);
     private static final boolean debugEnabled = log.isDebugEnabled();
 
-    // kullanılmıyor
-    // private HashMap<Set<IPointer>, HashSet<IWord>> multiplePointersToWordMap = null;
-
     /**
      * holds mapping of pointers in {@link #analogyTypes} to words.
      */
     private HashMap<IPointer, HashSet<IWord>> pointerToWordMap = null;
+
+    /**
+     * validated nouns, verbs, adjectives and adverbs.
+     */
+    private HashMap<POS, List<IIndexWord>> validatedWords = new HashMap<>();
 
     /**
      * while doing analogy test, this setting controls how many words of a root word's pointer are going
@@ -56,13 +58,13 @@ public class WordNetUtil implements WordNetUtilInt {
 //        add(WordNetPointers.HOLONYM_MEMBER);
 //        add(WordNetPointers.HOLONYM_PART);
 //        add(WordNetPointers.HOLONYM_SUBSTANCE);
-        add(WordNetPointers.MERONYM_MEMBER);
-        add(WordNetPointers.MERONYM_SUBSTANCE);
-        add(WordNetPointers.MERONYM_PART);
-//        add(WordNetPointers.SIMILAR_TO);
+//        add(WordNetPointers.MERONYM_MEMBER);
+//        add(WordNetPointers.MERONYM_SUBSTANCE);
+//        add(WordNetPointers.MERONYM_PART);
 //        add(WordNetPointers.MEMBER);
 //        add(WordNetPointers.VERB_GROUP);
-
+        // common relation
+//        add(WordNetPointers.SIMILAR_TO);
 //        add(WordNetPointers.ALSO_SEE);
 //        add(WordNetPointers.TOPIC);
 //        add(WordNetPointers.TOPIC_MEMBER);
@@ -148,7 +150,8 @@ public class WordNetUtil implements WordNetUtilInt {
         }
         log.info(((System.currentTimeMillis() - started) / 1000)
                 + " seconds passed while calculating score for all words."
-                + "\nAnalogy Score: " + calc.getAnalogicalPercentage());
+                + "\nAnalogy Score: " + calc.getAnalogicalPercentage()
+                + " Similarity Score: " + calc.getSimilarityPercentage());
     }
 
     /**
@@ -163,8 +166,8 @@ public class WordNetUtil implements WordNetUtilInt {
         long started = System.currentTimeMillis();
         this.calculateScoreForPOS(usedModel, partOfSpeech, isAnalogyTest);
         log.info(((System.currentTimeMillis() - started) / 1000)
-                + " seconds passed while calculating score for " + partOfSpeech.toString()
-                + "\nAnalogy Score: " + calc.getAnalogicalPercentage());
+                + " seconds passed while iterating " + partOfSpeech.toString() + "\nAnalogy Score: "
+                + calc.getAnalogicalPercentage() + " Similarity Score: " + calc.getSimilarityPercentage());
     }
 
     /**
@@ -185,8 +188,8 @@ public class WordNetUtil implements WordNetUtilInt {
     }
 
     /**
-     * calculates similarity score by summing word2vec's similarity score
-     * for given word and its synset's words as pairs.
+     * calculates similarity score by summing word2vec's similarity score for given word and
+     * its both synset's words and lexically tagged relations.
      *
      * @param usedModel
      * @param indexWordIterator
@@ -194,38 +197,55 @@ public class WordNetUtil implements WordNetUtilInt {
     private void calculateSimilarityScoreOfWordIterator(final BaseModelInt usedModel,
             final Iterator<IIndexWord> indexWordIterator) {
 
-        IIndexWord iIndexWord;
-        // asıl işlenen kelime
-        IWord rootWord;
-        List<IWordID> wordIDs;
-        int totalWordsForWordID;
         while (indexWordIterator.hasNext()) {
-            iIndexWord = indexWordIterator.next();
-            if (!this.validateWord(iIndexWord.getLemma())) {
-                wordIDs = iIndexWord.getWordIDs();
-                totalWordsForWordID = wordIDs.size();
-                for (int i = 0; i < totalWordsForWordID; i++) {
-                    // bir kelimenin farklı anlamları varsa farklı ID ile farklı Word objelerinde
-                    // birden çok olabiliyor, buradaki counter farklı ID'deki aynı kelimeler için
-                    rootWord = dict.getWord(wordIDs.get(i));
-                    this.calculateSimilarityOfWordWithItsSynset(usedModel, rootWord.getLemma(), rootWord
-                            .getSynset().getWords());
-                }
-                log.info("Similarity accuracy: " + calc.getSimilarityPercentage());
-            } else {
-                log.info(iIndexWord.getLemma() + " is not a word.");
+            final IIndexWord indexWord = indexWordIterator.next();
+            final String rootWordLemma = indexWord.getLemma();
+            if (this.validateWord(rootWordLemma) && usedModel.hasWord(rootWordLemma)) {
+                this.calculateSimilarityScoreOfIndexWord(usedModel, indexWord, rootWordLemma);
             }
         }
     }
 
-    private void calculateSimilarityOfWordWithItsSynset(final BaseModelInt usedModel,
-            final String rootWordLemma, final List<IWord> synWords) {
-        // rootun synonimi olan kelime
-        IWord synWord;
-        for (int k = 0; k < synWords.size(); k++) {
-            synWord = synWords.get(k);
-            if (usedModel.hasWord(rootWordLemma) && usedModel.hasWord(synWord.getLemma())) {
-                calc.updateSimilarityAccuracy(usedModel.getSimilarity(rootWordLemma, synWord.getLemma()));
+    private void calculateSimilarityScoreOfIndexWord(final BaseModelInt usedModel, final IIndexWord
+            indexWord, final String rootWordLemma) {
+
+        final List<IWordID> wordIDs = indexWord.getWordIDs();
+        int totalWordsForWordID = wordIDs.size();
+        for (int i = 0; i < totalWordsForWordID; i++) {
+            this.calculateSimilarityScoreOfWord(usedModel, dict.getWord(wordIDs.get(i)), rootWordLemma);
+        }
+    }
+
+    private void calculateSimilarityScoreOfWord(final BaseModelInt usedModel, final IWord rootWord,
+            final String rootWordLemma) {
+
+        // compares with words that lexically related to root word
+        this.calculateSimilarityWithRelatedWords(usedModel, rootWordLemma,
+                this.getWordsFromWordIDs(rootWord.getRelatedWords()));
+
+        // compares with words in root word's synset
+        this.calculateSimilarityWithRelatedWords(usedModel, rootWordLemma, rootWord.getSynset().getWords());
+    }
+
+    private void calculateSimilarityWithRelatedWords(final BaseModelInt usedModel,
+            final String rootWordLemma, final List<IWord> relatedWords) {
+
+        double sim;
+        int relatedWordSize = relatedWords.size();
+        for (int k = 0; k < relatedWordSize; k++) {
+
+            final String relatedWordLemma = relatedWords.get(k).getLemma();
+
+            // usedModel.hasWord(relatedWordLemma) kontrolü yapılmıyor çünkü zaten
+            // Double.NaN ile similarity metodu içinde kontrol yapılıyor
+            if (!rootWordLemma.equalsIgnoreCase(relatedWordLemma)) {
+
+                sim = usedModel.getSimilarity(rootWordLemma, relatedWordLemma);
+
+                // sim değeri NaN olmamalı
+                if (sim == sim) {
+                    calc.updateSimilarity(sim);
+                }
             }
         }
     }
@@ -238,7 +258,7 @@ public class WordNetUtil implements WordNetUtilInt {
      */
     @Override
     public void calculateAnalogyScoreOfWordInput(final BaseModelInt usedModel,
-            final String wordInput) {
+            final String wordInput, boolean onlySynsetComparison) {
 
         long start = System.currentTimeMillis();
         if (this.validateWord(wordInput)) {
@@ -255,10 +275,10 @@ public class WordNetUtil implements WordNetUtilInt {
                     log.warn(wordInput + " could not be found in WordNet.");
                 } else {
                     this.preparePointerToWordMap();
-                    this.calculateAnalogyScoreOfIndexWord(usedModel, indexWord);
+                    this.calculateAnalogyScoreOfIndexWord(usedModel, indexWord, onlySynsetComparison);
                     log.info("Took " + (System.currentTimeMillis() - start) / 1000
-                            + " seconds for word: " + wordInput
-                            + "\nAnalogy Score: " + calc.getAnalogicalPercentage());
+                            + " seconds for word: " + wordInput + "\nAnalogy Score: "
+                            + calc.getAnalogicalPercentage());
                 }
             } else if (!debugEnabled) {
                 log.info(wordInput + " is not in model's vocabulary.");
@@ -281,9 +301,13 @@ public class WordNetUtil implements WordNetUtilInt {
 
             // kelime word2vec'e yollanmaya uygun mu
             if (this.validateWord(indexWord.getLemma())) {
+
                 // kelime word2vec sözlüğünde kayıtlı mı
                 if (usedModel.hasWord(indexWord.getLemma())) {
-                    this.calculateAnalogyScoreOfIndexWord(usedModel, indexWord);
+
+                    // kelimeler iterate edilirken standart algoritma çalışacak,
+                    // sadece synset kontrol edilmeyecek
+                    this.calculateAnalogyScoreOfIndexWord(usedModel, indexWord, false);
                 } else {
                     if (debugEnabled) {
                         log.debug(indexWord.getLemma() + " is not in model's vocabulary.");
@@ -304,17 +328,18 @@ public class WordNetUtil implements WordNetUtilInt {
      * @param indexWord
      */
     private void calculateAnalogyScoreOfIndexWord(final BaseModelInt usedModel,
-            final IIndexWord indexWord) {
+            final IIndexWord indexWord, boolean onlySynsetComparison) {
 
         final List<IWordID> wordIDs = indexWord.getWordIDs();
         int totalWordsForWordID = wordIDs.size();
         for (int i = 0; i < totalWordsForWordID; i++) {
             // esas işlenen kelime
             final IWord rootWord = dict.getWord(wordIDs.get(i));
-            this.calculateAnalogicalAccuracyOfOneWord(usedModel, rootWord, rootWord.getLemma());
-        }
-        if (debugEnabled) {
-            log.debug("Analogy score after index word: " + calc.getAnalogicalPercentage());
+            if (onlySynsetComparison) {
+                this.calculateAnalogyScoreOnlySemantically(usedModel, rootWord, rootWord.getLemma());
+            } else {
+                this.calculateAnalogicalAccuracyOfOneWord(usedModel, rootWord, rootWord.getLemma());
+            }
         }
     }
 
@@ -361,11 +386,19 @@ public class WordNetUtil implements WordNetUtilInt {
                         int counter = 0;
                         final Iterator<IWord> iterator = wordsOfPointer.iterator();
                         while (iterator.hasNext() && counter < iterationCapForPointer) {
-                            counter++;
+
                             final IWord comparedWord = iterator.next();
                             comparedWordLemma = comparedWord.getLemma();
 
-                            if (usedModel.hasWord(comparedWordLemma)) {
+//                            if (usedModel.hasWord(comparedWordLemma)) {
+
+                            final double sim = usedModel.getSimilarity(rootWordLemma, comparedWordLemma);
+
+                            // sim == sim checks for NaN
+                            if (sim == sim && sim > DefaultSettingValues.MIN_SIMILARITY_FOR_COMPARISON) {
+
+                                // increase counter only if the analogy comparison is done
+                                counter++;
 
                                 // kıyaslanan kelime root veya related'la aynı olamaz
                                 if (comparedWordLemma.equalsIgnoreCase(rootWordLemma)
@@ -384,6 +417,7 @@ public class WordNetUtil implements WordNetUtilInt {
                                             rootWordLemma, relatedWordLemma, comparedWordLemma);
                                 }
                             }
+//                            }
                         }
                     }
                 }
@@ -426,7 +460,7 @@ public class WordNetUtil implements WordNetUtilInt {
                     final StringBuilder strBuilder = new StringBuilder();
                     if (debugEnabled) {
                         strBuilder.append("Related synset's meaning: ")
-                                .append(relatedSynset.getGloss()).append("\nWords in synset: ");
+                                .append(relatedSynset.getGloss()).append("\nWords in synset:\n");
                     }
                     for (IWord relatedSynsetWord : relatedSynsetWords) {
                         synsetWordLemma = relatedSynsetWord.getLemma();
@@ -434,7 +468,7 @@ public class WordNetUtil implements WordNetUtilInt {
                         // başka synset'teki kelime ile root aynı olmamalı
                         if (rootWordLemma.equalsIgnoreCase(synsetWordLemma)) {
                             if (debugEnabled) {
-                                log.debug(synsetWordLemma + " is same as root word, it cannot be checked.");
+                                strBuilder.append(synsetWordLemma).append(" is same as root word - ");
                             }
                         } else if (this.validateWord(synsetWordLemma)
                                 && usedModel.hasWord(synsetWordLemma)) {
@@ -447,10 +481,37 @@ public class WordNetUtil implements WordNetUtilInt {
                             int counterForPointerCap = 0;
                             final Iterator<IWord> iterator = wordsOfPointer.iterator();
                             while (iterator.hasNext() && counterForPointerCap < iterationCapForPointer) {
-                                counterForPointerCap++;
-                                final IWord wordToCompare = iterator.next();
-                                this.calculateSemanticAnalogyWithThirdWord(usedModel, wordToCompare,
-                                        rootWordLemma, synsetWordLemma);
+
+                                final IWord comparedWord = iterator.next();
+                                final String comparedWordLemma = comparedWord.getLemma();
+
+//                                if (usedModel.hasWord(comparedWordLemma)) {
+
+                                final double sim = usedModel.getSimilarity(rootWordLemma,
+                                        comparedWordLemma);
+                                // sim == sim checks for NaN
+                                if (sim == sim && sim > DefaultSettingValues.MIN_SIMILARITY_FOR_COMPARISON) {
+
+                                    if (comparedWordLemma.equalsIgnoreCase(rootWordLemma) ||
+                                            comparedWordLemma.equalsIgnoreCase(synsetWordLemma)) {
+                                        if (debugEnabled) {
+                                            log.debug("Word to be compared: " + comparedWordLemma
+                                                    + " is same as one of the words in pair: "
+                                                    + rootWordLemma + " - " + synsetWordLemma);
+                                        }
+                                    } else {
+                                        // bir kelime compare edildiği zaman arttırması için burada
+                                        counterForPointerCap++;
+                                        // comparedWord burada process edilen pointer'a sahip bir kelime
+                                        final List<IWord> synsetWordsOfCompared = comparedWord.getSynset()
+                                                .getWords();
+
+                                        this.compareWordPairWithGivenThird(usedModel,
+                                                synsetWordsOfCompared,
+                                                rootWordLemma, synsetWordLemma, comparedWordLemma);
+                                    }
+                                }
+//                                }
                             }
                         }
                     }
@@ -460,42 +521,6 @@ public class WordNetUtil implements WordNetUtilInt {
                 }
             }
         }
-    }
-
-    private void calculateSemanticAnalogyWithThirdWord(final BaseModelInt usedModel,
-            final IWord comparedWord, final String rootWordLemma, final String synsetWordLemma) {
-
-        final String comparedWordLemma = comparedWord.getLemma();
-
-        if (usedModel.hasWord(comparedWordLemma)) {
-
-            if (comparedWordLemma.equalsIgnoreCase(rootWordLemma) || comparedWordLemma
-                    .equalsIgnoreCase(synsetWordLemma)) {
-                if (debugEnabled) {
-                    log.debug("Word to be compared: " + comparedWordLemma
-                            + " is same as one of the words in pair: "
-                            + rootWordLemma + " - " + synsetWordLemma);
-                }
-            } else {
-
-                // comparedWord burada process edilen pointer'a sahip bir kelime
-                final List<IWord> synsetWordsOfCompared = comparedWord.getSynset().getWords();
-
-                this.compareWordPairWithGivenThird(usedModel, synsetWordsOfCompared,
-                        rootWordLemma, synsetWordLemma, comparedWordLemma);
-            }
-        }
-    }
-
-    /**
-     * @param wordIDs
-     * @return IWord equivelant of given IWordIDs.
-     */
-    private List<IWord> getWordsFromWordIDs(final List<IWordID> wordIDs) {
-
-        List<IWord> words = new ArrayList<>(wordIDs.size());
-        wordIDs.forEach(wordID -> words.add(dict.getWord(wordID)));
-        return words;
     }
 
     /**
@@ -541,11 +566,122 @@ public class WordNetUtil implements WordNetUtilInt {
                 // update analogy score and remove the word from closestWords list if there is a match
                 calc.updateAnalogicalAccuracy(expectedWordOfCompared, closestWords);
             }
-
+            // which words came from model and which words are expected will be logged in the end for a word
             if (debugEnabled) {
                 log.debug(strBuilder.toString());
             }
         }
+    }
+
+    private void calculateSemanticAnalogyByComparingSynsets(final BaseModelInt usedModel,
+            final Iterator<ISynset> synsetIterator) {
+
+        ISynset rootSynset;
+        List<ISynsetID> relatedSynsets;
+        List<IWord> words;
+        while (synsetIterator.hasNext()) {
+
+            rootSynset = synsetIterator.next();
+            relatedSynsets = rootSynset.getRelatedSynsets();
+            words = rootSynset.getWords();
+
+            for (IWord wordInRootSynset : words) {
+
+                this.calculateAnalogyScoreWithinSynset(usedModel, rootSynset, relatedSynsets,
+                        wordInRootSynset.getLemma());
+
+            }
+        }
+    }
+
+    private void calculateAnalogyScoreOnlySemantically(final BaseModelInt usedModel, final IWord rootWord,
+            final String rootWordLemma) {
+
+//        this.calculateLexicalAnalogy(usedModel, rootWord.getRelatedMap(), rootWordLemma);
+
+        final ISynset synset = rootWord.getSynset();
+        this.calculateAnalogyScoreWithinSynset(usedModel, synset, synset.getRelatedSynsets(),
+                rootWordLemma);
+    }
+
+    // bir karşılaştırma başarılı olursa root synset'teki diğer kelimeleri es geçme yapılabilir
+    private void calculateAnalogyScoreWithinSynset(final BaseModelInt usedModel, final ISynset rootSynset,
+            final List<ISynsetID> relatedSynsets, final String rootWordLemma) {
+
+        List<IWord> relatedSynWords;
+        ISynset relatedSynset;
+        final List<IWord> words = rootSynset.getWords();
+        for (final ISynsetID synID : relatedSynsets) {
+            relatedSynset = dict.getSynset(synID);
+            relatedSynWords = relatedSynset.getWords();
+
+            int relatedSynWordSize = relatedSynWords.size();
+
+            // index 'i' is for pair word in related set
+            for (int i = 0; i < relatedSynWordSize; i++) {
+                final String pairWordLemma = relatedSynWords.get(i).getLemma();
+
+                // pair word should exist in model vocab
+                if (this.validateWord(pairWordLemma) && usedModel.hasWord(pairWordLemma)) {
+
+                    // index 'k' is for iterating in related set to pick the word to compare
+                    for (int k = 0; k < relatedSynWordSize; k++) {
+
+                        final String comparedLemma = relatedSynWords.get(k).getLemma();
+
+                        // do not compare the pair word with itself (compared == pair ? continue : compared)
+                        // and if the compared word is the same as root word
+                        // and if the compared word does not exist in model's vocab or not valid
+                        if (i != k && !comparedLemma.equalsIgnoreCase(rootWordLemma) &&
+                                this.validateWord(comparedLemma) && usedModel.hasWord(comparedLemma)) {
+
+                            // words -> root synset's words, so expected result should be in this set
+                            this.compareWordPairWithGivenThird(usedModel, words, rootWordLemma,
+                                    pairWordLemma, comparedLemma);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * TODO: uygun halde bitirilmeli
+     * this method processes all words in WordNet and filters them to use for analogy task. words will be
+     * validated and checked for existence in word embedding model's vocabulary.
+     */
+    private void prepareWordsForAnalogyTask() {
+
+        for (POS partOfSpeech : POS.values()) {
+
+            // create list if it does not exist
+            List indexWords = validatedWords.get(partOfSpeech);
+            if (indexWords == null) {
+                indexWords = new ArrayList(5000);
+                validatedWords.put(partOfSpeech, indexWords);
+            }
+
+            // fill the list with validated words
+            IIndexWord indexWord;
+            final Iterator<IIndexWord> indexWordIterator = dict.getIndexWordIterator(partOfSpeech);
+            while (indexWordIterator.hasNext()) {
+                indexWord = indexWordIterator.next();
+                if (this.validateWord(indexWord.getLemma())) {
+                    indexWords.add(indexWord);
+                }
+            }
+        }
+    }
+
+    /**
+     * @param wordIDs
+     * @return IWord equivelant of given IWordIDs.
+     */
+    private List<IWord> getWordsFromWordIDs(final List<IWordID> wordIDs) {
+
+        List<IWord> words = new ArrayList<>(wordIDs.size());
+        wordIDs.forEach(wordID -> words.add(dict.getWord(wordID)));
+        return words;
     }
 
     /**
@@ -579,15 +715,14 @@ public class WordNetUtil implements WordNetUtilInt {
 
         final int totalWordsForWordID = wordIDs.size();
         for (int i = 0; i < totalWordsForWordID; i++) {
-            // bir kelimenin farklı anlamları varsa farklı ID ile farklı Word objelerinde
-            // birden çok olabiliyor
-            final IWord rootWord = dict.getWord(wordIDs.get(i));
-            this.addToOnePointerMap(rootWord);
+            // bir kelimenin farklı anlamları varsa o kelime için farklı Word objeleri
+            // olabiliyor, bunların hepsi farklı kelime gibi ele alınmalı
+            this.addToOnePointerMap(dict.getWord(wordIDs.get(i)));
         }
         return totalWordsForWordID;
     }
 
-    private void addToOnePointerMap(IWord rootWord) {
+    private void addToOnePointerMap(final IWord rootWord) {
         // lexical pointer'ın setine koy
         this.mapPointerToWord(rootWord, rootWord.getRelatedMap().keySet());
         // semantic pointer'ın setine koy
@@ -598,71 +733,18 @@ public class WordNetUtil implements WordNetUtilInt {
 
         for (IPointer pointer : pointers) {
             if (analogyTypes.contains(WordNetPointers.getByCode(pointer.getSymbol()))) {
-                HashSet<IWord> iWords = pointerToWordMap.get(pointer);
-                if (iWords == null) {
-                    iWords = new HashSet<IWord>() {{
+                HashSet<IWord> words = pointerToWordMap.get(pointer);
+                if (words == null) {
+                    words = new HashSet<IWord>() {{
                         add(word);
                     }};
-                    pointerToWordMap.put(pointer, iWords);
+                    pointerToWordMap.put(pointer, words);
                 } else {
-                    iWords.add(word);
+                    words.add(word);
                 }
             }
         }
     }
-
-    /**
-     * creates and fills {@link #multiplePointersToWordMap} by {@link #mapWordWithItsPointers(IWord, Set)}.
-     */
-/*    public void prepareMultiplePointersToWordMap() {
-
-        if (multiplePointersToWordMap == null) {
-            log.info("Creating pointers of word to word map...");
-            // map'teki toplam kelime sayısı
-            int wordCounter = 0;
-
-            // toplamda 27 tane pointer kaydediliyor
-            multiplePointersToWordMap = new HashMap<>(512);
-            for (POS partOfSpeech : POS.values()) {
-                final Iterator<IIndexWord> indexWordIterator = dict.getIndexWordIterator(partOfSpeech);
-                while (indexWordIterator.hasNext()) {
-                    final IIndexWord indexWord = indexWordIterator.next();
-                    // word2vec'de kontrol etmek istemediğimiz kelimeleri eklemesin, gerek yok.
-                    if (this.validateWord(indexWord.getLemma())) {
-
-                        final List<IWordID> wordIDs = indexWord.getWordIDs();
-                        final int totalWordsForWordID = wordIDs.size();
-
-                        for (int i = 0; i < totalWordsForWordID; i++) {
-                            // bir kelimenin farklı anlamları varsa farklı ID
-                            // ile farklı Word objelerinde birden çok olabiliyor
-                            final IWord rootWord = dict.getWord(wordIDs.get(i));
-                            // lexical pointer'ın setine koy
-                            this.mapWordWithItsPointers(rootWord, rootWord.getRelatedMap().keySet());
-                            // semantic pointer'ın setine koy
-                            this.mapWordWithItsPointers(rootWord,
-                                    rootWord.getSynset().getRelatedMap().keySet());
-                        }
-                        wordCounter += totalWordsForWordID;
-                    }
-                }
-            }
-            log.info(wordCounter + " words are mapped.");
-        }
-    }
-
-    private void mapWordWithItsPointers(IWord word, Set<IPointer> pointers) {
-
-        HashSet<IWord> iWords = multiplePointersToWordMap.get(pointers);
-        if (iWords == null) {
-            iWords = new HashSet<IWord>() {{
-                add(word);
-            }};
-            multiplePointersToWordMap.put(pointers, iWords);
-        } else {
-            iWords.add(word);
-        }
-    } */
 
     /**
      * WordNet has phrases which are connected to each other by '_'. Also it has words as '.22' or '10'
@@ -674,8 +756,7 @@ public class WordNetUtil implements WordNetUtilInt {
     public boolean validateWord(final String wordLemma) {
 
         // regex checks if a number exists
-        if ((dontComparePhrases && wordLemma.contains("_"))
-                || wordLemma.matches(".*\\d+.*")) {
+        if ((dontComparePhrases && wordLemma.contains("_")) || wordLemma.matches(".*\\d+.*")) {
             if (debugEnabled) {
                 log.debug(wordLemma + " is not a valid word.");
             }
@@ -879,7 +960,7 @@ public class WordNetUtil implements WordNetUtilInt {
     @Override
     public void setIterationCapForPointer(int iterationCap) {
 
-        if (iterationCap > DefaultSettingValues.ITERATION_CAP_FOR_POINTER) {
+        if (iterationCap > 50) {
             log.warn("Iteration cap for a pointer is set too high: " + iterationCap);
         }
         this.iterationCapForPointer = iterationCap;

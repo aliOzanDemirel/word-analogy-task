@@ -53,13 +53,7 @@ public class Word2vecUtil extends BaseModel implements BaseModelInt {
 
         params.validateCommonParams();
 
-        if (corpusPath == null || corpusPath.isEmpty()) {
-            corpusPath = System.getenv("DEFAULT_CORPUS_PATH");
-            if (corpusPath == null || corpusPath.isEmpty()) {
-                throw new ModelBuildException("DEFAULT_CORPUS_PATH is not set!");
-            }
-            log.warn("Setting corpus path to default: " + corpusPath);
-        }
+        this.validateCorpusPath();
 
         SentenceIterator sentenceIterator;
         try {
@@ -83,7 +77,8 @@ public class Word2vecUtil extends BaseModel implements BaseModelInt {
         word2vec = null;
 
         word2vec = new Word2Vec.Builder()
-                .useHierarchicSoftmax(params.isUseHierarchicSoftmax())
+                .iterate(sentenceIterator)
+                .tokenizerFactory(tokenizer)
                 .minWordFrequency(params.getMinWordFrequency())
                 .windowSize(params.getWindowSize())
                 .layerSize(params.getLayerSize())
@@ -92,13 +87,12 @@ public class Word2vecUtil extends BaseModel implements BaseModelInt {
                 .seed(params.getSeed())
                 .learningRate(params.getLearningRate())
                 .minLearningRate(params.getMinLearningRate())
-                .iterate(sentenceIterator)
-                .tokenizerFactory(tokenizer)
                 .workers(params.getWorkers())
                 .negativeSample(params.getNegative())
                 .sampling(params.getSampling())
                 // skip-gram or cbow
                 .elementsLearningAlgorithm(params.getSkipGramOrCBOW())
+                .useHierarchicSoftmax(params.isUseHierarchicSoftmax())
                 .build();
 
         long start = System.currentTimeMillis();
@@ -116,6 +110,8 @@ public class Word2vecUtil extends BaseModel implements BaseModelInt {
     // csv, binary ve dl4j compressed yüklüyor
     // loadStaticModel word vectorlere erişmek için sadece
     private void loadPretrainedModel() throws ModelBuildException {
+
+        this.validateCorpusPath();
 
         log.info("Starting to load word2vec from: " + corpusPath);
         word2vec = null;
@@ -147,6 +143,20 @@ public class Word2vecUtil extends BaseModel implements BaseModelInt {
         } catch (Exception e) {
             log.error("Cannot find the directory: " + file.getAbsolutePath(), e);
             return false;
+        }
+    }
+
+    /**
+     * modifies corpus path if it is not a valid path.
+     */
+    private void validateCorpusPath() throws ModelBuildException {
+
+        if (corpusPath == null || corpusPath.isEmpty()) {
+            corpusPath = System.getenv("DEFAULT_CORPUS_PATH");
+            if (corpusPath == null || corpusPath.isEmpty()) {
+                throw new ModelBuildException("DEFAULT_CORPUS_PATH is not set!");
+            }
+            log.warn("Setting corpus path to default: " + corpusPath);
         }
     }
 
@@ -204,12 +214,28 @@ public class Word2vecUtil extends BaseModel implements BaseModelInt {
         return (List<String>) word2vec.wordsNearest(positive, negative, closestWordSize);
     }
 
+    /**
+     * calls {@link Word2Vec#similarity(String, String)}. this method may return NaN if any of given words
+     * does not exist in vocabulary.
+     *
+     * @param firstWord
+     * @param secondWord
+     * @return cosine value [-1,1] for proximity if both words exist.
+     */
     @Override
-    public double getSimilarity(String firstWord, String secondWord) {
+    public double getSimilarity(final String firstWord, final String secondWord) {
 
-        double result = word2vec.similarity(firstWord, secondWord);
+        String message;
+        double result;
+        try {
+            result = word2vec.similarity(firstWord, secondWord);
+            message = firstWord + " - " + secondWord + " - similarity: " + result;
+        } catch (Exception e) {
+            result = Double.NaN;
+            message = firstWord + " or " + secondWord + " does not exist in vocab!";
+        }
         if (debugEnabled) {
-            log.debug("Similarity between " + firstWord + " - " + secondWord + ": " + result);
+            log.debug(message);
         }
         return result;
     }

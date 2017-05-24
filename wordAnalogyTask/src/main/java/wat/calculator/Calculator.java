@@ -117,26 +117,29 @@ public class Calculator {
         }
     }
 
-    public void updateAnalogicalAccuracy(final String relatedWordLemmaOfCompared,
-            final List<String> closestWordsFromModel) {
+    /**
+     * @param comparedWordLemma string value of compared IWord.
+     * @param expectedWords     words that returned from embedding model.
+     */
+    public void updateAnalogicalAccuracy(final String comparedWordLemma, final List<String> expectedWords) {
 
         String wordReturnedFromModel;
         totalCalculations++;
 
-        int closestWordSize = closestWordsFromModel.size();
+        int closestWordSize = expectedWords.size();
         for (int i = 0; i < closestWordSize; i++) {
-            wordReturnedFromModel = closestWordsFromModel.get(i);
-            if (relatedWordLemmaOfCompared.equalsIgnoreCase(wordReturnedFromModel)) {
+            wordReturnedFromModel = expectedWords.get(i);
+            if (comparedWordLemma.equalsIgnoreCase(wordReturnedFromModel)) {
                 if (debugEnabled) {
-                    log.debug("Related word of the compared is found in " + (i + 1)
-                            + ". result from word vectors.");
+                    log.debug(comparedWordLemma + " is found in "
+                            + (i + 1) + ". result from word vectors.");
                 }
                 analogyScore += scores[i];
                 totalMatchForAnalogy++;
                 // birden çok related kelime varsa, bunlardan 2. sıradaki closestWord listesinde de
                 // 2. sırada olabilir ama önceden 1. sıradaki başka bir related kelimeyle closestWord
                 // eşleşmişse skorda azalma olmamalı, bu yüzden match olan kelime listeden çıkarılıyor
-                closestWordsFromModel.remove(i);
+                expectedWords.remove(i);
                 break;
             }
         }
@@ -147,7 +150,7 @@ public class Calculator {
      *
      * @param similarity
      */
-    public void updateSimilarityAccuracy(final double similarity) {
+    public void updateSimilarity(final double similarity) {
 
         this.similarityScore += similarity;
         this.totalCalculations++;

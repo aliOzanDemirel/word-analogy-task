@@ -256,4 +256,11 @@ public class UserInput {
         return UserInput.getSelectionBetween(0, 3) * 10000;
     }
 
+    public static boolean getAlgorithm() {
+
+        System.out.println("0 to calculate analogy with broader relations between words (default)");
+        System.out.println("1 to calculate analogy within synsets");
+        return UserInput.getSelectionBetween(0, 1) == 1;
+    }
+
 }

@@ -28,7 +28,6 @@ public class Word2vecTrainingParams extends BaseTrainingParams {
 
     public Word2vecTrainingParams() {
 
-
         this.reset();
     }
 
@@ -45,6 +44,11 @@ public class Word2vecTrainingParams extends BaseTrainingParams {
         negative = DefaultTrainingParamValues.NEGATIVE;
         sampling = DefaultTrainingParamValues.SAMPLING;
         skipGramOrCBOW = new SkipGram();
+    }
+
+    // TODO: doldurulmalı
+    public boolean validateW2vecParams() {
+        return false;
     }
 
     @Override

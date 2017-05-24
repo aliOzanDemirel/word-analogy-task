@@ -133,7 +133,7 @@ public class ApplicationController {
         if (usedModel.isModelReady()) {
             final String wordInput = UserInput.getWordInput();
             if (wordInput != null) {
-                wordNetUtil.calculateAnalogyScoreOfWordInput(usedModel, wordInput);
+                wordNetUtil.calculateAnalogyScoreOfWordInput(usedModel, wordInput, UserInput.getAlgorithm());
                 // first save scores
                 this.saveCalculationScore();
                 // then reset all

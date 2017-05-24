@@ -9,6 +9,7 @@ import wat.training.model.BaseModelInt;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.List;
 
 public class BasicTests {
@@ -23,6 +24,16 @@ public class BasicTests {
         final List<String> returned = w2vecModel.getNearestWords(word);
 
         log.info(w2vecModel.getClosestWordSize() + " closest word for " + word);
+        returned.forEach(result -> log.info(result));
+    }
+
+    @Test
+    public void testgetClosestWords() throws ModelBuildException {
+
+        final BaseModelInt w2vecModel = WordNetTest.prepareWord2vec();
+        final List<String> returned = w2vecModel.getClosestWords(Arrays.asList("mother", "son"),
+                Arrays.asList("father"));
+
         returned.forEach(result -> log.info(result));
     }
 
