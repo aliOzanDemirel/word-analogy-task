@@ -103,14 +103,16 @@ public class WordAnalogyTask {
                         // calculate analogy score
                         final int pos = UserInput.getPOSSelection();
                         if (pos != 0) {
-                            controller.calculateScore(pos, Constants.IS_ANALOGY_TEST);
+                            controller.calculateScore(pos, Constants.IS_ANALOGY_TEST, UserInput
+                                    .getAnalogyAlgorithm());
                         }
                         break;
                     case 14:
                         // calculate similarity score
                         final int posChoice = UserInput.getPOSSelection();
                         if (posChoice != 0) {
-                            controller.calculateScore(posChoice, Constants.IS_SIMILARITY_TEST);
+                            controller.calculateScore(posChoice, Constants.IS_SIMILARITY_TEST, UserInput
+                                    .getAnalogyAlgorithm());
                         }
                         break;
                     case 15:

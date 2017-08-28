@@ -8,7 +8,7 @@ public class DefaultSettingValues {
     public static final int CLOSEST_WORD_SIZE = 10;
     public static final int ITERATION_CAP_FOR_POINTER = 10;
 
-    public static final double MIN_SIMILARITY_FOR_COMPARISON = 0.75d;
+    public static final double MIN_SIMILARITY_FOR_COMPARISON = 0.65d;
 
     public static final int WINDOW_SIZE_LEAST = 1;
     public static final int WINDOW_SIZE_CAP = 100;

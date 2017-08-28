@@ -118,20 +118,20 @@ public class Calculator {
     }
 
     /**
-     * @param comparedWordLemma string value of compared IWord.
-     * @param expectedWords     words that returned from embedding model.
+     * @param expectedWordLemma string value of compared IWord.
+     * @param closestWords      words that returned from embedding model.
      */
-    public void updateAnalogicalAccuracy(final String comparedWordLemma, final List<String> expectedWords) {
+    public void updateAnalogicalAccuracy(final String expectedWordLemma, final List<String> closestWords) {
 
         String wordReturnedFromModel;
         totalCalculations++;
 
-        int closestWordSize = expectedWords.size();
+        int closestWordSize = closestWords.size();
         for (int i = 0; i < closestWordSize; i++) {
-            wordReturnedFromModel = expectedWords.get(i);
-            if (comparedWordLemma.equalsIgnoreCase(wordReturnedFromModel)) {
+            wordReturnedFromModel = closestWords.get(i);
+            if (expectedWordLemma.equalsIgnoreCase(wordReturnedFromModel)) {
                 if (debugEnabled) {
-                    log.debug(comparedWordLemma + " is found in "
+                    log.debug(expectedWordLemma + " is found in "
                             + (i + 1) + ". result from word vectors.");
                 }
                 analogyScore += scores[i];
@@ -139,7 +139,7 @@ public class Calculator {
                 // birden çok related kelime varsa, bunlardan 2. sıradaki closestWord listesinde de
                 // 2. sırada olabilir ama önceden 1. sıradaki başka bir related kelimeyle closestWord
                 // eşleşmişse skorda azalma olmamalı, bu yüzden match olan kelime listeden çıkarılıyor
-                expectedWords.remove(i);
+                closestWords.remove(i);
                 break;
             }
         }

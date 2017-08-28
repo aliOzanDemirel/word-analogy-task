@@ -1,8 +1,10 @@
 import edu.mit.jwi.data.ILoadPolicy;
+import edu.mit.jwi.item.IIndexWord;
 import edu.mit.jwi.item.POS;
 import org.junit.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import wat.calculator.Calculator;
 import wat.exceptions.ModelBuildException;
 import wat.file.FileActions;
 import wat.helper.Constants;
@@ -10,6 +12,9 @@ import wat.training.model.BaseModelInt;
 import wat.training.model.word2vec.Word2vecUtil;
 import wat.wordnet.WordNetUtil;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class WordNetTest {
@@ -37,16 +42,32 @@ public class WordNetTest {
     public static BaseModelInt prepareWord2vec() throws ModelBuildException {
 
         final BaseModelInt w2vecModel = new Word2vecUtil();
-        w2vecModel.setCorpusPath("/home/ozan/word2vec_saved/2017-05-09_35476_trained_word2vec");
+        w2vecModel.setCorpusPath("/home/ozan/word2vec_saved/65mbtrained");
         w2vecModel.createModel(Constants.CORPUS_IS_PRETRAINED);
         return w2vecModel;
     }
 
+    public void saveCalculation(final Calculator calc, final BaseModelInt w2vecModel) {
+
+        final List<String> lines = new ArrayList<String>(3) {{
+            add("After calculation: " + calc.toString());
+            add("Analogical percentage: " + calc.getAnalogicalPercentage());
+            add("Similarity percentage: " + calc.getSimilarityPercentage());
+        }};
+
+        try {
+            FileActions.writeToFileByCreatingFile(lines,
+                    w2vecModel.getName() + "_scores", "score.txt");
+        } catch (IOException e) {
+            log.error("Scores could not be saved!", e);
+        }
+    }
+
     @Test
-    public void testCalculateAnalogyWithOnlySynsetComparison() throws ModelBuildException {
+    public void testCalculateAnalogyWithOnlySynset() throws ModelBuildException {
 
         final String word = "father";
-        final BaseModelInt w2vecModel = this.prepareWord2vec();
+        final BaseModelInt w2vecModel = WordNetTest.prepareWord2vec();
         wordNetUtil.calculateAnalogyScoreOfWordInput(w2vecModel, word, true);
     }
 
@@ -54,18 +75,29 @@ public class WordNetTest {
     public void testCalculateAnalogyInStandardWay() throws ModelBuildException {
 
         final String word = "father";
-        final BaseModelInt w2vecModel = this.prepareWord2vec();
+        final BaseModelInt w2vecModel = WordNetTest.prepareWord2vec();
         wordNetUtil.calculateAnalogyScoreOfWordInput(w2vecModel, word, false);
     }
 
     @Test
-    public void testCalculateAnalogyOfPOS() throws ModelBuildException {
+    public void testCalculateAnalogyOfNounPOSWithOnlySynset() throws ModelBuildException {
 
-        final BaseModelInt w2vecModel = this.prepareWord2vec();
+        final BaseModelInt w2vecModel = WordNetTest.prepareWord2vec();
         wordNetUtil.calculateScoreForPOSFromController(w2vecModel,
-                POS.VERB, Constants.IS_ANALOGY_TEST);
+                POS.NOUN, Constants.IS_ANALOGY_TEST, true);
+
+        this.saveCalculation(wordNetUtil.getCalc(), w2vecModel);
     }
 
+    @Test
+    public void testCalculateAnalogyOfNounPOSInStandardWay() throws ModelBuildException {
+
+        final BaseModelInt w2vecModel = WordNetTest.prepareWord2vec();
+        wordNetUtil.calculateScoreForPOSFromController(w2vecModel,
+                POS.NOUN, Constants.IS_ANALOGY_TEST, false);
+
+        this.saveCalculation(wordNetUtil.getCalc(), w2vecModel);
+    }
 
     @Test
     public void testPreparePointerToWordMap() {

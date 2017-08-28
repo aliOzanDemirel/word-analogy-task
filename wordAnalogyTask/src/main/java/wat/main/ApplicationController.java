@@ -100,21 +100,22 @@ public class ApplicationController {
      *
      * @param choice
      * @param isAnalogyTest
+     * @param onlySynsets
      * @throws IOException
      */
-    public void calculateScore(int choice, boolean isAnalogyTest) throws IOException {
+    public void calculateScore(int choice, boolean isAnalogyTest, boolean onlySynsets) throws IOException {
 
         if (usedModel.isModelReady()) {
             switch (choice) {
                 case Constants.ALL_WORDS:
-                    wordNetUtil.calculateScoreForAllWords(usedModel, isAnalogyTest);
+                    wordNetUtil.calculateScoreForAllWords(usedModel, isAnalogyTest, onlySynsets);
                     break;
                 case Constants.NOUNS_ONLY:
                 case Constants.VERBS_ONLY:
                 case Constants.ADJECTIVES_ONLY:
                 case Constants.ADVERBS_ONLY:
                     wordNetUtil.calculateScoreForPOSFromController(usedModel,
-                            POS.getPartOfSpeech(choice), isAnalogyTest);
+                            POS.getPartOfSpeech(choice), isAnalogyTest, onlySynsets);
                     break;
                 default:
                     log.error("Invalid POS choice: " + choice);
@@ -133,7 +134,7 @@ public class ApplicationController {
         if (usedModel.isModelReady()) {
             final String wordInput = UserInput.getWordInput();
             if (wordInput != null) {
-                wordNetUtil.calculateAnalogyScoreOfWordInput(usedModel, wordInput, UserInput.getAlgorithm());
+                wordNetUtil.calculateAnalogyScoreOfWordInput(usedModel, wordInput, UserInput.getAnalogyAlgorithm());
                 // first save scores
                 this.saveCalculationScore();
                 // then reset all

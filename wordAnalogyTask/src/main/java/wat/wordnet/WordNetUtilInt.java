@@ -9,10 +9,10 @@ import java.io.IOException;
 public interface WordNetUtilInt {
 
     void calculateScoreForAllWords(final BaseModelInt usedModel,
-            final boolean isAnalogyTest) throws IOException;
+            final boolean isAnalogyTest, final boolean onlySynsetComparison) throws IOException;
 
     void calculateScoreForPOSFromController(final BaseModelInt usedModel, final POS partOfSpeech,
-            final boolean isAnalogyTest) throws IOException;
+            final boolean isAnalogyTest, final boolean onlySynsetComparison) throws IOException;
 
     void calculateAnalogyScoreOfWordInput(final BaseModelInt usedModel, final String wordInput,
             boolean onlySynsetComparison);

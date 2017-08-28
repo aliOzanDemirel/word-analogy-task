@@ -19,7 +19,7 @@ public class BasicTests {
     @Test
     public void testGetNearestWords() throws ModelBuildException {
 
-        final String word = "gangster";
+        final String word = "Athens";
         final BaseModelInt w2vecModel = WordNetTest.prepareWord2vec();
         final List<String> returned = w2vecModel.getNearestWords(word);
 
@@ -31,8 +31,8 @@ public class BasicTests {
     public void testgetClosestWords() throws ModelBuildException {
 
         final BaseModelInt w2vecModel = WordNetTest.prepareWord2vec();
-        final List<String> returned = w2vecModel.getClosestWords(Arrays.asList("mother", "son"),
-                Arrays.asList("father"));
+        final List<String> returned = w2vecModel.getClosestWords(Arrays.asList("Athens", "Greece"),
+                Arrays.asList("Berlin"));
 
         returned.forEach(result -> log.info(result));
     }
